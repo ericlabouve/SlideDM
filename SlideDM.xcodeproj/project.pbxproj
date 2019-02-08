@@ -8,8 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		00B0EC7D80661BFD159B269F /* Pods_SlideDM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4E52EFAF60591DE62429DB3 /* Pods_SlideDM.framework */; };
+		482617D3220D40AC006398EE /* Contact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 482617D2220D40AC006398EE /* Contact.swift */; };
 		487724DD2207AC0900725DF8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 487724DC2207AC0900725DF8 /* AppDelegate.swift */; };
-		487724DF2207AC0900725DF8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 487724DE2207AC0900725DF8 /* ViewController.swift */; };
+		487724DF2207AC0900725DF8 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 487724DE2207AC0900725DF8 /* LoginViewController.swift */; };
 		487724E22207AC0900725DF8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 487724E02207AC0900725DF8 /* Main.storyboard */; };
 		487724E42207AC0A00725DF8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 487724E32207AC0A00725DF8 /* Assets.xcassets */; };
 		487724E72207AC0A00725DF8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 487724E52207AC0A00725DF8 /* LaunchScreen.storyboard */; };
@@ -37,9 +38,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		482617D2220D40AC006398EE /* Contact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Contact.swift; sourceTree = "<group>"; };
 		487724D92207AC0900725DF8 /* SlideDM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SlideDM.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		487724DC2207AC0900725DF8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		487724DE2207AC0900725DF8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		487724DE2207AC0900725DF8 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		487724E12207AC0900725DF8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		487724E32207AC0A00725DF8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		487724E62207AC0A00725DF8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -50,6 +52,7 @@
 		487724F82207AC0A00725DF8 /* SlideDMUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SlideDMUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		487724FC2207AC0A00725DF8 /* SlideDMUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideDMUITests.swift; sourceTree = "<group>"; };
 		487724FE2207AC0A00725DF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4877250A2207C21C00725DF8 /* SlideDM.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SlideDM.entitlements; sourceTree = "<group>"; };
 		8E117561F6FA9349F3F62CCD /* Pods-SlideDMTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SlideDMTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SlideDMTests/Pods-SlideDMTests.debug.xcconfig"; sourceTree = "<group>"; };
 		8FDF67B3E38E2B4A604EAEC2 /* Pods-SlideDM.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SlideDM.release.xcconfig"; path = "Pods/Target Support Files/Pods-SlideDM/Pods-SlideDM.release.xcconfig"; sourceTree = "<group>"; };
 		9276D9F2A567B580322933BF /* Pods-SlideDM.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SlideDM.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SlideDM/Pods-SlideDM.debug.xcconfig"; sourceTree = "<group>"; };
@@ -114,12 +117,14 @@
 		487724DB2207AC0900725DF8 /* SlideDM */ = {
 			isa = PBXGroup;
 			children = (
+				4877250A2207C21C00725DF8 /* SlideDM.entitlements */,
 				487724DC2207AC0900725DF8 /* AppDelegate.swift */,
-				487724DE2207AC0900725DF8 /* ViewController.swift */,
+				487724DE2207AC0900725DF8 /* LoginViewController.swift */,
 				487724E02207AC0900725DF8 /* Main.storyboard */,
 				487724E32207AC0A00725DF8 /* Assets.xcassets */,
 				487724E52207AC0A00725DF8 /* LaunchScreen.storyboard */,
 				487724E82207AC0A00725DF8 /* Info.plist */,
+				482617D2220D40AC006398EE /* Contact.swift */,
 			);
 			path = SlideDM;
 			sourceTree = "<group>";
@@ -237,6 +242,11 @@
 				TargetAttributes = {
 					487724D82207AC0900725DF8 = {
 						CreatedOnToolsVersion = 10.1;
+						SystemCapabilities = {
+							com.apple.Keychain = {
+								enabled = 1;
+							};
+						};
 					};
 					487724EC2207AC0A00725DF8 = {
 						CreatedOnToolsVersion = 10.1;
@@ -322,6 +332,7 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-SlideDM/Pods-SlideDM-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Bolts/Bolts.framework",
+				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/FBSDKCoreKit/FBSDKCoreKit.framework",
 				"${BUILT_PRODUCTS_DIR}/FBSDKLoginKit/FBSDKLoginKit.framework",
 				"${BUILT_PRODUCTS_DIR}/FBSDKShareKit/FBSDKShareKit.framework",
@@ -332,6 +343,7 @@
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Bolts.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptoSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBSDKCoreKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBSDKLoginKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBSDKShareKit.framework",
@@ -387,7 +399,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				487724DF2207AC0900725DF8 /* ViewController.swift in Sources */,
+				482617D3220D40AC006398EE /* Contact.swift in Sources */,
+				487724DF2207AC0900725DF8 /* LoginViewController.swift in Sources */,
 				487724DD2207AC0900725DF8 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -564,7 +577,9 @@
 			baseConfigurationReference = 9276D9F2A567B580322933BF /* Pods-SlideDM.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SlideDM/SlideDM.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CFV4L22XZM;
 				INFOPLIST_FILE = SlideDM/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -572,6 +587,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = elabouve.SlideDM;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -582,7 +598,9 @@
 			baseConfigurationReference = 8FDF67B3E38E2B4A604EAEC2 /* Pods-SlideDM.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SlideDM/SlideDM.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CFV4L22XZM;
 				INFOPLIST_FILE = SlideDM/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -590,6 +608,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = elabouve.SlideDM;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

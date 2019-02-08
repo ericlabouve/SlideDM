@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "35A091747DC1BEA72148D5ACA18770AE"
+               BlueprintIdentifier = "0B2936BC33D8E4FAE540BD6B0FA2057A"
                BuildableName = "Pods_SlideDM.framework"
                BlueprintName = "Pods-SlideDM"
                ReferencedContainer = "container:Pods.xcodeproj">
@@ -45,7 +45,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "35A091747DC1BEA72148D5ACA18770AE"
+            BlueprintIdentifier = "0B2936BC33D8E4FAE540BD6B0FA2057A"
             BuildableName = "Pods_SlideDM.framework"
             BlueprintName = "Pods-SlideDM"
             ReferencedContainer = "container:Pods.xcodeproj">
