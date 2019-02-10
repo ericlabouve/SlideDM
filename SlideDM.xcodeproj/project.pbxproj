@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		00B0EC7D80661BFD159B269F /* Pods_SlideDM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4E52EFAF60591DE62429DB3 /* Pods_SlideDM.framework */; };
 		482617D3220D40AC006398EE /* Contact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 482617D2220D40AC006398EE /* Contact.swift */; };
+		486209EE220FF1EE00AC09D4 /* SetupProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 486209ED220FF1EE00AC09D4 /* SetupProfileViewController.swift */; };
 		487724DD2207AC0900725DF8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 487724DC2207AC0900725DF8 /* AppDelegate.swift */; };
 		487724DF2207AC0900725DF8 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 487724DE2207AC0900725DF8 /* LoginViewController.swift */; };
 		487724E22207AC0900725DF8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 487724E02207AC0900725DF8 /* Main.storyboard */; };
@@ -39,6 +40,7 @@
 
 /* Begin PBXFileReference section */
 		482617D2220D40AC006398EE /* Contact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Contact.swift; sourceTree = "<group>"; };
+		486209ED220FF1EE00AC09D4 /* SetupProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SetupProfileViewController.swift; path = ../SetupProfileViewController.swift; sourceTree = "<group>"; };
 		487724D92207AC0900725DF8 /* SlideDM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SlideDM.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		487724DC2207AC0900725DF8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		487724DE2207AC0900725DF8 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 		487724DB2207AC0900725DF8 /* SlideDM */ = {
 			isa = PBXGroup;
 			children = (
+				486209ED220FF1EE00AC09D4 /* SetupProfileViewController.swift */,
 				4877250A2207C21C00725DF8 /* SlideDM.entitlements */,
 				487724DC2207AC0900725DF8 /* AppDelegate.swift */,
 				487724DE2207AC0900725DF8 /* LoginViewController.swift */,
@@ -399,6 +402,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				486209EE220FF1EE00AC09D4 /* SetupProfileViewController.swift in Sources */,
 				482617D3220D40AC006398EE /* Contact.swift in Sources */,
 				487724DF2207AC0900725DF8 /* LoginViewController.swift in Sources */,
 				487724DD2207AC0900725DF8 /* AppDelegate.swift in Sources */,

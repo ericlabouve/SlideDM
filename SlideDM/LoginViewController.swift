@@ -18,11 +18,14 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var sloganLabel: UILabel!
+    @IBOutlet weak var contactsLoginButton: UIButton!
     @IBOutlet weak var loginButton: FBSDKLoginButton!
     @IBOutlet weak var facebookDisclaimerLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        contactsLoginButton.layer.cornerRadius = 3
+        contactsLoginButton.clipsToBounds = true
         loginButton.delegate = self
 //        loginButton.readPermissions = ["public_profile", "user_friends"]
         setBackground()
@@ -39,6 +42,7 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
             self.sloganLabel.alpha = 1.0
         })
         UIView.animate(withDuration: 2.0, animations: {
+            self.contactsLoginButton.alpha = 1.0
             self.loginButton.alpha = 1.0
             self.facebookDisclaimerLabel.alpha = 1.0
         })
@@ -49,6 +53,7 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
         UIView.animate(withDuration: 1.0, animations: {
             self.titleLabel.alpha = 0
             self.sloganLabel.alpha = 0
+            self.contactsLoginButton.alpha = 0
             self.loginButton.alpha = 0
             self.facebookDisclaimerLabel.alpha = 0
         })
@@ -58,6 +63,7 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     func hideUI() {
         titleLabel.alpha = 0
         sloganLabel.alpha = 0
+        contactsLoginButton.alpha = 0
         loginButton.alpha = 0
         facebookDisclaimerLabel.alpha = 0
     }
@@ -84,16 +90,7 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
         requestFacebookFriends()
 //        requestFacebookNameAndNumber()
         fetchContacts()
-        for contact in contacts {
-            var hashes = ""
-            for hash in contact.ids {
-                hashes += hash + ", "
-            }
-            if contact.first == "Eric" {
-                print("-------------------------------------")
-            }
-            print(contact.first + " " + contact.last + " " + hashes)
-        }
+        performSegue(withIdentifier: "SetupProfileSegue", sender: nil)
     }
     
     func loginButtonDidLogOut(_ loginButton: FBSDKLoginButton!) {
@@ -139,6 +136,11 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     
     // MARK: - Contacts
     
+    @IBAction func continueWithContactsClick(_ sender: UIButton) {
+        fetchContacts()
+        performSegue(withIdentifier: "SetupProfileSegue", sender: nil)
+    }
+    
     private func fetchContacts() {
         print("Attempting to fetch contacts.")
         let store = CNContactStore()
@@ -149,29 +151,17 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
             }
             if granted {
                 print("Access granted")
-                let americanPhoneNumberLength = 11
                 let keys = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey]
                 let request = CNContactFetchRequest(keysToFetch: keys as [CNKeyDescriptor])
                 do {
                     try store.enumerateContacts(with: request, usingBlock: { (contact, stopPointerIfYouWantToStopEnumerating) in
                         var ids = [String]()
                         for number in contact.phoneNumbers {
-                            var numberStr = number.value.stringValue
-                            // Remove spaces, open/close parentheses, dashes, and pluses
-                            numberStr = numberStr.replacingOccurrences(of: " ", with: "")
-                            numberStr = numberStr.replacingOccurrences(of: ")", with: "")
-                            numberStr = numberStr.replacingOccurrences(of: "(", with: "")
-                            numberStr = numberStr.replacingOccurrences(of: "-", with: "")
-                            numberStr = numberStr.replacingOccurrences(of: "+", with: "")
-                            // Assume numbers are American if no country code is included
-                            // Ex: _408XXXXXXX as opposed to 1408XXXXXXX
-                            if numberStr.count == americanPhoneNumberLength - 1 {
-                                numberStr = "1" + numberStr
-                            }
+                            let number = LoginViewController.cleanPhoneNumber(phoneNumber: number.value.stringValue)
                             // Only keep track of contacts that have valid phone numbers
                             // Hash the phone numbers so we can't sell their phone numbers later
-                            if numberStr.count == americanPhoneNumberLength {
-                                ids.append(numberStr.sha256())
+                            if number != nil {
+                                ids.append(number!.sha256())
                             }
                         }
                         // Add contacts that contain at least one valid phone number id
@@ -186,5 +176,29 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
                 print("Access denied to Contacts :(")
             }
         }
+    }
+    
+    // Removes all punctuation from the phone number and ensures that the
+    // phone number is 11 characters long.
+    // Returns nil if the operation fails
+    public static func cleanPhoneNumber(phoneNumber: String) -> String? {
+        let americanPhoneNumberLength = 11
+        var newNumber = phoneNumber
+        // Remove spaces, open/close parentheses, dashes, and pluses
+        newNumber = newNumber.replacingOccurrences(of: " ", with: "")
+        newNumber = newNumber.replacingOccurrences(of: ")", with: "")
+        newNumber = newNumber.replacingOccurrences(of: "(", with: "")
+        newNumber = newNumber.replacingOccurrences(of: "-", with: "")
+        newNumber = newNumber.replacingOccurrences(of: "+", with: "")
+        // Assume numbers are American if no country code is included
+        // Ex: _408XXXXXXX as opposed to 1408XXXXXXX
+        if newNumber.count == americanPhoneNumberLength - 1 {
+            newNumber = "1" + newNumber
+        }
+        // Only keep track of contacts that have valid phone numbers
+        if newNumber.count == americanPhoneNumberLength && Int(newNumber) != nil {
+            return newNumber
+        }
+        return nil
     }
 }
