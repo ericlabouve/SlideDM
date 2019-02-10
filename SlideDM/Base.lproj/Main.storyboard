@@ -99,27 +99,32 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter First Name" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="T65-Yx-IDU">
-                                <rect key="frame" x="0.0" y="60" width="375" height="30"/>
-                                <nil key="textColor"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                <textInputTraits key="textInputTraits" autocapitalizationType="words" keyboardType="alphabet" textContentType="given-name"/>
-                            </textField>
-                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter Last Name" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Pec-Cy-LP5">
-                                <rect key="frame" x="0.0" y="110" width="375" height="30"/>
-                                <nil key="textColor"/>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Enter Last Name" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Pec-Cy-LP5">
+                                <rect key="frame" x="37.5" y="124" width="300" height="24"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="words" keyboardType="alphabet" textContentType="family-name"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="_placeholderLabel.textColor">
+                                        <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="" value="YES"/>
+                                </userDefinedRuntimeAttributes>
                             </textField>
-                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter Phone Number" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="CBW-56-wog">
-                                <rect key="frame" x="0.0" y="160" width="375" height="30"/>
-                                <nil key="textColor"/>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Enter Phone Number" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="CBW-56-wog">
+                                <rect key="frame" x="37.5" y="168" width="300" height="24"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" keyboardType="numberPad" textContentType="tel"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="_placeholderLabel.textColor">
+                                        <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Oho-Oh-WUK">
-                                <rect key="frame" x="128" y="210" width="119" height="24"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                                <rect key="frame" x="117.5" y="212" width="140" height="27"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                 <state key="normal" title="Why My Phone Number?"/>
                                 <connections>
                                     <action selector="whyPhoneNumberButton:" destination="ocU-Ec-hUn" eventType="touchUpInside" id="Kwd-ae-wUa"/>
@@ -142,9 +147,23 @@
                                     <constraint firstAttribute="width" constant="100" id="jMP-5P-BnG"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="24"/>
-                                <color key="textColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Enter First Name" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="T65-Yx-IDU">
+                                <rect key="frame" x="37.5" y="80" width="300" height="24"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="300" id="HqE-ja-L01"/>
+                                </constraints>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="words" keyboardType="alphabet" textContentType="given-name"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="_placeholderLabel.textColor">
+                                        <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </textField>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
@@ -153,7 +172,7 @@
                             <constraint firstItem="T65-Yx-IDU" firstAttribute="centerX" secondItem="KjW-jX-cPx" secondAttribute="centerX" id="7K8-7Y-9l8"/>
                             <constraint firstItem="3qD-1l-UyV" firstAttribute="centerX" secondItem="KjW-jX-cPx" secondAttribute="centerX" id="8eK-pM-kaw"/>
                             <constraint firstItem="CBW-56-wog" firstAttribute="width" secondItem="Pec-Cy-LP5" secondAttribute="width" id="9HH-Lp-c0b"/>
-                            <constraint firstItem="T65-Yx-IDU" firstAttribute="top" secondItem="KjW-jX-cPx" secondAttribute="top" constant="40" id="9ZD-dV-LP6"/>
+                            <constraint firstItem="T65-Yx-IDU" firstAttribute="top" secondItem="KjW-jX-cPx" secondAttribute="top" constant="60" id="9ZD-dV-LP6"/>
                             <constraint firstItem="Oho-Oh-WUK" firstAttribute="centerX" secondItem="KjW-jX-cPx" secondAttribute="centerX" id="CjH-gL-yEk"/>
                             <constraint firstItem="Pec-Cy-LP5" firstAttribute="width" secondItem="T65-Yx-IDU" secondAttribute="width" id="FrH-Sn-TJe"/>
                             <constraint firstItem="Pec-Cy-LP5" firstAttribute="top" secondItem="T65-Yx-IDU" secondAttribute="bottom" constant="20" id="Vry-H3-GKq"/>
@@ -162,11 +181,11 @@
                             <constraint firstItem="Pec-Cy-LP5" firstAttribute="centerX" secondItem="KjW-jX-cPx" secondAttribute="centerX" id="fXb-Mm-2P9"/>
                             <constraint firstItem="CBW-56-wog" firstAttribute="centerX" secondItem="KjW-jX-cPx" secondAttribute="centerX" id="oFo-6j-Uco"/>
                             <constraint firstItem="Oho-Oh-WUK" firstAttribute="top" secondItem="CBW-56-wog" secondAttribute="bottom" constant="20" id="vmv-Mt-ewz"/>
-                            <constraint firstItem="T65-Yx-IDU" firstAttribute="leading" secondItem="KjW-jX-cPx" secondAttribute="leading" id="zEi-AE-e3d"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="KjW-jX-cPx"/>
                     </view>
                     <connections>
+                        <outlet property="doneButton" destination="3qD-1l-UyV" id="Gfp-Le-Jdc"/>
                         <outlet property="firstNameTextField" destination="T65-Yx-IDU" id="hPG-ZT-y8l"/>
                         <outlet property="helloLabel" destination="SE3-Dm-Kph" id="t4P-vL-2L6"/>
                         <outlet property="lastNameTextField" destination="Pec-Cy-LP5" id="UZn-k3-6te"/>

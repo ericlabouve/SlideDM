@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>NSContactsUsageDescription</key>
-	<string>We use your contacts in combination with Facebook in order to help uniquely identify your friends. We cannot simply rely on Facebook to retrieve all your friends because they restrict access to only your Facebook friends who have also downloaded our app. </string>
+	<string>We use your contacts in combination with Facebook in order to help uniquely identify your friends.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
