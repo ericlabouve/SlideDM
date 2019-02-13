@@ -6,6 +6,9 @@
 //  Copyright © 2019 Eric LaBouve. All rights reserved.
 //
 
+// TODO:
+// Do not proceed to next page if async call to Facebook api fails...
+
 import UIKit
 import FBSDKLoginKit
 import Contacts
@@ -104,8 +107,9 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
         }
         print("Successfully logged in with facebook :)")
         requestFacebookFriends()
-//        requestFacebookNameAndNumber()
+        // requestFacebookNameAndNumber()
         continueWithContactsClick()
+        
     }
     
     func loginButtonDidLogOut(_ loginButton: FBSDKLoginButton!) {

@@ -5,6 +5,10 @@
 //  Created by Eric LaBouve on 2/9/19.
 //
 
+// TODO:
+// Authenticate each user and turn off read/write access
+// Find a better way to convert storage data to dictionaries (maybe something with JSON or Codable?).
+
 import UIKit
 import Firebase
 
