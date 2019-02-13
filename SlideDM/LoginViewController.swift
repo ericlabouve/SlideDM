@@ -13,17 +13,22 @@ import CryptoSwift
 
 class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
 
+    // User Interface
     var backgroundImageView = UIImageView()
-    var contacts = [Contact]()
-    
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var sloganLabel: UILabel!
     @IBOutlet weak var contactsLoginButton: UIButton!
     @IBOutlet weak var loginButton: FBSDKLoginButton!
     @IBOutlet weak var facebookDisclaimerLabel: UILabel!
     
+    // Meta data
+    var contacts = [Contact]()
+    
+    // MARK: - View Controller Life Cycle
+    
     override func viewDidLoad() {
-        super.viewDidLoad()
+        super.viewDidLoad()        
+        // Load UI
         contactsLoginButton.layer.cornerRadius = 3
         contactsLoginButton.clipsToBounds = true
         loginButton.delegate = self
@@ -58,6 +63,8 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
             self.facebookDisclaimerLabel.alpha = 0
         })
     }
+    
+    // MARK: - User Interface Animations
 
     // Remove the alpha from all UI elements to enable a nice fade in effect
     func hideUI() {
@@ -79,6 +86,15 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
         view.sendSubviewToBack(backgroundImageView)
     }
     
+    // MARK: - Navigation
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "SetupProfileSegue" {
+            print("Segueing to SetupProfileViewControler")
+            (segue.destination as? SetupProfileViewController)?.userContacts = contacts
+        }
+    }
+    
     // MARK: - Facebook
     
     func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error!) {
@@ -89,8 +105,7 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
         print("Successfully logged in with facebook :)")
         requestFacebookFriends()
 //        requestFacebookNameAndNumber()
-        fetchContacts()
-        performSegue(withIdentifier: "SetupProfileSegue", sender: nil)
+        continueWithContactsClick()
     }
     
     func loginButtonDidLogOut(_ loginButton: FBSDKLoginButton!) {
@@ -137,6 +152,11 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     // MARK: - Contacts
     
     @IBAction func continueWithContactsClick(_ sender: UIButton) {
+        continueWithContactsClick()
+    }
+    
+    // Method is overloaded so that it can be called from the Facebook button
+    func continueWithContactsClick() {
         fetchContacts()
         performSegue(withIdentifier: "SetupProfileSegue", sender: nil)
     }
@@ -155,18 +175,18 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
                 let request = CNContactFetchRequest(keysToFetch: keys as [CNKeyDescriptor])
                 do {
                     try store.enumerateContacts(with: request, usingBlock: { (contact, stopPointerIfYouWantToStopEnumerating) in
-                        var ids = [String]()
+                        var phoneIDs = [String]()
                         for number in contact.phoneNumbers {
                             let number = LoginViewController.cleanPhoneNumber(phoneNumber: number.value.stringValue)
                             // Only keep track of contacts that have valid phone numbers
                             // Hash the phone numbers so we can't sell their phone numbers later
                             if number != nil {
-                                ids.append(number!.sha256())
+                                phoneIDs.append(number!.sha256())
                             }
                         }
                         // Add contacts that contain at least one valid phone number id
-                        if ids.count > 0 {
-                            self.contacts.append(Contact(first: contact.givenName, last: contact.familyName, ids: ids))
+                        if phoneIDs.count > 0 {
+                            self.contacts.append(Contact(first: contact.givenName, last: contact.familyName, phoneIDs: phoneIDs))
                         }
                     })
                 } catch let err {

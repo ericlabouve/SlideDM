@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Firebase
 
 extension UITextField {
     func underlined(){
@@ -21,6 +22,7 @@ extension UITextField {
 
 class SetupProfileViewController: UIViewController, UITextFieldDelegate {
     
+    // User Interface
     var backgroundImageView = UIImageView()
     @IBOutlet weak var helloLabel: UILabel!
     @IBOutlet weak var firstNameTextField: UITextField!
@@ -29,15 +31,31 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var whyPhoneNumberButton: UIButton!
     @IBOutlet weak var doneButton: UIButton!
     
+    // Meta data
+    var user: User?
+    var userContacts: [Contact] = []
+    
     var userFirstName: String = ""
     var userLastName: String = ""
     var userEncryptedPhoneNumber: String = ""
     
+    // Firestore
+    let userPath = "users/"
+    var userColRef: CollectionReference!
+    
+    // View Controller Life Cycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Load Firestore
+        userColRef = Firestore.firestore().collection(userPath)
+        
+        // Load Delegates
         firstNameTextField.delegate = self
         lastNameTextField.delegate = self
         phoneNumberTextField.delegate = self
+        
+        // Load UI
         // TextField Background
         firstNameTextField.backgroundColor = UIColor.clear
         lastNameTextField.backgroundColor = UIColor.clear
@@ -49,17 +67,9 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         setBackground()
         hideUI()
     }
+
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
+    // MARK: - User Interface Animations
     
     // Nicely fade everything in
     override func viewDidAppear(_ animated: Bool) {
@@ -106,6 +116,19 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         view.sendSubviewToBack(backgroundImageView)
     }
     
+    // Remove the alpha from all UI elements to enable a nice fade in effect
+    func hideUI() {
+        helloLabel.alpha = 0
+        firstNameTextField.alpha = 0
+        lastNameTextField.alpha = 0
+        phoneNumberTextField.alpha = 0
+        whyPhoneNumberButton.alpha = 0
+        doneButton.alpha = 0
+    }
+    
+    
+    // MARK: - IBActions
+    
     @IBAction func doneButton(_ sender: UIButton) {
         var done = true
         // Check first name
@@ -129,7 +152,12 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         if done {
             // Move this to viewWillDisappear when setting up next view controller
             outAnimation()
+            // We now have enough information to create a User object
+            user = User(first: userFirstName, last: userLastName, phoneID: userEncryptedPhoneNumber)
+            user?.contacts = userContacts
+            saveUserToDatabase()
             // Move to next screen
+            performSegue(withIdentifier: "setupProfileToChatsSegue", sender: nil)
         } else {
             // Complain to the user
             let message = "Please fill out all the fields. Make sure that your phone number has the correct amount of digits."
@@ -147,16 +175,30 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         alert.addAction(defaultAction)
         present(alert, animated: true, completion:nil)
     }
+
     
-    // Remove the alpha from all UI elements to enable a nice fade in effect
-    func hideUI() {
-        helloLabel.alpha = 0
-        firstNameTextField.alpha = 0
-        lastNameTextField.alpha = 0
-        phoneNumberTextField.alpha = 0
-        whyPhoneNumberButton.alpha = 0
-        doneButton.alpha = 0
+    
+    
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+     // Get the new view controller using segue.destination.
+     // Pass the selected object to the new view controller.
+     }
+ 
+    
+    // MARK: - Firestore
+    
+    func saveUserToDatabase() {
+        if let user = user {
+            userColRef.addDocument(data: user.toDict())
+            print("Saved user to database.")
+        }
     }
+    
+    
+    // MARK: - UITextField Methods
     
     /**
      * Called when 'return' key pressed. return NO to ignore.

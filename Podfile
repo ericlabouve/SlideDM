@@ -10,6 +10,8 @@ target 'SlideDM' do
   pod 'FacebookLogin'
   pod 'FacebookShare'
   pod 'CryptoSwift'
+  pod 'Firebase/Core'
+  pod 'Firebase/Firestore'
 
   target 'SlideDMTests' do
     inherit! :search_paths

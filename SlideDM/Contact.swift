@@ -8,9 +8,26 @@
 
 import Foundation
 
-struct Contact {
+// A Contact is an individual that the user "knows" through their Contacts app.
+class Contact {
+    // First name
     var first: String
+    // Last name
     var last: String
     // These are the contact's hashed phone numbers
-    var ids: [String]
+    var phoneIDs: [String]
+    
+    init(first: String, last: String, phoneIDs: [String]) {
+        self.first = first
+        self.last = last
+        self.phoneIDs = phoneIDs
+    }
+    
+    func toDict() -> [String: Any] {
+        return [
+            "first" : first,
+            "last" : last,
+            "phoneIDs" : phoneIDs
+        ]
+    }
 }
