@@ -200,8 +200,10 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
     func saveUserToDatabase() {
         if let user = user {
             let ref = userColRef.addDocument(data: user.toDict())
-            userDefaults.set(ref.documentID, forKey: "userDocID")
             print("Saved user to database.")
+            UserDefaults.standard.set(ref.documentID, forKey: "userDocID")
+            UserDefaults.standard.synchronize()
+            print("Saved user ID to UserDefaults")
         }
     }
     

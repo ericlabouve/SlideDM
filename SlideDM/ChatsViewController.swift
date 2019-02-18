@@ -6,14 +6,11 @@
 //  Copyright © 2019 Eric LaBouve. All rights reserved.
 //
 
-// TODO: Refactor everything into a singleton
-
 import UIKit
-import Geofirestore
-import Firebase
 import CoreLocation
+import Firebase
 
-class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, CLLocationManagerDelegate {
+class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate { //}, CLLocationManagerDelegate {
     // User Interface
     @IBOutlet weak var tableView: UITableView!
     
@@ -21,39 +18,14 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     // Maintain this list for the TableView
     var nearbyUsers = [User]()
     
-    // Firestore
-    // Geofirestore
-    let geoFireStorePath = "geoFirestore"
-    var geoFirestoreRef: CollectionReference!
-    var geoFirestore: GeoFirestore!
-    
     // Storage
     var userDefaults = UserDefaults.standard
-    
-    // Location tracking
-    let locationManager = CLLocationManager()
     
     // View Controller Life Cycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // Load Firestore and Geofirestore
-        if geoFirestore == nil {
-            geoFirestoreRef = Firestore.firestore().collection(geoFireStorePath)
-            geoFirestore = GeoFirestore(collectionRef: geoFirestoreRef)
-            updateCurrentLocation()
-        }
-        
-        
-        // Get the user's location if we are authorized to do so AND if have not
-        // requested their location during this app session
-        if CLLocationManager.locationServicesEnabled() && !Service.shared.locationObtained {
-            // Ask permission to obtain user's location
-            self.locationManager.requestAlwaysAuthorization()
-            locationManager.delegate = self
-            locationManager.desiredAccuracy = kCLLocationAccuracyBest
-            locationManager.startUpdatingLocation()
-        }
+        // Make sure we load our location ahead of time
+        LocationService.shared.load()
 
         let fakeUser1 = User(first: "Eric", last: "LaBouve", phoneID: "123456789")
         let fakeUser2 = User(first: "Stephanie", last: "LaBouve", phoneID: "987654321")
@@ -61,28 +33,43 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
         nearbyUsers.append(fakeUser2)
     }
     
-    
-    // MARK: - Geofirestore Methods
-    func updateCurrentLocation() {
-        if let userDocID = userDefaults.object(forKey: "userDocID") as? String {
-            geoFirestore.setLocation(location: CLLocation(latitude: 37.7853889, longitude: -122.4056973), forDocumentWithID: userDocID) { (error) in
-                if (error != nil) {
-                    print("An error occured: \(String(describing: error))")
-                } else {
-                    print("Saved location successfully!")
-                }
-            }
-        } else {
-            print("An error occured in updateCurrentLocation - No userDocID found in UserDefaults.")
+    @IBAction func loadContactsButton(_ sender: UIButton) {
+        if let center = LocationService.shared.userLocation {
+            // 5 miles = 8.04672 kilometers
+            var circleQuery = FirestoreService.shared.geoFirestore.query(withCenter: center, radius: 8.04672)
+            
+            // Refactor this into FirestoreService later
+            circleQuery.observe(.documentEntered, with: { (key: String?, location: CLLocation?) in
+                // Load each user corresponding to each document key
+                //Firestore.firestore().collection("users/").whereField("", isEqualTo: key!)
+            })
+            
         }
     }
     
+    // Loads all users from firestore
+    func loadNearbyUsers() {
+        
+        // THIS IS REALLY BAD BUT IDK HOW ELSE TO MAKE SURE THE USER'S LOCATION IS SET
+//        while LocationService.shared.userLocation == nil {
+//            // Wait until app has located itself
+//        }
+        
+        if let center = LocationService.shared.userLocation {
+            // 5 miles = 8.04672 kilometers
+            var circleQuery = FirestoreService.shared.geoFirestore.query(withCenter: center, radius: 8.04672)
+            
 
+        } else {
+            print("user Location not yet ready")
+        }
+    }
   
+    /*
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
-/*    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destination.
         // Pass the selected object to the new view controller.
     }
@@ -114,17 +101,6 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     // Set the height of each of the rows
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 90
-    }
-    
-    
-    // MARK: - Core Location
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        let userLocation:CLLocation = locations[0] as CLLocation
-        print("locations = \(userLocation.coordinate.latitude) \(userLocation.coordinate.longitude)")
-        // Stop listening for location updates
-        manager.stopUpdatingLocation()
-        Service.shared.locationObtained = true
     }
 
 }
