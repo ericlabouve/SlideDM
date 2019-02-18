@@ -16,23 +16,23 @@
 
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
+#import <GRPCClient/GRPCCall.h>
+
 #include <cinttypes>
-#include <set>
 #include <string>
 #include <utility>
 #include <vector>
 
-#import "Firestore/Protos/objc/google/firestore/v1/Common.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1/Firestore.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1/Query.pbobjc.h"
-#import "Firestore/Protos/objc/google/firestore/v1/Write.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Query.pbobjc.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 
 #import "FIRFirestoreErrors.h"
 #import "FIRGeoPoint.h"
-#import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -67,7 +67,6 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::TargetId;
 using firebase::firestore::model::TransformOperation;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -145,22 +144,23 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (ResourcePath)decodedResourcePathWithDatabaseID:(NSString *)name {
-  const ResourcePath path = ResourcePath::FromString(util::MakeString(name));
+  const ResourcePath path = ResourcePath::FromString(util::MakeStringView(name));
   HARD_ASSERT([self validQualifiedResourcePath:path], "Tried to deserialize invalid key %s",
               path.CanonicalString());
   return path;
 }
 
 - (NSString *)encodedQueryPath:(const ResourcePath &)path {
+  if (path.size() == 0) {
+    // If the path is empty, the backend requires we leave off the /documents at the end.
+    return [self encodedDatabaseID];
+  }
   return [self encodedResourcePathForDatabaseID:self.databaseID path:path];
 }
 
 - (ResourcePath)decodedQueryPath:(NSString *)name {
   const ResourcePath resource = [self decodedResourcePathWithDatabaseID:name];
   if (resource.size() == 4) {
-    // In v1beta1 queries for collections at the root did not have a trailing "/documents". In v1
-    // all resource paths contain "/documents". Preserve the ability to read the v1beta1 form for
-    // compatibility with queries persisted in the local query cache.
     return ResourcePath{};
   } else {
     return [self localResourcePathForQualifiedResourcePath:resource];
@@ -216,8 +216,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   } else if (fieldClass == [FSTReferenceValue class]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)fieldValue;
-    DocumentKey key = [[ref value] key];
-    return [self encodedReferenceValueForDatabaseID:[ref databaseID] key:key];
+    return [self encodedReferenceValueForDatabaseID:[ref databaseID] key:[ref value]];
 
   } else if (fieldClass == [FSTObjectValue class]) {
     GCFSValue *result = [GCFSValue message];
@@ -438,11 +437,7 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT(version != SnapshotVersion::None(),
               "Got a document response with no snapshot version");
 
-  return [FSTDocument documentWithData:value
-                                   key:key
-                               version:version
-                                 state:FSTDocumentStateSynced
-                                 proto:response.found];
+  return [FSTDocument documentWithData:value key:key version:version hasLocalMutations:NO];
 }
 
 - (FSTDeletedDocument *)decodedDeletedDocument:(GCFSBatchGetDocumentsResponse *)response {
@@ -451,7 +446,7 @@ NS_ASSUME_NONNULL_BEGIN
   SnapshotVersion version = [self decodedVersion:response.readTime];
   HARD_ASSERT(version != SnapshotVersion::None(),
               "Got a no document response with no snapshot version");
-  return [FSTDeletedDocument documentWithKey:key version:version hasCommittedMutations:NO];
+  return [FSTDeletedDocument documentWithKey:key version:version];
 }
 
 #pragma mark - FSTMutation => GCFSWrite proto
@@ -570,9 +565,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FieldMask)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
-  std::set<FieldPath> fields;
+  std::vector<FieldPath> fields;
+  fields.reserve(fieldMask.fieldPathsArray_Count);
   for (NSString *path in fieldMask.fieldPathsArray) {
-    fields.insert(FieldPath::FromServerFormat(util::MakeString(path)));
+    fields.push_back(FieldPath::FromServerFormat(util::MakeStringView(path)));
   }
   return FieldMask(std::move(fields));
 }
@@ -631,7 +627,7 @@ NS_ASSUME_NONNULL_BEGIN
             proto.setToServerValue == GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime,
             "Unknown transform setToServerValue: %s", proto.setToServerValue);
         fieldTransforms.emplace_back(
-            FieldPath::FromServerFormat(util::MakeString(proto.fieldPath)),
+            FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
             absl::make_unique<ServerTimestampTransform>(ServerTimestampTransform::Get()));
         break;
       }
@@ -640,7 +636,7 @@ NS_ASSUME_NONNULL_BEGIN
         std::vector<FSTFieldValue *> elements =
             [self decodedArrayTransformElements:proto.appendMissingElements];
         fieldTransforms.emplace_back(
-            FieldPath::FromServerFormat(util::MakeString(proto.fieldPath)),
+            FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
             absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayUnion,
                                               std::move(elements)));
         break;
@@ -650,7 +646,7 @@ NS_ASSUME_NONNULL_BEGIN
         std::vector<FSTFieldValue *> elements =
             [self decodedArrayTransformElements:proto.removeAllFromArray_p];
         fieldTransforms.emplace_back(
-            FieldPath::FromServerFormat(util::MakeString(proto.fieldPath)),
+            FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
             absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayRemove,
                                               std::move(elements)));
         break;
@@ -674,11 +670,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTMutationResult <= GCFSWriteResult proto
 
-- (FSTMutationResult *)decodedMutationResult:(GCFSWriteResult *)mutation
-                               commitVersion:(const SnapshotVersion &)commitVersion {
-  // NOTE: Deletes don't have an updateTime. Use commitVersion instead.
-  SnapshotVersion version =
-      mutation.hasUpdateTime ? [self decodedVersion:mutation.updateTime] : commitVersion;
+- (FSTMutationResult *)decodedMutationResult:(GCFSWriteResult *)mutation {
+  // NOTE: Deletes don't have an updateTime.
+  absl::optional<SnapshotVersion> version;
+  if (mutation.updateTime) {
+    version = [self decodedVersion:mutation.updateTime];
+  }
   NSMutableArray *_Nullable transformResults = nil;
   if (mutation.transformResultsArray.count > 0) {
     transformResults = [NSMutableArray array];
@@ -805,7 +802,7 @@ NS_ASSUME_NONNULL_BEGIN
     path = path.Append(util::MakeString(from.collectionId));
   }
 
-  NSArray<FSTFilter *> *filterBy;
+  NSArray<id<FSTFilter>> *filterBy;
   if (query.hasWhere) {
     filterBy = [self decodedFilters:query.where];
   } else {
@@ -844,14 +841,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Filters
 
-- (GCFSStructuredQuery_Filter *_Nullable)encodedFilters:(NSArray<FSTFilter *> *)filters {
+- (GCFSStructuredQuery_Filter *_Nullable)encodedFilters:(NSArray<id<FSTFilter>> *)filters {
   if (filters.count == 0) {
     return nil;
   }
   NSMutableArray<GCFSStructuredQuery_Filter *> *protos = [NSMutableArray array];
-  for (FSTFilter *filter in filters) {
+  for (id<FSTFilter> filter in filters) {
     if ([filter isKindOfClass:[FSTRelationFilter class]]) {
-      [protos addObject:[self encodedRelationFilter:(FSTRelationFilter *)filter]];
+      [protos addObject:[self encodedRelationFilter:filter]];
     } else {
       [protos addObject:[self encodedUnaryFilter:filter]];
     }
@@ -867,8 +864,8 @@ NS_ASSUME_NONNULL_BEGIN
   return composite;
 }
 
-- (NSArray<FSTFilter *> *)decodedFilters:(GCFSStructuredQuery_Filter *)proto {
-  NSMutableArray<FSTFilter *> *result = [NSMutableArray array];
+- (NSArray<id<FSTFilter>> *)decodedFilters:(GCFSStructuredQuery_Filter *)proto {
+  NSMutableArray<id<FSTFilter>> *result = [NSMutableArray array];
 
   NSArray<GCFSStructuredQuery_Filter *> *filters;
   if (proto.filterTypeOneOfCase ==
@@ -916,7 +913,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [FSTRelationFilter filterWithField:fieldPath filterOperator:filterOperator value:value];
 }
 
-- (GCFSStructuredQuery_Filter *)encodedUnaryFilter:(FSTFilter *)filter {
+- (GCFSStructuredQuery_Filter *)encodedUnaryFilter:(id<FSTFilter>)filter {
   GCFSStructuredQuery_Filter *proto = [GCFSStructuredQuery_Filter message];
   proto.unaryFilter.field = [self encodedFieldPath:filter.field];
   if ([filter isKindOfClass:[FSTNanFilter class]]) {
@@ -929,7 +926,7 @@ NS_ASSUME_NONNULL_BEGIN
   return proto;
 }
 
-- (FSTFilter *)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
+- (id<FSTFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
   FieldPath field = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   switch (proto.op) {
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNan:
@@ -1147,13 +1144,8 @@ NS_ASSUME_NONNULL_BEGIN
   const DocumentKey key = [self decodedDocumentKey:change.document.name];
   SnapshotVersion version = [self decodedVersion:change.document.updateTime];
   HARD_ASSERT(version != SnapshotVersion::None(), "Got a document change with no snapshot version");
-  // The document may soon be re-serialized back to protos in order to store it in local
-  // persistence. Memoize the encoded form to avoid encoding it again.
-  FSTMaybeDocument *document = [FSTDocument documentWithData:value
-                                                         key:key
-                                                     version:version
-                                                       state:FSTDocumentStateSynced
-                                                       proto:change.document];
+  FSTMaybeDocument *document =
+      [FSTDocument documentWithData:value key:key version:version hasLocalMutations:NO];
 
   NSArray<NSNumber *> *updatedTargetIds = [self decodedIntegerArray:change.targetIdsArray];
   NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
@@ -1168,9 +1160,7 @@ NS_ASSUME_NONNULL_BEGIN
   const DocumentKey key = [self decodedDocumentKey:change.document];
   // Note that version might be unset in which case we use SnapshotVersion::None()
   SnapshotVersion version = [self decodedVersion:change.readTime];
-  FSTMaybeDocument *document = [FSTDeletedDocument documentWithKey:key
-                                                           version:version
-                                             hasCommittedMutations:NO];
+  FSTMaybeDocument *document = [FSTDeletedDocument documentWithKey:key version:version];
 
   NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
 
@@ -1193,7 +1183,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTExistenceFilterWatchChange *)decodedExistenceFilterWatchChange:(GCFSExistenceFilter *)filter {
   // TODO(dimond): implement existence filter parsing
   FSTExistenceFilter *existenceFilter = [FSTExistenceFilter filterWithCount:filter.count];
-  TargetId targetID = filter.targetId;
+  FSTTargetID targetID = filter.targetId;
   return [FSTExistenceFilterWatchChange changeWithFilter:existenceFilter targetID:targetID];
 }
 

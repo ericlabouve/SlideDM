@@ -25,7 +25,6 @@
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
-#include "absl/base/attributes.h"
 
 namespace firebase {
 namespace firestore {
@@ -43,8 +42,8 @@ struct Empty {
 }  // namespace impl
 
 template <typename K,
-          typename C = util::Comparator<K>,
           typename V = impl::Empty,
+          typename C = util::Comparator<K>,
           typename M = SortedMap<K, V, C>>
 class SortedSet {
  public:
@@ -77,11 +76,11 @@ class SortedSet {
     return map_.size();
   }
 
-  ABSL_MUST_USE_RESULT SortedSet insert(const K& key) const {
+  SortedSet insert(const K& key) const {
     return SortedSet{map_.insert(key, {})};
   }
 
-  ABSL_MUST_USE_RESULT SortedSet erase(const K& key) const {
+  SortedSet erase(const K& key) const {
     return SortedSet{map_.erase(key)};
   }
 
@@ -146,9 +145,9 @@ class SortedSet {
   M map_;
 };
 
-template <typename K, typename C, typename V>
-SortedSet<K, C, V> MakeSortedSet(const SortedMap<K, V, C>& map) {
-  return SortedSet<K, C, V>{map};
+template <typename K, typename V, typename C>
+SortedSet<K, V, C> MakeSortedSet(const SortedMap<K, V, C>& map) {
+  return SortedSet<K, V, C>{map};
 }
 
 }  // namespace immutable

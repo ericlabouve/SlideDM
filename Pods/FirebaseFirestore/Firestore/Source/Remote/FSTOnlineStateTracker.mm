@@ -15,49 +15,40 @@
  */
 
 #import "Firestore/Source/Remote/FSTOnlineStateTracker.h"
-
-#include <chrono>  // NOLINT(build/c++11)
-
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
-#include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
-namespace chr = std::chrono;
-using firebase::firestore::model::OnlineState;
-using firebase::firestore::util::AsyncQueue;
-using firebase::firestore::util::DelayedOperation;
-using firebase::firestore::util::TimerId;
-
 NS_ASSUME_NONNULL_BEGIN
 
-namespace {
-
 // To deal with transient failures, we allow multiple stream attempts before giving up and
-// transitioning from OnlineState Unknown to Offline.
-// TODO(mikelehen): This used to be set to 2 as a mitigation for b/66228394. @jdimond thinks that
-// bug is sufficiently fixed so that we can set this back to 1. If that works okay, we could
-// potentially remove this logic entirely.
-const int kMaxWatchStreamFailures = 1;
+// transitioning from FSTOnlineState Unknown to Offline.
+static const int kMaxWatchStreamFailures = 2;
 
 // To deal with stream attempts that don't succeed or fail in a timely manner, we have a
-// timeout for OnlineState to reach Online or Offline. If the timeout is reached, we transition
+// timeout for FSTOnlineState to reach Online or Offline. If the timeout is reached, we transition
 // to Offline rather than waiting indefinitely.
-const AsyncQueue::Milliseconds kOnlineStateTimeout = chr::seconds(10);
-
-}  // namespace
+static const NSTimeInterval kOnlineStateTimeout = 10;
 
 @interface FSTOnlineStateTracker ()
 
-/** The current OnlineState. */
-@property(nonatomic, assign) OnlineState state;
+/** The current FSTOnlineState. */
+@property(nonatomic, assign) FSTOnlineState state;
 
 /**
  * A count of consecutive failures to open the stream. If it reaches the maximum defined by
- * kMaxWatchStreamFailures, we'll revert to OnlineState::Offline.
+ * kMaxWatchStreamFailures, we'll revert to FSTOnlineStateOffline.
  */
 @property(nonatomic, assign) int watchStreamFailures;
+
+/**
+ * A timer that elapses after kOnlineStateTimeout, at which point we transition from FSTOnlineState
+ * Unknown to Offline without waiting for the stream to actually fail (kMaxWatchStreamFailures
+ * times).
+ */
+@property(nonatomic, strong, nullable) FSTDelayedCallback *onlineStateTimer;
 
 /**
  * Whether the client should log a warning message if it fails to connect to the backend
@@ -65,24 +56,16 @@ const AsyncQueue::Milliseconds kOnlineStateTimeout = chr::seconds(10);
  */
 @property(nonatomic, assign) BOOL shouldWarnClientIsOffline;
 
+/** The FSTDispatchQueue to use for running timers (and to call onlineStateDelegate). */
+@property(nonatomic, strong, readonly) FSTDispatchQueue *queue;
+
 @end
 
-@implementation FSTOnlineStateTracker {
-  /**
-   * A timer that elapses after kOnlineStateTimeout, at which point we transition from OnlineState
-   * Unknown to Offline without waiting for the stream to actually fail (kMaxWatchStreamFailures
-   * times).
-   */
-  DelayedOperation _onlineStateTimer;
-
-  /** The worker queue to use for running timers (and to call onlineStateDelegate). */
-  AsyncQueue *_workerQueue;
-}
-
-- (instancetype)initWithWorkerQueue:(AsyncQueue *)workerQueue {
+@implementation FSTOnlineStateTracker
+- (instancetype)initWithWorkerDispatchQueue:(FSTDispatchQueue *)queue {
   if (self = [super init]) {
-    _workerQueue = workerQueue;
-    _state = OnlineState::Unknown;
+    _queue = queue;
+    _state = FSTOnlineStateUnknown;
     _shouldWarnClientIsOffline = YES;
   }
   return self;
@@ -90,35 +73,38 @@ const AsyncQueue::Milliseconds kOnlineStateTimeout = chr::seconds(10);
 
 - (void)handleWatchStreamStart {
   if (self.watchStreamFailures == 0) {
-    [self setAndBroadcastState:OnlineState::Unknown];
+    [self setAndBroadcastState:FSTOnlineStateUnknown];
 
-    HARD_ASSERT(!_onlineStateTimer, "_onlineStateTimer shouldn't be started yet");
-    _onlineStateTimer =
-        _workerQueue->EnqueueAfterDelay(kOnlineStateTimeout, TimerId::OnlineStateTimeout, [self] {
-          _onlineStateTimer = {};
-          HARD_ASSERT(self.state == OnlineState::Unknown,
-                      "Timer should be canceled if we transitioned to a different state.");
-          [self logClientOfflineWarningIfNecessaryWithReason:
-                    [NSString stringWithFormat:@"Backend didn't respond within %lld seconds.",
-                                               chr::duration_cast<chr::seconds>(kOnlineStateTimeout)
-                                                   .count()]];
-          [self setAndBroadcastState:OnlineState::Offline];
+    HARD_ASSERT(!self.onlineStateTimer, "onlineStateTimer shouldn't be started yet");
+    self.onlineStateTimer = [self.queue
+        dispatchAfterDelay:kOnlineStateTimeout
+                   timerID:FSTTimerIDOnlineStateTimeout
+                     block:^{
+                       self.onlineStateTimer = nil;
+                       HARD_ASSERT(
+                           self.state == FSTOnlineStateUnknown,
+                           "Timer should be canceled if we transitioned to a different state.");
+                       [self logClientOfflineWarningIfNecessaryWithReason:
+                                 [NSString
+                                     stringWithFormat:@"Backend didn't respond within %f seconds.",
+                                                      kOnlineStateTimeout]];
+                       [self setAndBroadcastState:FSTOnlineStateOffline];
 
-          // NOTE: handleWatchStreamFailure will continue to increment
-          // watchStreamFailures even though we are already marked Offline but this is
-          // non-harmful.
-        });
+                       // NOTE: handleWatchStreamFailure will continue to increment
+                       // watchStreamFailures even though we are already marked Offline but this is
+                       // non-harmful.
+                     }];
   }
 }
 
 - (void)handleWatchStreamFailure:(NSError *)error {
-  if (self.state == OnlineState::Online) {
-    [self setAndBroadcastState:OnlineState::Unknown];
+  if (self.state == FSTOnlineStateOnline) {
+    [self setAndBroadcastState:FSTOnlineStateUnknown];
 
-    // To get to OnlineState::Online, updateState: must have been called which would have reset
+    // To get to FSTOnlineStateOnline, updateState: must have been called which would have reset
     // our heuristics.
     HARD_ASSERT(self.watchStreamFailures == 0, "watchStreamFailures must be 0");
-    HARD_ASSERT(!_onlineStateTimer, "_onlineStateTimer must not be set yet");
+    HARD_ASSERT(!self.onlineStateTimer, "onlineStateTimer must be nil");
   } else {
     self.watchStreamFailures++;
     if (self.watchStreamFailures >= kMaxWatchStreamFailures) {
@@ -126,16 +112,16 @@ const AsyncQueue::Milliseconds kOnlineStateTimeout = chr::seconds(10);
       [self logClientOfflineWarningIfNecessaryWithReason:
                 [NSString stringWithFormat:@"Connection failed %d times. Most recent error: %@",
                                            kMaxWatchStreamFailures, error]];
-      [self setAndBroadcastState:OnlineState::Offline];
+      [self setAndBroadcastState:FSTOnlineStateOffline];
     }
   }
 }
 
-- (void)updateState:(OnlineState)newState {
+- (void)updateState:(FSTOnlineState)newState {
   [self clearOnlineStateTimer];
   self.watchStreamFailures = 0;
 
-  if (newState == OnlineState::Online) {
+  if (newState == FSTOnlineStateOnline) {
     // We've connected to watch at least once. Don't warn the developer about being offline going
     // forward.
     self.shouldWarnClientIsOffline = NO;
@@ -144,7 +130,7 @@ const AsyncQueue::Milliseconds kOnlineStateTimeout = chr::seconds(10);
   [self setAndBroadcastState:newState];
 }
 
-- (void)setAndBroadcastState:(OnlineState)newState {
+- (void)setAndBroadcastState:(FSTOnlineState)newState {
   if (newState != self.state) {
     self.state = newState;
     [self.onlineStateDelegate applyChangedOnlineState:newState];
@@ -167,7 +153,10 @@ const AsyncQueue::Milliseconds kOnlineStateTimeout = chr::seconds(10);
 }
 
 - (void)clearOnlineStateTimer {
-  _onlineStateTimer.Cancel();
+  if (self.onlineStateTimer) {
+    [self.onlineStateTimer cancel];
+    self.onlineStateTimer = nil;
+  }
 }
 
 @end

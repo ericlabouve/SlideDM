@@ -16,20 +16,17 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Core/FSTTypes.h"
+
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
-#include "Firestore/core/src/firebase/firestore/local/query_cache.h"
-#include "Firestore/core/src/firebase/firestore/local/reference_set.h"
-#include "Firestore/core/src/firebase/firestore/local/remote_document_cache.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
 
-@class FSTQueryData;
+@class FSTDocumentKey;
 @protocol FSTMutationQueue;
-@protocol FSTReferenceDelegate;
-
-struct FSTTransactionRunner;
+@protocol FSTQueryCache;
+@class FSTQueryData;
+@protocol FSTRemoteDocumentCache;
+@class FSTReferenceSet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -63,7 +60,17 @@ NS_ASSUME_NONNULL_BEGIN
  * FSTPersistence. The cost is that the FSTLocalStore needs to be slightly careful about the order
  * of its reads and writes in order to avoid relying on being able to read back uncommitted writes.
  */
+struct FSTTransactionRunner;
+@protocol FSTReferenceDelegate;
 @protocol FSTPersistence <NSObject>
+
+/**
+ * Starts persistent storage, opening the database or similar.
+ *
+ * @param error An error object that will be populated if startup fails.
+ * @return YES if persistent storage started successfully, NO otherwise.
+ */
+- (BOOL)start:(NSError **)error;
 
 /** Releases any resources held during eager shutdown. */
 - (void)shutdown;
@@ -79,10 +86,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<FSTMutationQueue>)mutationQueueForUser:(const firebase::firestore::auth::User &)user;
 
 /** Creates an FSTQueryCache representing the persisted cache of queries. */
-- (firebase::firestore::local::QueryCache *)queryCache;
+- (id<FSTQueryCache>)queryCache;
 
 /** Creates an FSTRemoteDocumentCache representing the persisted cache of remote documents. */
-- (firebase::firestore::local::RemoteDocumentCache *)remoteDocumentCache;
+- (id<FSTRemoteDocumentCache>)remoteDocumentCache;
 
 @property(nonatomic, readonly, assign) const FSTTransactionRunner &run;
 
@@ -90,10 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
  * This property provides access to hooks around the document reference lifecycle. It is initially
  * nullable while being implemented, but the goal is to eventually have it be non-nil.
  */
-@property(nonatomic, readonly, strong) id<FSTReferenceDelegate> referenceDelegate;
-
-@property(nonatomic, readonly)
-    firebase::firestore::model::ListenSequenceNumber currentSequenceNumber;
+@property(nonatomic, readonly, strong) _Nullable id<FSTReferenceDelegate> referenceDelegate;
 
 @end
 
@@ -116,13 +120,13 @@ NS_ASSUME_NONNULL_BEGIN
  * Implementations that care about sequence numbers are responsible for generating them and making
  * them available.
  */
-@protocol FSTReferenceDelegate <NSObject>
+@protocol FSTReferenceDelegate
 
 /**
  * Registers an FSTReferenceSet of documents that should be considered 'referenced' and not eligible
  * for removal during garbage collection.
  */
-- (void)addInMemoryPins:(firebase::firestore::local::ReferenceSet *)set;
+- (void)addInMemoryPins:(FSTReferenceSet *)set;
 
 /**
  * Notify the delegate that a target was removed.
@@ -130,27 +134,24 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeTarget:(FSTQueryData *)queryData;
 
 /**
- * Notify the delegate that the given document was added to a target.
+ * Notify the delegate that the given document was added to the given target.
  */
-- (void)addReference:(const firebase::firestore::model::DocumentKey &)key;
+- (void)addReference:(FSTDocumentKey *)key target:(FSTTargetID)targetID;
 
 /**
- * Notify the delegate that the given document was removed from a target.
+ * Notify the delegate that the given document was removed from the given target.
  */
-- (void)removeReference:(const firebase::firestore::model::DocumentKey &)key;
+- (void)removeReference:(FSTDocumentKey *)key target:(FSTTargetID)targetID;
 
 /**
  * Notify the delegate that a document is no longer being mutated by the user.
  */
-- (void)removeMutationReference:(const firebase::firestore::model::DocumentKey &)key;
+- (void)removeMutationReference:(FSTDocumentKey *)key;
 
 /**
  * Notify the delegate that a limbo document was updated.
  */
-- (void)limboDocumentUpdated:(const firebase::firestore::model::DocumentKey &)key;
-
-@property(nonatomic, readonly)
-    firebase::firestore::model::ListenSequenceNumber currentSequenceNumber;
+- (void)limboDocumentUpdated:(FSTDocumentKey *)key;
 
 @end
 

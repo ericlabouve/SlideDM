@@ -11,7 +11,8 @@ target 'SlideDM' do
   pod 'FacebookShare'
   pod 'CryptoSwift'
   pod 'Firebase/Core'
-  pod 'Firebase/Firestore'
+  pod 'Firebase/Firestore'  
+  pod 'Geofirestore'
 
   target 'SlideDMTests' do
     inherit! :search_paths

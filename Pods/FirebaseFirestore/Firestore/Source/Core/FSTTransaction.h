@@ -20,12 +20,12 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 
-#include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 @class FSTDatastore;
 @class FSTMaybeDocument;
 @class FSTObjectValue;
+@class FSTParsedSetData;
 @class FSTParsedUpdateData;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -49,14 +49,14 @@ NS_ASSUME_NONNULL_BEGIN
  * Stores mutation for the given key and set data, to be committed when commitWithCompletion is
  * called.
  */
-- (void)setData:(firebase::firestore::core::ParsedSetData &&)data
+- (void)setData:(FSTParsedSetData *)data
     forDocument:(const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * Stores mutations for the given key and update data, to be committed when commitWithCompletion
  * is called.
  */
-- (void)updateData:(firebase::firestore::core::ParsedUpdateData &&)data
+- (void)updateData:(FSTParsedUpdateData *)data
        forDocument:(const firebase::firestore::model::DocumentKey &)key;
 
 /**

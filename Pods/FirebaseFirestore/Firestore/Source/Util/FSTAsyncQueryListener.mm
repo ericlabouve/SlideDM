@@ -16,7 +16,9 @@
 
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 
-using firebase::firestore::util::Executor;
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
+
+using firebase::firestore::util::internal::Executor;
 
 @implementation FSTAsyncQueryListener {
   volatile BOOL _muted;

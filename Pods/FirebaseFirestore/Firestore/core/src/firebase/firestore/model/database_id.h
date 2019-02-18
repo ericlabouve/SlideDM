@@ -45,7 +45,7 @@ class DatabaseId {
    * @param project_id The project for the database.
    * @param database_id The database in the project to use.
    */
-  DatabaseId(std::string project_id, std::string database_id);
+  DatabaseId(absl::string_view project_id, absl::string_view database_id);
 
   const std::string& project_id() const {
     return project_id_;

@@ -23,9 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *const kDefaultHost = @"firestore.googleapis.com";
 static const BOOL kDefaultSSLEnabled = YES;
 static const BOOL kDefaultPersistenceEnabled = YES;
-static const int64_t kDefaultCacheSizeBytes = 100 * 1024 * 1024;
-static const int64_t kMinimumCacheSizeBytes = 1 * 1024 * 1024;
-static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
+// TODO(b/73820332): flip the default.
+static const BOOL kDefaultTimestampsInSnapshotsEnabled = NO;
 
 @implementation FIRFirestoreSettings
 
@@ -36,7 +35,6 @@ static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
     _dispatchQueue = dispatch_get_main_queue();
     _persistenceEnabled = kDefaultPersistenceEnabled;
     _timestampsInSnapshotsEnabled = kDefaultTimestampsInSnapshotsEnabled;
-    _cacheSizeBytes = kDefaultCacheSizeBytes;
   }
   return self;
 }
@@ -53,11 +51,7 @@ static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
          self.isSSLEnabled == otherSettings.isSSLEnabled &&
          self.dispatchQueue == otherSettings.dispatchQueue &&
          self.isPersistenceEnabled == otherSettings.isPersistenceEnabled &&
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-         self.timestampsInSnapshotsEnabled == otherSettings.timestampsInSnapshotsEnabled &&
-#pragma clang diagnostic pop
-         self.cacheSizeBytes == otherSettings.cacheSizeBytes;
+         self.timestampsInSnapshotsEnabled == otherSettings.timestampsInSnapshotsEnabled;
 }
 
 - (NSUInteger)hash {
@@ -65,11 +59,7 @@ static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
   result = 31 * result + (self.isSSLEnabled ? 1231 : 1237);
   // Ignore the dispatchQueue to avoid having to deal with sizeof(dispatch_queue_t).
   result = 31 * result + (self.isPersistenceEnabled ? 1231 : 1237);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   result = 31 * result + (self.timestampsInSnapshotsEnabled ? 1231 : 1237);
-#pragma clang diagnostic pop
-  result = 31 * result + (NSUInteger)self.cacheSizeBytes;
   return result;
 }
 
@@ -79,11 +69,7 @@ static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
   copy.sslEnabled = _sslEnabled;
   copy.dispatchQueue = _dispatchQueue;
   copy.persistenceEnabled = _persistenceEnabled;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   copy.timestampsInSnapshotsEnabled = _timestampsInSnapshotsEnabled;
-#pragma clang diagnostic pop
-  copy.cacheSizeBytes = _cacheSizeBytes;
   return copy;
 }
 
@@ -105,14 +91,6 @@ static const BOOL kDefaultTimestampsInSnapshotsEnabled = YES;
          "(which is the main queue, returned from dispatch_get_main_queue())");
   }
   _dispatchQueue = dispatchQueue;
-}
-
-- (void)setCacheSizeBytes:(int64_t)cacheSizeBytes {
-  if (cacheSizeBytes != kFIRFirestoreCacheSizeUnlimited &&
-      cacheSizeBytes < kMinimumCacheSizeBytes) {
-    FSTThrowInvalidArgument(@"Cache size must be set to at least %i bytes", kMinimumCacheSizeBytes);
-  }
-  _cacheSizeBytes = cacheSizeBytes;
 }
 
 @end

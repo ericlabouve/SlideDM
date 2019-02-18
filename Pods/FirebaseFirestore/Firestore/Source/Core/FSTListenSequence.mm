@@ -16,14 +16,12 @@
 
 #import "Firestore/Source/Core/FSTListenSequence.h"
 
-using firebase::firestore::model::ListenSequenceNumber;
-
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTListenSequence
 
 @interface FSTListenSequence () {
-  ListenSequenceNumber _previousSequenceNumber;
+  FSTListenSequenceNumber _previousSequenceNumber;
 }
 
 @end
@@ -32,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Constructors
 
-- (instancetype)initStartingAfter:(ListenSequenceNumber)after {
+- (instancetype)initStartingAfter:(FSTListenSequenceNumber)after {
   self = [super init];
   if (self) {
     _previousSequenceNumber = after;
@@ -42,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Public methods
 
-- (ListenSequenceNumber)next {
+- (FSTListenSequenceNumber)next {
   _previousSequenceNumber++;
   return _previousSequenceNumber;
 }

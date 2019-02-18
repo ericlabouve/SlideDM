@@ -22,14 +22,13 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 
 using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLocalViewChanges ()
-- (instancetype)initWithTarget:(TargetId)targetID
-                     addedKeys:(DocumentKeySet)addedKeys
-                   removedKeys:(DocumentKeySet)removedKeys NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithQuery:(FSTQuery *)query
+                    addedKeys:(DocumentKeySet)addedKeys
+                  removedKeys:(DocumentKeySet)removedKeys NS_DESIGNATED_INITIALIZER;
 @end
 
 @implementation FSTLocalViewChanges {
@@ -37,8 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKeySet _removedKeys;
 }
 
-+ (instancetype)changesForViewSnapshot:(FSTViewSnapshot *)viewSnapshot
-                          withTargetID:(TargetId)targetID {
++ (instancetype)changesForViewSnapshot:(FSTViewSnapshot *)viewSnapshot {
   DocumentKeySet addedKeys;
   DocumentKeySet removedKeys;
 
@@ -58,25 +56,25 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
 
-  return [self changesForTarget:targetID
-                      addedKeys:std::move(addedKeys)
-                    removedKeys:std::move(removedKeys)];
+  return [self changesForQuery:viewSnapshot.query
+                     addedKeys:std::move(addedKeys)
+                   removedKeys:std::move(removedKeys)];
 }
 
-+ (instancetype)changesForTarget:(TargetId)targetID
-                       addedKeys:(DocumentKeySet)addedKeys
-                     removedKeys:(DocumentKeySet)removedKeys {
-  return [[FSTLocalViewChanges alloc] initWithTarget:targetID
-                                           addedKeys:std::move(addedKeys)
-                                         removedKeys:std::move(removedKeys)];
++ (instancetype)changesForQuery:(FSTQuery *)query
+                      addedKeys:(DocumentKeySet)addedKeys
+                    removedKeys:(DocumentKeySet)removedKeys {
+  return [[FSTLocalViewChanges alloc] initWithQuery:query
+                                          addedKeys:std::move(addedKeys)
+                                        removedKeys:std::move(removedKeys)];
 }
 
-- (instancetype)initWithTarget:(TargetId)targetID
-                     addedKeys:(DocumentKeySet)addedKeys
-                   removedKeys:(DocumentKeySet)removedKeys {
+- (instancetype)initWithQuery:(FSTQuery *)query
+                    addedKeys:(DocumentKeySet)addedKeys
+                  removedKeys:(DocumentKeySet)removedKeys {
   self = [super init];
   if (self) {
-    _targetID = targetID;
+    _query = query;
     _addedKeys = std::move(addedKeys);
     _removedKeys = std::move(removedKeys);
   }

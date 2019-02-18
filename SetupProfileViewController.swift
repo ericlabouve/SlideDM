@@ -47,6 +47,9 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
     let userPath = "users/"
     var userColRef: CollectionReference!
     
+    // Storage
+    var userDefaults = UserDefaults.standard
+    
     // View Controller Life Cycle
     
     override func viewDidLoad() {
@@ -196,7 +199,8 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
     
     func saveUserToDatabase() {
         if let user = user {
-            userColRef.addDocument(data: user.toDict())
+            let ref = userColRef.addDocument(data: user.toDict())
+            userDefaults.set(ref.documentID, forKey: "userDocID")
             print("Saved user to database.")
         }
     }

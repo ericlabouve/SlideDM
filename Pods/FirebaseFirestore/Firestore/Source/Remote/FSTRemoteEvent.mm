@@ -20,7 +20,6 @@
 #include <set>
 #include <unordered_map>
 #include <utility>
-#include <vector>
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
@@ -40,7 +39,6 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::TargetId;
 using firebase::firestore::util::Hash;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -244,19 +242,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTRemoteEvent {
   SnapshotVersion _snapshotVersion;
-  std::unordered_map<TargetId, FSTTargetChange *> _targetChanges;
-  std::unordered_set<TargetId> _targetMismatches;
+  std::unordered_map<FSTTargetID, FSTTargetChange *> _targetChanges;
+  std::unordered_set<FSTTargetID> _targetMismatches;
   std::unordered_map<DocumentKey, FSTMaybeDocument *, DocumentKeyHash> _documentUpdates;
   DocumentKeySet _limboDocumentChanges;
 }
 
 - (instancetype)
-    initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
-              targetChanges:(std::unordered_map<TargetId, FSTTargetChange *>)targetChanges
-           targetMismatches:(std::unordered_set<TargetId>)targetMismatches
-            documentUpdates:(std::unordered_map<DocumentKey, FSTMaybeDocument *, DocumentKeyHash>)
-                                documentUpdates
-             limboDocuments:(DocumentKeySet)limboDocuments {
+initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
+          targetChanges:(std::unordered_map<FSTTargetID, FSTTargetChange *>)targetChanges
+       targetMismatches:(std::unordered_set<FSTTargetID>)targetMismatches
+        documentUpdates:
+            (std::unordered_map<DocumentKey, FSTMaybeDocument *, DocumentKeyHash>)documentUpdates
+         limboDocuments:(DocumentKeySet)limboDocuments {
   self = [super init];
   if (self) {
     _snapshotVersion = std::move(snapshotVersion);
@@ -276,7 +274,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _limboDocumentChanges;
 }
 
-- (const std::unordered_map<TargetId, FSTTargetChange *> &)targetChanges {
+- (const std::unordered_map<FSTTargetID, FSTTargetChange *> &)targetChanges {
   return _targetChanges;
 }
 
@@ -284,7 +282,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _documentUpdates;
 }
 
-- (const std::unordered_set<TargetId> &)targetMismatches {
+- (const std::unordered_set<FSTTargetID> &)targetMismatches {
   return _targetMismatches;
 }
 
@@ -294,20 +292,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTWatchChangeAggregator {
   /** The internal state of all tracked targets. */
-  std::unordered_map<TargetId, FSTTargetState *> _targetStates;
+  std::unordered_map<FSTTargetID, FSTTargetState *> _targetStates;
 
   /** Keeps track of document to update */
   std::unordered_map<DocumentKey, FSTMaybeDocument *, DocumentKeyHash> _pendingDocumentUpdates;
 
   /** A mapping of document keys to their set of target IDs. */
-  std::unordered_map<DocumentKey, std::set<TargetId>, DocumentKeyHash>
+  std::unordered_map<DocumentKey, std::set<FSTTargetID>, DocumentKeyHash>
       _pendingDocumentTargetMappings;
 
   /**
    * A list of targets with existence filter mismatches. These targets are known to be inconsistent
    * and their listens needs to be re-established by RemoteStore.
    */
-  std::unordered_set<TargetId> _pendingTargetResets;
+  std::unordered_set<FSTTargetID> _pendingTargetResets;
 
   id<FSTTargetMetadataProvider> _targetMetadataProvider;
 }
@@ -340,7 +338,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)handleTargetChange:(FSTWatchTargetChange *)targetChange {
-  for (TargetId targetID : [self targetIdsForChange:targetChange]) {
+  for (FSTBoxedTargetID *boxedTargetID in targetChange.targetIDs) {
+    int targetID = boxedTargetID.intValue;
     FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID];
     switch (targetChange.state) {
       case FSTWatchTargetChangeStateNoChange:
@@ -388,33 +387,12 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-/**
- * Returns all targetIds that the watch change applies to: either the targetIds explicitly listed
- * in the change or the targetIds of all currently active targets.
- */
-- (std::vector<TargetId>)targetIdsForChange:(FSTWatchTargetChange *)targetChange {
-  NSArray<NSNumber *> *targetIDs = targetChange.targetIDs;
-  std::vector<TargetId> result;
-  if (targetIDs.count > 0) {
-    result.reserve(targetIDs.count);
-    for (NSNumber *targetID in targetIDs) {
-      result.push_back(targetID.intValue);
-    }
-  } else {
-    result.reserve(_targetStates.size());
-    for (const auto &entry : _targetStates) {
-      result.push_back(entry.first);
-    }
-  }
-  return result;
-}
-
-- (void)removeTarget:(TargetId)targetID {
+- (void)removeTarget:(FSTTargetID)targetID {
   _targetStates.erase(targetID);
 }
 
 - (void)handleExistenceFilter:(FSTExistenceFilterWatchChange *)existenceFilter {
-  TargetId targetID = existenceFilter.targetID;
+  FSTTargetID targetID = existenceFilter.targetID;
   int expectedCount = existenceFilter.filter.count;
 
   FSTQueryData *queryData = [self queryDataForActiveTarget:targetID];
@@ -426,12 +404,11 @@ NS_ASSUME_NONNULL_BEGIN
         // does not exist and apply a deleted document to our updates. Without applying this deleted
         // document there might be another query that will raise this document as part of a snapshot
         // until it is resolved, essentially exposing inconsistency between queries.
-        DocumentKey key{query.path};
-        [self removeDocument:[FSTDeletedDocument documentWithKey:key
-                                                         version:SnapshotVersion::None()
-                                           hasCommittedMutations:NO]
-                     withKey:key
-                  fromTarget:targetID];
+        FSTDocumentKey *key = [FSTDocumentKey keyWithPath:query.path];
+        [self
+            removeDocument:[FSTDeletedDocument documentWithKey:key version:SnapshotVersion::None()]
+                   withKey:key
+                fromTarget:targetID];
       } else {
         HARD_ASSERT(expectedCount == 1, "Single document existence filter with count: %s",
                     expectedCount);
@@ -448,7 +425,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (int)currentDocumentCountForTarget:(TargetId)targetID {
+- (int)currentDocumentCountForTarget:(FSTTargetID)targetID {
   FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID];
   FSTTargetChange *targetChange = [targetState toTargetChange];
   return ([_targetMetadataProvider remoteKeysForTarget:@(targetID)].size() +
@@ -459,7 +436,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Resets the state of a Watch target to its initial state (e.g. sets 'current' to false, clears the
  * resume token and removes its target mapping from all documents).
  */
-- (void)resetTarget:(TargetId)targetID {
+- (void)resetTarget:(FSTTargetID)targetID {
   auto currentTargetState = _targetStates.find(targetID);
   HARD_ASSERT(currentTargetState != _targetStates.end() && !(currentTargetState->second.isPending),
               "Should only reset active targets");
@@ -470,7 +447,7 @@ NS_ASSUME_NONNULL_BEGIN
   // of the initial snapshot if Watch does not resend these documents.
   DocumentKeySet existingKeys = [_targetMetadataProvider remoteKeysForTarget:@(targetID)];
 
-  for (const DocumentKey &key : existingKeys) {
+  for (FSTDocumentKey *key : existingKeys) {
     [self removeDocument:nil withKey:key fromTarget:targetID];
   }
 }
@@ -479,7 +456,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Adds the provided document to the internal list of document updates and its document key to the
  * given target's mapping.
  */
-- (void)addDocument:(FSTMaybeDocument *)document toTarget:(TargetId)targetID {
+- (void)addDocument:(FSTMaybeDocument *)document toTarget:(FSTTargetID)targetID {
   if (![self isActiveTarget:targetID]) {
     return;
   }
@@ -503,7 +480,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)removeDocument:(FSTMaybeDocument *_Nullable)document
                withKey:(const DocumentKey &)key
-            fromTarget:(TargetId)targetID {
+            fromTarget:(FSTTargetID)targetID {
   if (![self isActiveTarget:targetID]) {
     return;
   }
@@ -517,7 +494,8 @@ NS_ASSUME_NONNULL_BEGIN
     // ignore the change.
     [targetState removeDocumentChangeForKey:key];
   }
-  _pendingDocumentTargetMappings[key].insert(targetID);
+
+  _pendingDocumentTargetMappings[key].erase(targetID);
 
   if (document) {
     _pendingDocumentUpdates[key] = document;
@@ -527,12 +505,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Returns whether the LocalStore considers the document to be part of the specified target.
  */
-- (BOOL)containsDocument:(const DocumentKey &)key inTarget:(TargetId)targetID {
+- (BOOL)containsDocument:(FSTDocumentKey *)key inTarget:(FSTTargetID)targetID {
   const DocumentKeySet &existingKeys = [_targetMetadataProvider remoteKeysForTarget:@(targetID)];
   return existingKeys.contains(key);
 }
 
-- (FSTTargetState *)ensureTargetStateForTarget:(TargetId)targetID {
+- (FSTTargetState *)ensureTargetStateForTarget:(FSTTargetID)targetID {
   if (!_targetStates[targetID]) {
     _targetStates[targetID] = [FSTTargetState new];
   }
@@ -548,11 +526,11 @@ NS_ASSUME_NONNULL_BEGIN
  * preventing in preventing race conditions for a target where events arrive but the server hasn't
  * yet acknowledged the intended change in state.
  */
-- (BOOL)isActiveTarget:(TargetId)targetID {
+- (BOOL)isActiveTarget:(FSTTargetID)targetID {
   return [self queryDataForActiveTarget:targetID] != nil;
 }
 
-- (nullable FSTQueryData *)queryDataForActiveTarget:(TargetId)targetID {
+- (nullable FSTQueryData *)queryDataForActiveTarget:(FSTTargetID)targetID {
   auto targetState = _targetStates.find(targetID);
   return targetState != _targetStates.end() && targetState->second.isPending
              ? nil
@@ -560,10 +538,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTRemoteEvent *)remoteEventAtSnapshotVersion:(const SnapshotVersion &)snapshotVersion {
-  std::unordered_map<TargetId, FSTTargetChange *> targetChanges;
+  std::unordered_map<FSTTargetID, FSTTargetChange *> targetChanges;
 
   for (const auto &entry : _targetStates) {
-    TargetId targetID = entry.first;
+    FSTTargetID targetID = entry.first;
     FSTTargetState *targetState = entry.second;
 
     FSTQueryData *queryData = [self queryDataForActiveTarget:targetID];
@@ -573,12 +551,10 @@ NS_ASSUME_NONNULL_BEGIN
         // our local cache, we synthesize a document delete if we have not previously received the
         // document. This resolves the limbo state of the document, removing it from
         // limboDocumentRefs.
-        DocumentKey key{queryData.query.path};
+        FSTDocumentKey *key = [FSTDocumentKey keyWithPath:queryData.query.path];
         if (_pendingDocumentUpdates.find(key) == _pendingDocumentUpdates.end() &&
             ![self containsDocument:key inTarget:targetID]) {
-          [self removeDocument:[FSTDeletedDocument documentWithKey:key
-                                                           version:snapshotVersion
-                                             hasCommittedMutations:NO]
+          [self removeDocument:[FSTDeletedDocument documentWithKey:key version:snapshotVersion]
                        withKey:key
                     fromTarget:targetID];
         }
@@ -600,7 +576,7 @@ NS_ASSUME_NONNULL_BEGIN
   for (const auto &entry : _pendingDocumentTargetMappings) {
     BOOL isOnlyLimboTarget = YES;
 
-    for (TargetId targetID : entry.second) {
+    for (FSTTargetID targetID : entry.second) {
       FSTQueryData *queryData = [self queryDataForActiveTarget:targetID];
       if (queryData && queryData.purpose != FSTQueryPurposeLimboResolution) {
         isOnlyLimboTarget = NO;

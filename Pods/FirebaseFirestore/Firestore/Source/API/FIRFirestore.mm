@@ -18,12 +18,10 @@
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 
 #include <memory>
-#include <string>
 #include <utility>
 
 #import "FIRFirestoreSettings.h"
@@ -32,9 +30,9 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FIRWriteBatch+Internal.h"
-#import "Firestore/Source/API/FSTFirestoreComponent.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
@@ -42,12 +40,12 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
+
+#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
@@ -55,15 +53,12 @@ using firebase::firestore::auth::FirebaseCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::ResourcePath;
-using util::AsyncQueue;
-using util::Executor;
-using util::ExecutorLibdispatch;
+using util::internal::Executor;
+using util::internal::ExecutorLibdispatch;
 
 NS_ASSUME_NONNULL_BEGIN
 
 extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
-
-#pragma mark - FIRFirestore
 
 @interface FIRFirestore () {
   /** The actual owned DatabaseId instance is allocated in FIRFirestore. */
@@ -72,6 +67,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 }
 
 @property(nonatomic, strong) NSString *persistenceKey;
+@property(nonatomic, strong) FSTDispatchQueue *workerDispatchQueue;
 
 // Note that `client` is updated after initialization, but marking this readwrite would generate an
 // incorrect setter (since we make the assignment to `client` inside an `@synchronized` block.
@@ -81,16 +77,9 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 @end
 
 @implementation FIRFirestore {
-  // Ownership will be transferred to `FSTFirestoreClient` as soon as the client is created.
-  std::unique_ptr<AsyncQueue> _workerQueue;
-
   // All guarded by @synchronized(self)
   FIRFirestoreSettings *_settings;
   FSTFirestoreClient *_client;
-}
-
-- (AsyncQueue *)workerQueue {
-  return [_client workerQueue];
 }
 
 + (NSMutableDictionary<NSString *, FIRFirestore *> *)instances {
@@ -149,28 +138,57 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 // TODO(b/62410906): make this public
 + (instancetype)firestoreForApp:(FIRApp *)app database:(NSString *)database {
   if (!app) {
-    FSTThrowInvalidArgument(@"FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd "
-                             "like to use the default FirebaseApp instance.");
+    FSTThrowInvalidArgument(
+        @"FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd "
+         "like to use the default FirebaseApp instance.");
   }
   if (!database) {
-    FSTThrowInvalidArgument(@"database identifier may not be nil. Use '%s' if you want the default "
-                             "database",
-                            DatabaseId::kDefault);
+    FSTThrowInvalidArgument(
+        @"database identifier may not be nil. Use '%s' if you want the default "
+         "database",
+        DatabaseId::kDefault);
   }
 
-  id<FSTFirestoreMultiDBProvider> provider =
-      FIR_COMPONENT(FSTFirestoreMultiDBProvider, app.container);
-  return [provider firestoreForDatabase:database];
+  // Note: If the key format changes, please change the code that detects FIRApps being deleted
+  // contained in +initialize. It checks for the app's name followed by a | character.
+  NSString *key = [NSString stringWithFormat:@"%@|%@", app.name, database];
+
+  NSMutableDictionary<NSString *, FIRFirestore *> *instances = self.instances;
+  @synchronized(instances) {
+    FIRFirestore *firestore = instances[key];
+    if (!firestore) {
+      NSString *projectID = app.options.projectID;
+      HARD_ASSERT(projectID, "FirebaseOptions.projectID cannot be nil.");
+
+      FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
+          queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
+
+      std::unique_ptr<CredentialsProvider> credentials_provider =
+          absl::make_unique<FirebaseCredentialsProvider>(app);
+
+      NSString *persistenceKey = app.name;
+
+      firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeStringView(projectID)
+                                                 database:util::MakeStringView(database)
+                                           persistenceKey:persistenceKey
+                                      credentialsProvider:std::move(credentials_provider)
+                                      workerDispatchQueue:workerDispatchQueue
+                                              firebaseApp:app];
+      instances[key] = firestore;
+    }
+
+    return firestore;
+  }
 }
 
-- (instancetype)initWithProjectID:(std::string)projectID
-                         database:(std::string)database
+- (instancetype)initWithProjectID:(const absl::string_view)projectID
+                         database:(const absl::string_view)database
                    persistenceKey:(NSString *)persistenceKey
               credentialsProvider:(std::unique_ptr<CredentialsProvider>)credentialsProvider
-                      workerQueue:(std::unique_ptr<AsyncQueue>)workerQueue
+              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
-    _databaseID = DatabaseId{std::move(projectID), std::move(database)};
+    _databaseID = DatabaseId(projectID, database);
     FSTPreConverterBlock block = ^id _Nullable(id _Nullable input) {
       if ([input isKindOfClass:[FIRDocumentReference class]]) {
         FIRDocumentReference *documentReference = (FIRDocumentReference *)input;
@@ -180,11 +198,11 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
         return input;
       }
     };
-    _dataConverter = [[FSTUserDataConverter alloc] initWithDatabaseID:&_databaseID
-                                                         preConverter:block];
+    _dataConverter =
+        [[FSTUserDataConverter alloc] initWithDatabaseID:&_databaseID preConverter:block];
     _persistenceKey = persistenceKey;
     _credentialsProvider = std::move(credentialsProvider);
-    _workerQueue = std::move(workerQueue);
+    _workerDispatchQueue = workerDispatchQueue;
     _app = app;
     _settings = [[FIRFirestoreSettings alloc] init];
   }
@@ -227,18 +245,45 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
       HARD_ASSERT(_settings.host, "FirestoreSettings.host cannot be nil.");
       HARD_ASSERT(_settings.dispatchQueue, "FirestoreSettings.dispatchQueue cannot be nil.");
 
-      const DatabaseInfo database_info(*self.databaseID, util::MakeString(_persistenceKey),
-                                       util::MakeString(_settings.host), _settings.sslEnabled);
+      if (!_settings.timestampsInSnapshotsEnabled) {
+        LOG_WARN(
+            "The behavior for system Date objects stored in Firestore is going to change "
+            "AND YOUR APP MAY BREAK.\n"
+            "To hide this warning and ensure your app does not break, you need to add "
+            "the following code to your app before calling any other Cloud Firestore methods:\n"
+            "\n"
+            "let db = Firestore.firestore()\n"
+            "let settings = db.settings\n"
+            "settings.areTimestampsInSnapshotsEnabled = true\n"
+            "db.settings = settings\n"
+            "\n"
+            "With this change, timestamps stored in Cloud Firestore will be read back as "
+            "Firebase Timestamp objects instead of as system Date objects. So you will "
+            "also need to update code expecting a Date to instead expect a Timestamp. "
+            "For example:\n"
+            "\n"
+            "// old:\n"
+            "let date: Date = documentSnapshot.get(\"created_at\") as! Date\n"
+            "// new:\n"
+            "let timestamp: Timestamp = documentSnapshot.get(\"created_at\") as! Timestamp\n"
+            "let date: Date = timestamp.dateValue()\n"
+            "\n"
+            "Please audit all existing usages of Date when you enable the new behavior. In a "
+            "future release, the behavior will be changed to the new behavior, so if you do not "
+            "follow these steps, YOUR APP MAY BREAK.");
+      }
+
+      const DatabaseInfo database_info(*self.databaseID, util::MakeStringView(_persistenceKey),
+                                       util::MakeStringView(_settings.host), _settings.sslEnabled);
 
       std::unique_ptr<Executor> userExecutor =
           absl::make_unique<ExecutorLibdispatch>(_settings.dispatchQueue);
 
-      HARD_ASSERT(_workerQueue, "Expected non-null _workerQueue");
       _client = [FSTFirestoreClient clientWithDatabaseInfo:database_info
-                                                  settings:_settings
+                                            usePersistence:_settings.persistenceEnabled
                                        credentialsProvider:_credentialsProvider.get()
                                               userExecutor:std::move(userExecutor)
-                                               workerQueue:std::move(_workerQueue)];
+                                       workerDispatchQueue:_workerDispatchQueue];
     }
   }
 }
@@ -253,7 +298,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   }
 
   [self ensureClientConfigured];
-  const ResourcePath path = ResourcePath::FromString(util::MakeString(collectionPath));
+  const ResourcePath path = ResourcePath::FromString(util::MakeStringView(collectionPath));
   return [FIRCollectionReference referenceWithPath:path firestore:self];
 }
 
@@ -266,7 +311,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   }
 
   [self ensureClientConfigured];
-  const ResourcePath path = ResourcePath::FromString(util::MakeString(documentPath));
+  const ResourcePath path = ResourcePath::FromString(util::MakeStringView(documentPath));
   return [FIRDocumentReference referenceWithPath:path firestore:self];
 }
 
@@ -321,14 +366,18 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 }
 
 - (void)shutdownWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  if (!_client) {
-    if (completion) {
-      // We should be dispatching the callback on the user dispatch queue but if the client is nil
-      // here that queue was never created.
-      completion(nil);
-    }
+  FSTFirestoreClient *client;
+  @synchronized(self) {
+    client = _client;
+    _client = nil;
+  }
+
+  if (!client) {
+    // We should be dispatching the callback on the user dispatch queue but if the client is nil
+    // here that queue was never created.
+    completion(nil);
   } else {
-    [_client shutdownWithCompletion:completion];
+    [client shutdownWithCompletion:completion];
   }
 }
 

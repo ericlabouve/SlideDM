@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRWriteBatch.h"
-
-#include <utility>
+#import "Firestore/Source/API/FIRWriteBatch+Internal.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRWriteBatch+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -28,8 +25,6 @@
 
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 
-using firebase::firestore::core::ParsedSetData;
-using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::Precondition;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -75,10 +70,11 @@ NS_ASSUME_NONNULL_BEGIN
                      merge:(BOOL)merge {
   [self verifyNotCommitted];
   [self validateReference:document];
-  ParsedSetData parsed = merge ? [self.firestore.dataConverter parsedMergeData:data fieldMask:nil]
-                               : [self.firestore.dataConverter parsedSetData:data];
+  FSTParsedSetData *parsed = merge
+                                 ? [self.firestore.dataConverter parsedMergeData:data fieldMask:nil]
+                                 : [self.firestore.dataConverter parsedSetData:data];
   [self.mutations
-      addObjectsFromArray:std::move(parsed).ToMutations(document.key, Precondition::None())];
+      addObjectsFromArray:[parsed mutationsWithKey:document.key precondition:Precondition::None()]];
   return self;
 }
 
@@ -87,9 +83,10 @@ NS_ASSUME_NONNULL_BEGIN
                mergeFields:(NSArray<id> *)mergeFields {
   [self verifyNotCommitted];
   [self validateReference:document];
-  ParsedSetData parsed = [self.firestore.dataConverter parsedMergeData:data fieldMask:mergeFields];
+  FSTParsedSetData *parsed =
+      [self.firestore.dataConverter parsedMergeData:data fieldMask:mergeFields];
   [self.mutations
-      addObjectsFromArray:std::move(parsed).ToMutations(document.key, Precondition::None())];
+      addObjectsFromArray:[parsed mutationsWithKey:document.key precondition:Precondition::None()]];
   return self;
 }
 
@@ -97,9 +94,9 @@ NS_ASSUME_NONNULL_BEGIN
                   forDocument:(FIRDocumentReference *)document {
   [self verifyNotCommitted];
   [self validateReference:document];
-  ParsedUpdateData parsed = [self.firestore.dataConverter parsedUpdateData:fields];
-  [self.mutations
-      addObjectsFromArray:std::move(parsed).ToMutations(document.key, Precondition::Exists(true))];
+  FSTParsedUpdateData *parsed = [self.firestore.dataConverter parsedUpdateData:fields];
+  [self.mutations addObjectsFromArray:[parsed mutationsWithKey:document.key
+                                                  precondition:Precondition::Exists(true)]];
   return self;
 }
 

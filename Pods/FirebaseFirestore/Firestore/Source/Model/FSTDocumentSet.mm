@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-#include <utility>
-
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
 #import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/third_party/Immutable/FSTImmutableSortedSet.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
-using firebase::firestore::model::DocumentMap;
 using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
+
+/**
+ * The type of the index of the documents in an FSTDocumentSet.
+ * @see FSTDocumentSet#index
+ */
+typedef FSTImmutableSortedDictionary<FSTDocumentKey *, FSTDocument *> IndexType;
 
 /**
  * The type of the main collection of documents in an FSTDocumentSet.
@@ -36,8 +40,14 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 
 @interface FSTDocumentSet ()
 
-- (instancetype)initWithIndex:(DocumentMap &&)index
-                          set:(SetType *)sortedSet NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithIndex:(IndexType *)index set:(SetType *)sortedSet NS_DESIGNATED_INITIALIZER;
+
+/**
+ * An index of the documents in the FSTDocumentSet, indexed by document key. The index
+ * exists to guarantee the uniqueness of document keys in the set and to allow lookup and removal
+ * of documents by key.
+ */
+@property(nonatomic, strong, readonly) IndexType *index;
 
 /**
  * The main collection of documents in the FSTDocumentSet. The documents are ordered by a
@@ -47,24 +57,19 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 @property(nonatomic, strong, readonly) SetType *sortedSet;
 @end
 
-@implementation FSTDocumentSet {
-  /**
-   * An index of the documents in the FSTDocumentSet, indexed by document key. The index
-   * exists to guarantee the uniqueness of document keys in the set and to allow lookup and removal
-   * of documents by key.
-   */
-  DocumentMap _index;
-}
+@implementation FSTDocumentSet
 
 + (instancetype)documentSetWithComparator:(NSComparator)comparator {
+  IndexType *index =
+      [FSTImmutableSortedDictionary dictionaryWithComparator:FSTDocumentKeyComparator];
   SetType *set = [FSTImmutableSortedSet setWithComparator:comparator];
-  return [[FSTDocumentSet alloc] initWithIndex:DocumentMap {} set:set];
+  return [[FSTDocumentSet alloc] initWithIndex:index set:set];
 }
 
-- (instancetype)initWithIndex:(DocumentMap &&)index set:(SetType *)sortedSet {
+- (instancetype)initWithIndex:(IndexType *)index set:(SetType *)sortedSet {
   self = [super init];
   if (self) {
-    _index = std::move(index);
+    _index = index;
     _sortedSet = sortedSet;
   }
   return self;
@@ -111,20 +116,19 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 - (NSUInteger)count {
-  return _index.size();
+  return [self.index count];
 }
 
 - (BOOL)isEmpty {
-  return _index.empty();
+  return [self.index isEmpty];
 }
 
 - (BOOL)containsKey:(const DocumentKey &)key {
-  return _index.underlying_map().find(key) != _index.underlying_map().end();
+  return [self.index objectForKey:(FSTDocumentKey *)key] != nil;
 }
 
 - (FSTDocument *_Nullable)documentForKey:(const DocumentKey &)key {
-  auto found = _index.underlying_map().find(key);
-  return found != _index.underlying_map().end() ? static_cast<FSTDocument *>(found->second) : nil;
+  return [self.index objectForKey:(FSTDocumentKey *)key];
 }
 
 - (FSTDocument *_Nullable)firstDocument {
@@ -136,7 +140,7 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
 }
 
 - (NSUInteger)indexOfKey:(const DocumentKey &)key {
-  FSTDocument *doc = [self documentForKey:key];
+  FSTDocument *doc = [self.index objectForKey:(FSTDocumentKey *)key];
   return doc ? [self.sortedSet indexOfObject:doc] : NSNotFound;
 }
 
@@ -152,8 +156,8 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
   return result;
 }
 
-- (const DocumentMap &)mapValue {
-  return _index;
+- (FSTMaybeDocumentDictionary *)dictionaryValue {
+  return self.index;
 }
 
 - (instancetype)documentSetByAddingDocument:(FSTDocument *_Nullable)document {
@@ -166,20 +170,20 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
   // accumulating values that aren't in the index.
   FSTDocumentSet *removed = [self documentSetByRemovingKey:document.key];
 
-  DocumentMap index = removed->_index.insert(document.key, document);
+  IndexType *index = [removed.index dictionaryBySettingObject:document forKey:document.key];
   SetType *set = [removed.sortedSet setByAddingObject:document];
-  return [[FSTDocumentSet alloc] initWithIndex:std::move(index) set:set];
+  return [[FSTDocumentSet alloc] initWithIndex:index set:set];
 }
 
 - (instancetype)documentSetByRemovingKey:(const DocumentKey &)key {
-  FSTDocument *doc = [self documentForKey:key];
+  FSTDocument *doc = [self.index objectForKey:(FSTDocumentKey *)key];
   if (!doc) {
     return self;
   }
 
-  DocumentMap index = _index.erase(key);
+  IndexType *index = [self.index dictionaryByRemovingObjectForKey:key];
   SetType *set = [self.sortedSet setByRemovingObject:doc];
-  return [[FSTDocumentSet alloc] initWithIndex:std::move(index) set:set];
+  return [[FSTDocumentSet alloc] initWithIndex:index set:set];
 }
 
 @end

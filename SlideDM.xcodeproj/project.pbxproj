@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		00B0EC7D80661BFD159B269F /* Pods_SlideDM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4E52EFAF60591DE62429DB3 /* Pods_SlideDM.framework */; };
 		482617D3220D40AC006398EE /* Contact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 482617D2220D40AC006398EE /* Contact.swift */; };
+		48356389221A4489008A98E7 /* ChatsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48356388221A4489008A98E7 /* ChatsTableViewCell.swift */; };
+		4835638B221A6005008A98E7 /* ChatRoomViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4835638A221A6005008A98E7 /* ChatRoomViewController.swift */; };
+		4835638D221A752B008A98E7 /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4835638C221A752B008A98E7 /* Service.swift */; };
 		483D952522138AA7004216C4 /* ChatsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 483D952422138AA7004216C4 /* ChatsViewController.swift */; };
 		483D952722138D3D004216C4 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 483D952622138D3D004216C4 /* ProfileViewController.swift */; };
 		483D95292213C309004216C4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 483D95282213C309004216C4 /* GoogleService-Info.plist */; };
@@ -44,6 +47,9 @@
 
 /* Begin PBXFileReference section */
 		482617D2220D40AC006398EE /* Contact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Contact.swift; sourceTree = "<group>"; };
+		48356388221A4489008A98E7 /* ChatsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsTableViewCell.swift; sourceTree = "<group>"; };
+		4835638A221A6005008A98E7 /* ChatRoomViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomViewController.swift; sourceTree = "<group>"; };
+		4835638C221A752B008A98E7 /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
 		483D952422138AA7004216C4 /* ChatsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsViewController.swift; sourceTree = "<group>"; };
 		483D952622138D3D004216C4 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		483D95282213C309004216C4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -130,10 +136,13 @@
 				482617D2220D40AC006398EE /* Contact.swift */,
 				483D952A2213CD6D004216C4 /* User.swift */,
 				483D952422138AA7004216C4 /* ChatsViewController.swift */,
+				48356388221A4489008A98E7 /* ChatsTableViewCell.swift */,
 				486209ED220FF1EE00AC09D4 /* SetupProfileViewController.swift */,
 				487724DC2207AC0900725DF8 /* AppDelegate.swift */,
 				487724DE2207AC0900725DF8 /* LoginViewController.swift */,
 				483D952622138D3D004216C4 /* ProfileViewController.swift */,
+				4835638A221A6005008A98E7 /* ChatRoomViewController.swift */,
+				4835638C221A752B008A98E7 /* Service.swift */,
 				487724E02207AC0900725DF8 /* Main.storyboard */,
 				487724E52207AC0A00725DF8 /* LaunchScreen.storyboard */,
 				4877250A2207C21C00725DF8 /* SlideDM.entitlements */,
@@ -356,10 +365,12 @@
 				"${BUILT_PRODUCTS_DIR}/FacebookCore/FacebookCore.framework",
 				"${BUILT_PRODUCTS_DIR}/FacebookLogin/FacebookLogin.framework",
 				"${BUILT_PRODUCTS_DIR}/FacebookShare/FacebookShare.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-C++/grpcpp.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC/GRPCClient.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core/grpc.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-ProtoRPC/ProtoRPC.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-RxLibrary/RxLibrary.framework",
 				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 			);
@@ -374,10 +385,12 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FacebookCore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FacebookLogin.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FacebookShare.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpcpp.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GRPCClient.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ProtoRPC.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxLibrary.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
@@ -430,12 +443,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				483D952722138D3D004216C4 /* ProfileViewController.swift in Sources */,
+				48356389221A4489008A98E7 /* ChatsTableViewCell.swift in Sources */,
 				486209EE220FF1EE00AC09D4 /* SetupProfileViewController.swift in Sources */,
 				482617D3220D40AC006398EE /* Contact.swift in Sources */,
 				483D952522138AA7004216C4 /* ChatsViewController.swift in Sources */,
 				487724DF2207AC0900725DF8 /* LoginViewController.swift in Sources */,
 				487724DD2207AC0900725DF8 /* AppDelegate.swift in Sources */,
+				4835638D221A752B008A98E7 /* Service.swift in Sources */,
 				483D952B2213CD6D004216C4 /* User.swift in Sources */,
+				4835638B221A6005008A98E7 /* ChatRoomViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
