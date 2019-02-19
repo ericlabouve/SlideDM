@@ -41,9 +41,9 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     override func viewDidLoad() {
         super.viewDidLoad()
         // Make sure we load our location ahead of time
-        LocationService.shared.load()
+//        LocationService.shared.load()
         
-        LocationService.shared.locationListener = self
+//        LocationService.shared.locationListener = self
         LocationService.shared.addLocationListener(obj: self)
 
         let fakeUser1 = User(first: "Eric", last: "LaBouve", phoneID: "123456789")
