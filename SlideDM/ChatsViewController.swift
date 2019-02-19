@@ -6,11 +6,16 @@
 //  Copyright © 2019 Eric LaBouve. All rights reserved.
 //
 
+// Architecture
+// How to observe --> call loadNearbyUsers()
+// load singleton
+// get user from id
+
 import UIKit
 import CoreLocation
 import Firebase
 
-class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate { //}, CLLocationManagerDelegate {
+class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, LocationListener { //}, CLLocationManagerDelegate {
     // User Interface
     @IBOutlet weak var tableView: UITableView!
     
@@ -21,11 +26,25 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     // Storage
     var userDefaults = UserDefaults.standard
     
+    
+    
+    
+    func locationChanged(userLocation: CLLocation?) {
+        // Update table
+        print("Here is the user location: \(userLocation)")
+    }
+    
+    
+    
+    
     // View Controller Life Cycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
         // Make sure we load our location ahead of time
         LocationService.shared.load()
+        
+        LocationService.shared.locationListener = self
+        LocationService.shared.addLocationListener(obj: self)
 
         let fakeUser1 = User(first: "Eric", last: "LaBouve", phoneID: "123456789")
         let fakeUser2 = User(first: "Stephanie", last: "LaBouve", phoneID: "987654321")
@@ -40,6 +59,8 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
             
             // Refactor this into FirestoreService later
             circleQuery.observe(.documentEntered, with: { (key: String?, location: CLLocation?) in
+                // key contains our user id
+                
                 // Load each user corresponding to each document key
                 //Firestore.firestore().collection("users/").whereField("", isEqualTo: key!)
             })

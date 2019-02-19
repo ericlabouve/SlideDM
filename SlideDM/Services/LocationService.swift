@@ -13,11 +13,23 @@ import CoreLocation
 class LocationService: NSObject, CLLocationManagerDelegate {
     static let shared = LocationService()
     
+    var locationListener: LocationListener?
+    var locationListeners = [LocationListener?]()
+    
     // Location tracking
     var locationManager = CLLocationManager()
     
     // The user's current location which is updated when the app is launched
-    var userLocation: CLLocation?
+    var userLocation: CLLocation? {
+        didSet {
+            print("userLocation set")
+//            locationListener?.locationChanged(userLocation: userLocation)
+            for listener in locationListeners {
+                listener?.locationChanged(userLocation: userLocation)
+            }
+        }
+    }
+
     
     // Initiate location manager
     // Get the user's current location
@@ -26,6 +38,7 @@ class LocationService: NSObject, CLLocationManagerDelegate {
         // Get the user's location if we are authorized to do so AND if have not
         // requested their location during this app session
         if CLLocationManager.locationServicesEnabled() {
+            print("Location Services Enabled")
             // Ask permission to obtain user's location
             self.locationManager.requestAlwaysAuthorization()
             locationManager.delegate = self
@@ -37,6 +50,14 @@ class LocationService: NSObject, CLLocationManagerDelegate {
     
     // Empty body so that init is called
     func load() {}
+    
+    
+    func addLocationListener(obj: LocationListener) {
+        locationListeners.append(obj)
+    }
+    
+    
+    
     
     func isUserLocationSet() -> Bool {
         return LocationService.shared.userLocation != nil
@@ -69,4 +90,8 @@ class LocationService: NSObject, CLLocationManagerDelegate {
             print("An error occured in updateCurrentLocation - No userDocID or location.")
         }
     }
+}
+
+protocol LocationListener {
+    func locationChanged(userLocation: CLLocation?)
 }
