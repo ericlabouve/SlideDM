@@ -6,10 +6,8 @@
 //  Copyright © 2019 Eric LaBouve. All rights reserved.
 //
 
-// Architecture
-// How to observe --> call loadNearbyUsers()
-// load singleton
-// get user from id
+// TODO:
+// [] Did I set up my Geofire correctly aka Is there a better way to perform queries? Right now I pull all the Geo documents that are near me and then pull all the users that match these ids. This involves two document retrieval calls per user. Is there a way to set up a reference from the Geofire coordinate to the user? This would allow me to pull the users directly and cut my cost in half. OR can i save the location in the user?
 
 import UIKit
 import CoreLocation
@@ -43,6 +41,8 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     
     // MARK: - UserLocationListener methods
     
+    // IDEA: Consider using a snapshot listener to listen for updates in an entire collection?
+    
     // Using the user's location, query the database for all nearby users who are part of the user's social
     // network and add them to the tableView
     func userLocationChanged(userLocation: CLLocation?) {
@@ -51,15 +51,13 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
         
         if let center = userLocation {
             // 5 miles = 8.04672 kilometers
-            var circleQuery = FirestoreService.shared.geoFirestore.query(withCenter: center, radius: 300)
-            
+            let circleQuery = FirestoreService.shared.geoFirestore.query(withCenter: center, radius: 300)
             // Refactor this into FirestoreService later
             circleQuery.observe(.documentEntered, with: { (key: String?, location: CLLocation?) in
-                // key contains our user id
+                // key contains our user id and location contains that user's location
                 
                 // Load each user corresponding to each document key
-                //Firestore.firestore().collection("users/").whereField("", isEqualTo: key!)
-                var docRef = Firestore.firestore().collection("users").document(key!)
+                let docRef = Firestore.firestore().collection("users").document(key!)
                 docRef.getDocument { (document, error) in
                     if let document = document, document.exists {
                         if let dictionary = document.data() {

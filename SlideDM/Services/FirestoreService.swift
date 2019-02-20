@@ -15,7 +15,7 @@ import CoreLocation
 class FirestoreService {
     static let shared = FirestoreService()
     
-    // Geofirestore
+    // Geofirestore - This will need to be refactored to include a user's location inside a user's document
     let geoFireStorePath = "geoFirestore"
     var geoFirestoreRef: CollectionReference
     var geoFirestore: GeoFirestore
