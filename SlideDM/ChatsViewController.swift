@@ -8,6 +8,7 @@
 
 // TODO:
 // [] Did I set up my Geofire correctly aka Is there a better way to perform queries? Right now I pull all the Geo documents that are near me and then pull all the users that match these ids. This involves two document retrieval calls per user. Is there a way to set up a reference from the Geofire coordinate to the user? This would allow me to pull the users directly and cut my cost in half. OR can i save the location in the user?
+// --> Pf and TA said that's how you do it. Suggested thinking about a custom solution where you can group people by zip code and then perform queries on user-groups.
 
 import UIKit
 import CoreLocation
