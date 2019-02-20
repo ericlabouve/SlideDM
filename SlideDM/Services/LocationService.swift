@@ -39,10 +39,10 @@ class LocationService: NSObject, CLLocationManagerDelegate {
         if CLLocationManager.locationServicesEnabled() {
             print("Location Services Enabled")
             // Ask permission to obtain user's location
-            self.locationManager.requestAlwaysAuthorization()
-            locationManager.delegate = self
-            locationManager.desiredAccuracy = kCLLocationAccuracyBest
-            locationManager.startUpdatingLocation()
+            self.locationManager.requestWhenInUseAuthorization()
+            self.locationManager.delegate = self
+            self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
+            self.locationManager.startUpdatingLocation()
         }
         print("LocationService Singleton Initialized")
     }
@@ -55,16 +55,21 @@ class LocationService: NSObject, CLLocationManagerDelegate {
     
     // MARK: - Core Location
     
+    // LocationManager:didUpdateLocations gets updated super quickly. So fast that by the time we call
+    // stopUpdatingLocation it gets called again. We only want the user's location to get updated once.
+    var calledOnce = false
     // Save the user's current location locally and also in Firestore
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        let userLocation:CLLocation = locations[0] as CLLocation
-        print("locations = \(userLocation.coordinate.latitude) \(userLocation.coordinate.longitude)")
-        // Stop listening for location updates. locationManager:didUpdateLocations may get called one or
-        // two more times before we can stop it from updating :(
-        manager.stopUpdatingLocation()
-        // Globally set user position
-        LocationService.shared.userLocation = userLocation
-        updateCurrentLocationInFirestore()
+        if !calledOnce {
+            calledOnce = true
+            let userLocation:CLLocation = locations[0] as CLLocation
+            print("locations = \(userLocation.coordinate.latitude) \(userLocation.coordinate.longitude)")
+            // Stop listening for location updates.
+            manager.stopUpdatingLocation()
+            // Globally set user position
+            LocationService.shared.userLocation = userLocation
+            updateCurrentLocationInFirestore()
+        }
     }
     
     func updateCurrentLocationInFirestore() {

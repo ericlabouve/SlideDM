@@ -42,6 +42,7 @@ class User {
         self.first = dictionary["first"] as? String ?? ""
         self.last = dictionary["last"] as? String ?? ""
         self.phoneID = dictionary["phoneID"] as? String ?? ""
+        greetingTag = getRandomGreetingTag()
         // Also decompose this one...
 //        self.contacts
     }

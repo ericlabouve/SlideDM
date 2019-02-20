@@ -33,11 +33,11 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
         super.viewDidLoad()
         
         LocationService.shared.addLocationListener(listener: self)
-
-        let fakeUser1 = User(first: "Eric", last: "LaBouve", phoneID: "123456789")
-        let fakeUser2 = User(first: "Stephanie", last: "LaBouve", phoneID: "987654321")
-        nearbyUsers.append(fakeUser1)
-        nearbyUsers.append(fakeUser2)
+//
+//        let fakeUser1 = User(first: "Eric", last: "LaBouve", phoneID: "123456789")
+//        let fakeUser2 = User(first: "Stephanie", last: "LaBouve", phoneID: "987654321")
+//        nearbyUsers.append(fakeUser1)
+//        nearbyUsers.append(fakeUser2)
     }
     
     
@@ -51,7 +51,7 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
         
         if let center = userLocation {
             // 5 miles = 8.04672 kilometers
-            var circleQuery = FirestoreService.shared.geoFirestore.query(withCenter: center, radius: 8.04672)
+            var circleQuery = FirestoreService.shared.geoFirestore.query(withCenter: center, radius: 300)
             
             // Refactor this into FirestoreService later
             circleQuery.observe(.documentEntered, with: { (key: String?, location: CLLocation?) in
@@ -64,12 +64,13 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
                     if let document = document, document.exists {
                         if let dictionary = document.data() {
                             self.nearbyUsers.append(User(dictionary: dictionary))
-                            print("Added User")
                         }
-                        
-//                        print("Document data: \(dataDescription)")
                     } else {
                         print("Document does not exist")
+                    }
+                    // Reload the tableView in the main thread
+                    DispatchQueue.main.async {
+                        self.tableView.reloadData()
                     }
                 }
             })
