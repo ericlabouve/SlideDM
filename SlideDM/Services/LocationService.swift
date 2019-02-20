@@ -13,19 +13,18 @@ import CoreLocation
 class LocationService: NSObject, CLLocationManagerDelegate {
     static let shared = LocationService()
     
-    var locationListener: LocationListener?
-    var locationListeners = [LocationListener?]()
+    var locationListeners = [UserLocationListener?]()
     
     // Location tracking
     var locationManager = CLLocationManager()
     
-    // The user's current location which is updated when the app is launched
+    // The user's current location which is fetched when the app is launched
     var userLocation: CLLocation? {
+        // Notify all listeners
         didSet {
             print("userLocation set")
-//            locationListener?.locationChanged(userLocation: userLocation)
             for listener in locationListeners {
-                listener?.locationChanged(userLocation: userLocation)
+                listener?.userLocationChanged(userLocation: userLocation)
             }
         }
     }
@@ -48,19 +47,9 @@ class LocationService: NSObject, CLLocationManagerDelegate {
         print("LocationService Singleton Initialized")
     }
     
-    // Empty body so that init is called
-    func load() {}
-    
-    
-    func addLocationListener(obj: LocationListener) {
-        locationListeners.append(obj)
-    }
-    
-    
-    
-    
-    func isUserLocationSet() -> Bool {
-        return LocationService.shared.userLocation != nil
+    // Those who implement UserLocationListener should call this and pass self
+    func addLocationListener(listener: UserLocationListener) {
+        locationListeners.append(listener)
     }
     
     
@@ -70,7 +59,8 @@ class LocationService: NSObject, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let userLocation:CLLocation = locations[0] as CLLocation
         print("locations = \(userLocation.coordinate.latitude) \(userLocation.coordinate.longitude)")
-        // Stop listening for location updates
+        // Stop listening for location updates. locationManager:didUpdateLocations may get called one or
+        // two more times before we can stop it from updating :(
         manager.stopUpdatingLocation()
         // Globally set user position
         LocationService.shared.userLocation = userLocation
@@ -92,6 +82,7 @@ class LocationService: NSObject, CLLocationManagerDelegate {
     }
 }
 
-protocol LocationListener {
-    func locationChanged(userLocation: CLLocation?)
+// Conform to this protocol if you want to receive updates when the user's location changes
+protocol UserLocationListener {
+    func userLocationChanged(userLocation: CLLocation?)
 }

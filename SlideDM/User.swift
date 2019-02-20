@@ -37,6 +37,15 @@ class User {
         greetingTag = getRandomGreetingTag()
     }
     
+    // Convert dictionary obtained from document back into a user
+    init(dictionary: [String: Any]) {
+        self.first = dictionary["first"] as? String ?? ""
+        self.last = dictionary["last"] as? String ?? ""
+        self.phoneID = dictionary["phoneID"] as? String ?? ""
+        // Also decompose this one...
+//        self.contacts
+    }
+    
     func getRandomGreetingTag() -> String {
         var message = ""
         message += ["Hi ", "Hello ", "Greetings ", "Salutations ", "Holla "].randomElement()!

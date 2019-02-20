@@ -15,7 +15,8 @@ import UIKit
 import CoreLocation
 import Firebase
 
-class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, LocationListener { //}, CLLocationManagerDelegate {
+class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UserLocationListener {
+    
     // User Interface
     @IBOutlet weak var tableView: UITableView!
     
@@ -24,27 +25,14 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     var nearbyUsers = [User]()
     
     // Storage
-    var userDefaults = UserDefaults.standard
-    
-    
-    
-    
-    func locationChanged(userLocation: CLLocation?) {
-        // Update table
-        print("Here is the user location: \(userLocation)")
-    }
-    
-    
-    
+//    var userDefaults = UserDefaults.standard
+
     
     // View Controller Life Cycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Make sure we load our location ahead of time
-//        LocationService.shared.load()
         
-//        LocationService.shared.locationListener = self
-        LocationService.shared.addLocationListener(obj: self)
+        LocationService.shared.addLocationListener(listener: self)
 
         let fakeUser1 = User(first: "Eric", last: "LaBouve", phoneID: "123456789")
         let fakeUser2 = User(first: "Stephanie", last: "LaBouve", phoneID: "987654321")
@@ -52,8 +40,16 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
         nearbyUsers.append(fakeUser2)
     }
     
-    @IBAction func loadContactsButton(_ sender: UIButton) {
-        if let center = LocationService.shared.userLocation {
+    
+    // MARK: - UserLocationListener methods
+    
+    // Using the user's location, query the database for all nearby users who are part of the user's social
+    // network and add them to the tableView
+    func userLocationChanged(userLocation: CLLocation?) {
+        // Update table
+        print("Here is the user location: \(String(describing: userLocation))")
+        
+        if let center = userLocation {
             // 5 miles = 8.04672 kilometers
             var circleQuery = FirestoreService.shared.geoFirestore.query(withCenter: center, radius: 8.04672)
             
@@ -63,28 +59,25 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
                 
                 // Load each user corresponding to each document key
                 //Firestore.firestore().collection("users/").whereField("", isEqualTo: key!)
+                var docRef = Firestore.firestore().collection("users").document(key!)
+                docRef.getDocument { (document, error) in
+                    if let document = document, document.exists {
+                        if let dictionary = document.data() {
+                            self.nearbyUsers.append(User(dictionary: dictionary))
+                            print("Added User")
+                        }
+                        
+//                        print("Document data: \(dataDescription)")
+                    } else {
+                        print("Document does not exist")
+                    }
+                }
             })
-            
-        }
-    }
-    
-    // Loads all users from firestore
-    func loadNearbyUsers() {
-        
-        // THIS IS REALLY BAD BUT IDK HOW ELSE TO MAKE SURE THE USER'S LOCATION IS SET
-//        while LocationService.shared.userLocation == nil {
-//            // Wait until app has located itself
-//        }
-        
-        if let center = LocationService.shared.userLocation {
-            // 5 miles = 8.04672 kilometers
-            var circleQuery = FirestoreService.shared.geoFirestore.query(withCenter: center, radius: 8.04672)
-            
-
         } else {
-            print("user Location not yet ready")
+            print("User's location was null in userLocationChanged()")
         }
     }
+
   
     /*
     // MARK: - Navigation
