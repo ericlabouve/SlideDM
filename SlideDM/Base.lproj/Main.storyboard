@@ -221,27 +221,13 @@
                     <view key="view" contentMode="scaleToFill" id="kHX-CZ-mLw">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aVE-qP-fsu">
-                                <rect key="frame" x="318" y="25" width="41" height="33"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <state key="normal" title="Done"/>
-                                <connections>
-                                    <segue destination="W71-B0-Msn" kind="presentation" identifier="profileToChatsSegue" modalTransitionStyle="crossDissolve" id="FaP-P3-ZZc"/>
-                                </connections>
-                            </button>
-                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <constraints>
-                            <constraint firstItem="rkc-21-ppD" firstAttribute="trailing" secondItem="aVE-qP-fsu" secondAttribute="trailing" constant="16" id="MEv-Kw-sop"/>
-                            <constraint firstItem="aVE-qP-fsu" firstAttribute="top" secondItem="rkc-21-ppD" secondAttribute="top" constant="5" id="UhT-QP-6XR"/>
-                        </constraints>
                         <viewLayoutGuide key="safeArea" id="rkc-21-ppD"/>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="e8j-Sg-Z2t" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="950" y="798"/>
+            <point key="canvasLocation" x="2721" y="1264"/>
         </scene>
         <!--Chats-->
         <scene sceneID="uy6-gD-75y">
@@ -333,9 +319,9 @@
                         <viewLayoutGuide key="safeArea" id="waU-Hy-Ncq"/>
                     </view>
                     <navigationItem key="navigationItem" title="Chats" id="VJj-U9-yKM">
-                        <barButtonItem key="leftBarButtonItem" title="Profile" id="SlS-Wu-xp4">
+                        <barButtonItem key="rightBarButtonItem" title="Profile" id="SlS-Wu-xp4">
                             <connections>
-                                <segue destination="Xj8-aG-9Lf" kind="presentation" identifier="chatsToProfileSegue" id="15A-8J-kp0"/>
+                                <segue destination="Xj8-aG-9Lf" kind="show" identifier="chatsToProfileSegue" id="15A-8J-kp0"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -346,7 +332,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FsK-6H-jxU" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1824.8" y="798.35082458770626"/>
+            <point key="canvasLocation" x="1825" y="893"/>
         </scene>
         <!--Chat Room View Controller-->
         <scene sceneID="zO4-oK-oMT">
@@ -361,14 +347,11 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="bf8-5v-ca6" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2722" y="797"/>
+            <point key="canvasLocation" x="2721" y="564"/>
         </scene>
     </scenes>
     <resources>
         <image name="FakeFacebookLoginButton" width="720" height="129"/>
         <image name="defaultIcon" width="980" height="980"/>
     </resources>
-    <inferredMetricsTieBreakers>
-        <segue reference="z6F-u0-R6B"/>
-    </inferredMetricsTieBreakers>
 </document>
