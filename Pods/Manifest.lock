@@ -33,6 +33,9 @@ PODS:
     - FBSDKCoreKit
   - Firebase (5.4.1):
     - Firebase/Core (= 5.4.1)
+  - Firebase/Auth (5.4.1):
+    - Firebase/CoreOnly
+    - FirebaseAuth (= 5.0.2)
   - Firebase/Core (5.4.1):
     - Firebase/CoreOnly
     - FirebaseAnalytics (= 5.0.1)
@@ -49,6 +52,9 @@ PODS:
     - FirebaseInstanceID (~> 3.0)
     - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
     - nanopb (~> 0.3)
+  - FirebaseAuth (5.0.2):
+    - FirebaseCore (~> 5.0)
+    - GTMSessionFetcher/Core (~> 1.1)
   - FirebaseCore (5.0.6):
     - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
   - FirebaseDatabase (5.0.2):
@@ -100,6 +106,7 @@ PODS:
   - gRPC/Main (1.18.0):
     - gRPC-Core (= 1.18.0)
     - gRPC-RxLibrary (= 1.18.0)
+  - GTMSessionFetcher/Core (1.2.1)
   - leveldb-library (1.20)
   - nanopb (0.3.901):
     - nanopb/decode (= 0.3.901)
@@ -113,6 +120,7 @@ DEPENDENCIES:
   - FacebookCore
   - FacebookLogin
   - FacebookShare
+  - Firebase/Auth
   - Firebase/Core
   - Firebase/Firestore
   - Geofirestore
@@ -130,6 +138,7 @@ SPEC REPOS:
     - FBSDKShareKit
     - Firebase
     - FirebaseAnalytics
+    - FirebaseAuth
     - FirebaseCore
     - FirebaseDatabase
     - FirebaseFirestore
@@ -141,6 +150,7 @@ SPEC REPOS:
     - gRPC-Core
     - gRPC-ProtoRPC
     - gRPC-RxLibrary
+    - GTMSessionFetcher
     - leveldb-library
     - nanopb
     - Protobuf
@@ -157,6 +167,7 @@ SPEC CHECKSUMS:
   FBSDKShareKit: 0e45916f4150da485928ae2a17ca021950b194f5
   Firebase: 355bd535bfdacaa82a7fe8d9784115edefd6fc03
   FirebaseAnalytics: b3628aea54c50464c32c393fb2ea032566e7ecc2
+  FirebaseAuth: 096e457cdd4274412a66c4a35874787e411f5a03
   FirebaseCore: 4c28e3b9708ba48a765e76515f913a71596eb5dd
   FirebaseDatabase: 27be5ac5bc75e0b17537b2bbfada8258addcc8cd
   FirebaseFirestore: d4a3a7787624e612298a320da95935b8dc036c1d
@@ -168,10 +179,11 @@ SPEC CHECKSUMS:
   gRPC-Core: 901572a0099a453a79eb58bdb29e381ede0787bd
   gRPC-ProtoRPC: 8e49c501c166d221cf9e44076b20580171f8ecd0
   gRPC-RxLibrary: bf23bc3bfde06674a794bb63f458f8d67d4038bb
+  GTMSessionFetcher: 32aeca0aa144acea523e1c8e053089dec2cb98ca
   leveldb-library: 08cba283675b7ed2d99629a4bc5fd052cd2bb6a5
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
   Protobuf: 1eb9700044745f00181c136ef21b8ff3ad5a0fd5
 
-PODFILE CHECKSUM: 39eb9c345afe45245097a1467a28bcd40826ee3c
+PODFILE CHECKSUM: b06c41b47d45037e84b7cbb49a04643cbcbecb5a
 
 COCOAPODS: 1.5.2

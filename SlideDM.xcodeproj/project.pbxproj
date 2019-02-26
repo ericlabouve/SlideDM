@@ -56,7 +56,7 @@
 		483D952622138D3D004216C4 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		483D95282213C309004216C4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		483D952A2213CD6D004216C4 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
-		486209ED220FF1EE00AC09D4 /* SetupProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SetupProfileViewController.swift; path = ../SetupProfileViewController.swift; sourceTree = "<group>"; };
+		486209ED220FF1EE00AC09D4 /* SetupProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupProfileViewController.swift; sourceTree = "<group>"; };
 		487724D92207AC0900725DF8 /* SlideDM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SlideDM.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		487724DC2207AC0900725DF8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		487724DE2207AC0900725DF8 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
@@ -110,6 +110,28 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		483390CC2225C36400ED1460 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				487724DE2207AC0900725DF8 /* LoginViewController.swift */,
+				486209ED220FF1EE00AC09D4 /* SetupProfileViewController.swift */,
+				483D952622138D3D004216C4 /* ProfileViewController.swift */,
+				4835638A221A6005008A98E7 /* ChatRoomViewController.swift */,
+				483D952422138AA7004216C4 /* ChatsViewController.swift */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
+		483390CD2225C3D300ED1460 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				482617D2220D40AC006398EE /* Contact.swift */,
+				483D952A2213CD6D004216C4 /* User.swift */,
+				48356388221A4489008A98E7 /* ChatsTableViewCell.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		4835638E221A9A4F008A98E7 /* Services */ = {
 			isa = PBXGroup;
 			children = (
@@ -144,16 +166,10 @@
 		487724DB2207AC0900725DF8 /* SlideDM */ = {
 			isa = PBXGroup;
 			children = (
+				483390CD2225C3D300ED1460 /* Models */,
+				483390CC2225C36400ED1460 /* ViewControllers */,
 				4835638E221A9A4F008A98E7 /* Services */,
-				482617D2220D40AC006398EE /* Contact.swift */,
-				483D952A2213CD6D004216C4 /* User.swift */,
-				483D952422138AA7004216C4 /* ChatsViewController.swift */,
-				48356388221A4489008A98E7 /* ChatsTableViewCell.swift */,
-				486209ED220FF1EE00AC09D4 /* SetupProfileViewController.swift */,
 				487724DC2207AC0900725DF8 /* AppDelegate.swift */,
-				487724DE2207AC0900725DF8 /* LoginViewController.swift */,
-				483D952622138D3D004216C4 /* ProfileViewController.swift */,
-				4835638A221A6005008A98E7 /* ChatRoomViewController.swift */,
 				487724E02207AC0900725DF8 /* Main.storyboard */,
 				487724E52207AC0A00725DF8 /* LaunchScreen.storyboard */,
 				4877250A2207C21C00725DF8 /* SlideDM.entitlements */,
@@ -278,6 +294,9 @@
 					487724D82207AC0900725DF8 = {
 						CreatedOnToolsVersion = 10.1;
 						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 0;
+							};
 							com.apple.Keychain = {
 								enabled = 1;
 							};
@@ -376,6 +395,7 @@
 				"${BUILT_PRODUCTS_DIR}/FacebookCore/FacebookCore.framework",
 				"${BUILT_PRODUCTS_DIR}/FacebookLogin/FacebookLogin.framework",
 				"${BUILT_PRODUCTS_DIR}/FacebookShare/FacebookShare.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC/GRPCClient.framework",
@@ -396,6 +416,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FacebookCore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FacebookLogin.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FacebookShare.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GRPCClient.framework",

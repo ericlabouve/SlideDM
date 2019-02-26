@@ -11,6 +11,7 @@
 
 import UIKit
 import Firebase
+import FirebaseAuth
 
 extension UITextField {
     func underlined(){
@@ -136,6 +137,41 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - IBActions
     
+    // Its a better idea to auth with facebook and just ask for this information later, like how i'm currently doing...
+    
+//    @IBAction func verifyPhoneNumberButton(_ sender: UIButton) {
+//        if let phoneNumber = LoginViewController.cleanPhoneNumber(phoneNumber: phoneNumberTextField.text!) {
+//            // Phone number authentication
+//            PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { (verificationID, error) in
+//                if let error = error {
+//                    let alert = UIAlertController(title: "Verification Error", message: error.localizedDescription, preferredStyle: .alert)
+//                    let defaultAction = UIAlertAction(title: "OK", style: .default)
+//                    alert.addAction(defaultAction)
+//                    self.present(alert, animated: true, completion:nil)
+//                    return
+//                }
+//                // Sign in using the verificationID and the code sent to the user
+//                // ...
+//                UserDefaults.standard.set(verificationID, forKey: "authVerificationID")
+//                let verificationID = UserDefaults.standard.string(forKey: "authVerificationID")
+//                print("verificationID = \(String(describing: verificationID))")
+//                let verificationCode = "123456"
+//                let credential = PhoneAuthProvider.provider().credential(
+//                    withVerificationID: verificationID!,
+//                    verificationCode: verificationCode)
+//                Auth.auth().signInAndRetrieveData(with: credential) { (authResult, error) in
+//                    if let error = error {
+//                        // ...
+//                        return
+//                    }
+//                    // User is signed in
+//                    // ...
+//                }
+//            }
+//        }
+//    }
+    
+    
     @IBAction func doneButton(_ sender: UIButton) {
         var done = true
         // Check first name
@@ -151,8 +187,8 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
             done = false
         }
         // Check phone number
-        if let number = LoginViewController.cleanPhoneNumber(phoneNumber: phoneNumberTextField.text!) {
-            userEncryptedPhoneNumber = number.sha256()
+        if let phoneNumber = LoginViewController.cleanPhoneNumber(phoneNumber: phoneNumberTextField.text!) {
+            userEncryptedPhoneNumber = phoneNumber.sha256()
         } else {
             done = false
         }
@@ -176,7 +212,7 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func whyPhoneNumberButton(_ sender: UIButton) {
-        let message = "SlideDM uses phone numbers to uniquely identify our users and we need your explicit permission to obtain your phone number. We encrypt all phone numbers so that no one can take advantage of your personal data."
+        let message = "SlideDM uses phone numbers to uniquely identify our users and we need your explicit permission to obtain your phone number. We encrypt all phone numbers so that no one can take advantage of your personal data. You might receive an SMS message for verification and standard rates apply"
         let alert = UIAlertController(title: "Why My Phone Number?", message: message, preferredStyle: .alert)
         let defaultAction = UIAlertAction(title: "OK", style: .default)
         alert.addAction(defaultAction)
