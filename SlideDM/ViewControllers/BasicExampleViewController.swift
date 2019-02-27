@@ -27,7 +27,7 @@ import MapKit
 import MessageKit
 import MessageInputBar
 
-final class BasicExampleViewController: ChatRoom2ViewController {
+final class ChatRoomViewController: ChatRoomBaseViewController {
   
     override func configureMessageCollectionView() {
         super.configureMessageCollectionView()
@@ -40,7 +40,7 @@ final class BasicExampleViewController: ChatRoom2ViewController {
 
 // MARK: - MessagesDisplayDelegate
 
-extension BasicExampleViewController: MessagesDisplayDelegate {
+extension ChatRoomViewController: MessagesDisplayDelegate {
     
     // MARK: - Text Messages
     
@@ -103,7 +103,7 @@ extension BasicExampleViewController: MessagesDisplayDelegate {
 
 // MARK: - MessagesLayoutDelegate
 
-extension BasicExampleViewController: MessagesLayoutDelegate {
+extension ChatRoomViewController: MessagesLayoutDelegate {
     
     func cellTopLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
         return 18

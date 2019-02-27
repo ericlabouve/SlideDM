@@ -27,7 +27,7 @@ import MessageKit
 import MessageInputBar
 
 /// A base class for the example controllers
-class ChatRoom2ViewController: MessagesViewController, MessagesDataSource {
+class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     
     
     var fromUser: User?
@@ -175,7 +175,7 @@ class ChatRoom2ViewController: MessagesViewController, MessagesDataSource {
 
 // MARK: - MessageCellDelegate
 
-extension ChatRoom2ViewController: MessageCellDelegate {
+extension ChatRoomBaseViewController: MessageCellDelegate {
     
     func didTapAvatar(in cell: MessageCollectionViewCell) {
         print("Avatar tapped")
@@ -205,7 +205,7 @@ extension ChatRoom2ViewController: MessageCellDelegate {
 
 // MARK: - MessageLabelDelegate
 
-extension ChatRoom2ViewController: MessageLabelDelegate {
+extension ChatRoomBaseViewController: MessageLabelDelegate {
     
     func didSelectAddress(_ addressComponents: [String: String]) {
         print("Address Selected: \(addressComponents)")
@@ -231,7 +231,7 @@ extension ChatRoom2ViewController: MessageLabelDelegate {
 
 // MARK: - MessageInputBarDelegate
 
-extension ChatRoom2ViewController: MessageInputBarDelegate {
+extension ChatRoomBaseViewController: MessageInputBarDelegate {
     
     func messageInputBar(_ inputBar: MessageInputBar, didPressSendButtonWith text: String) {
         

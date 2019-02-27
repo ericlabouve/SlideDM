@@ -111,11 +111,6 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
             destinationVC.toUser = selectedUser
             destinationVC.fromUser = user
         }
-        else if segueID == "Chats2ToChatroom" {
-            let destinationVC = segue.destination as! BasicExampleViewController
-            destinationVC.toUser = selectedUser
-            destinationVC.fromUser = user
-        }
         else if segueID == "ChatsToProfile" {
             let destinationVC = segue.destination as! ProfileViewController
             destinationVC.user = user
@@ -154,6 +149,6 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         selectedUser = nearbyUsers[indexPath.row]
 //        performSegue(withIdentifier: "ChatsToChatroom", sender: self)
-        performSegue(withIdentifier: "Chats2ToChatroom", sender: self)
+        performSegue(withIdentifier: "ChatsToChatroom", sender: self)
     }
 }
