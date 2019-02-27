@@ -25,21 +25,35 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     // Meta Data
     // Maintain this list for the TableView
     var nearbyUsers = [User]()
+    var selectedUser: User?
+    var user: User?
     
-    // Storage
-//    var userDefaults = UserDefaults.standard
-
     
     // View Controller Life Cycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         LocationService.shared.addLocationListener(listener: self)
-//
-//        let fakeUser1 = User(first: "Eric", last: "LaBouve", phoneID: "123456789")
-//        let fakeUser2 = User(first: "Stephanie", last: "LaBouve", phoneID: "987654321")
-//        nearbyUsers.append(fakeUser1)
-//        nearbyUsers.append(fakeUser2)
+        loadUser()
+    }
+    
+    // Fet the user from Firestore
+    func loadUser() {
+        let userDocID = UserDefaults.standard.string(forKey: "userDocID")
+        if let userDocID = userDocID {
+            let userRef = FirestoreService.shared.userColRef.document(userDocID)
+            userRef.getDocument { (document, error) in
+                if let document = document, document.exists {
+                    if let dictionary = document.data() {
+                        self.user = User(dictionary: dictionary)
+                        print("Successfully loaded user \(String(describing: self.user?.first)) \(String(describing: self.user?.last)) \(String(describing: self.user?.phoneID))")
+                    }
+                } else {
+                    print("Cannot find user with ID \(userDocID)")
+                }
+            }
+        } else {
+            print("Cannot find user with ID \(String(describing: userDocID))")
+        }
     }
     
     
@@ -65,7 +79,10 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
                 docRef.getDocument { (document, error) in
                     if let document = document, document.exists {
                         if let dictionary = document.data() {
-                            self.nearbyUsers.append(User(dictionary: dictionary))
+                            let nearbyUser = User(dictionary: dictionary)
+                            if self.user?.phoneID != nearbyUser.phoneID {
+                                self.nearbyUsers.append(nearbyUser)
+                            }
                         }
                     } else {
                         print("Document does not exist")
@@ -82,16 +99,29 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     }
 
   
-    /*
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        let segueID = segue.identifier!
+        if segueID == "ChatsToChatroom" {
+            let destinationVC = segue.destination as! ChatRoomViewController
+            destinationVC.toUser = selectedUser
+            destinationVC.fromUser = user
+        }
+        else if segueID == "Chats2ToChatroom" {
+            let destinationVC = segue.destination as! BasicExampleViewController
+            destinationVC.toUser = selectedUser
+            destinationVC.fromUser = user
+        }
+        else if segueID == "ChatsToProfile" {
+            let destinationVC = segue.destination as! ProfileViewController
+            destinationVC.user = user
+        }
     }
-    */
-    
+
     
     //MARK: - Table View Methods
     
@@ -119,5 +149,11 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 90
     }
-
+    
+    // Selecting a table cell will transition the user into the chat room
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        selectedUser = nearbyUsers[indexPath.row]
+//        performSegue(withIdentifier: "ChatsToChatroom", sender: self)
+        performSegue(withIdentifier: "Chats2ToChatroom", sender: self)
+    }
 }

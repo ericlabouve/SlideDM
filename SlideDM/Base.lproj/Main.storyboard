@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="W71-B0-Msn">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -298,7 +298,6 @@
                                             <outlet property="greetingTagTextView" destination="2mw-QU-zde" id="L1a-Pm-b3W"/>
                                             <outlet property="iconImageView" destination="3C4-da-XvC" id="F3K-gS-GaX"/>
                                             <outlet property="nameLabel" destination="g0T-bj-Oim" id="O3q-Hr-Xnk"/>
-                                            <segue destination="FT0-LU-QPo" kind="show" id="CID-Fc-fAX"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -321,13 +320,15 @@
                     <navigationItem key="navigationItem" title="Chats" id="VJj-U9-yKM">
                         <barButtonItem key="rightBarButtonItem" title="Profile" id="SlS-Wu-xp4">
                             <connections>
-                                <segue destination="Xj8-aG-9Lf" kind="show" identifier="chatsToProfileSegue" id="15A-8J-kp0"/>
+                                <segue destination="Xj8-aG-9Lf" kind="show" identifier="ChatsToProfile" id="15A-8J-kp0"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <connections>
                         <outlet property="tableView" destination="Jbr-QW-IyK" id="ZCw-Cm-mu8"/>
+                        <segue destination="z4S-Gc-ZY7" kind="show" identifier="ChatsToChatroom" id="6wd-0y-lm5"/>
+                        <segue destination="Ur5-h0-rnM" kind="show" identifier="Chats2ToChatroom" id="Sce-ax-rpa"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FsK-6H-jxU" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -335,19 +336,53 @@
             <point key="canvasLocation" x="1825" y="893"/>
         </scene>
         <!--Chat Room View Controller-->
-        <scene sceneID="zO4-oK-oMT">
+        <scene sceneID="ngT-q1-6zg">
             <objects>
-                <viewController id="FT0-LU-QPo" customClass="ChatRoomViewController" customModule="SlideDM" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="w3u-xh-VG1">
+                <collectionViewController id="z4S-Gc-ZY7" customClass="ChatRoomViewController" customModule="SlideDM" customModuleProvider="target" sceneMemberID="viewController">
+                    <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="tZj-JA-CP0">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <viewLayoutGuide key="safeArea" id="4zd-cb-vuX"/>
+                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="RqX-sw-8z1">
+                            <size key="itemSize" width="50" height="50"/>
+                            <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                            <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                            <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                        </collectionViewFlowLayout>
+                        <cells>
+                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="Oc9-QN-BgK">
+                                <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
+                                    <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </view>
+                            </collectionViewCell>
+                        </cells>
+                        <connections>
+                            <outlet property="dataSource" destination="z4S-Gc-ZY7" id="IUJ-rb-hgm"/>
+                            <outlet property="delegate" destination="z4S-Gc-ZY7" id="26B-oc-Agm"/>
+                        </connections>
+                    </collectionView>
+                </collectionViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="qZ1-ts-SjT" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3164" y="-3"/>
+        </scene>
+        <!--Basic Example View Controller-->
+        <scene sceneID="ouQ-RR-UHg">
+            <objects>
+                <viewController id="Ur5-h0-rnM" customClass="BasicExampleViewController" customModule="SlideDM" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="VNT-FA-GSi">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <viewLayoutGuide key="safeArea" id="gHy-mT-jXn"/>
                     </view>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="bf8-5v-ca6" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="gte-wa-RWj" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2721" y="564"/>
+            <point key="canvasLocation" x="3494" y="697"/>
         </scene>
     </scenes>
     <resources>

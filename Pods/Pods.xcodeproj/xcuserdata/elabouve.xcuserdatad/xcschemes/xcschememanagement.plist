@@ -89,6 +89,21 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>MessageInputBar.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>MessageKit-MessageKitAssets.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>MessageKit.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Pods-SlideDM.xcscheme</key>
 		<dict>
 			<key>isShown</key>

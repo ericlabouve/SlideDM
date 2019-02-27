@@ -25,6 +25,9 @@
 		487724E72207AC0A00725DF8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 487724E52207AC0A00725DF8 /* LaunchScreen.storyboard */; };
 		487724F22207AC0A00725DF8 /* SlideDMTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 487724F12207AC0A00725DF8 /* SlideDMTests.swift */; };
 		487724FD2207AC0A00725DF8 /* SlideDMUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 487724FC2207AC0A00725DF8 /* SlideDMUITests.swift */; };
+		48E628B122263FFE0031F4B0 /* ChatRoom2ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E628B022263FFE0031F4B0 /* ChatRoom2ViewController.swift */; };
+		48E628B3222641C40031F4B0 /* MKMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E628B2222641C40031F4B0 /* MKMessage.swift */; };
+		48E628B5222645860031F4B0 /* BasicExampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E628B4222645850031F4B0 /* BasicExampleViewController.swift */; };
 		8BF043911E6BD424B439D33F /* Pods_SlideDMUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E691FE17A3CAE236D77FEAB7 /* Pods_SlideDMUITests.framework */; };
 		C3AB735BB74376770CB5E373 /* Pods_SlideDMTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE4DDC1B64CDFD65D902D97 /* Pods_SlideDMTests.framework */; };
 /* End PBXBuildFile section */
@@ -71,6 +74,9 @@
 		487724FC2207AC0A00725DF8 /* SlideDMUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideDMUITests.swift; sourceTree = "<group>"; };
 		487724FE2207AC0A00725DF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4877250A2207C21C00725DF8 /* SlideDM.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SlideDM.entitlements; sourceTree = "<group>"; };
+		48E628B022263FFE0031F4B0 /* ChatRoom2ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoom2ViewController.swift; sourceTree = "<group>"; };
+		48E628B2222641C40031F4B0 /* MKMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MKMessage.swift; sourceTree = "<group>"; };
+		48E628B4222645850031F4B0 /* BasicExampleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicExampleViewController.swift; sourceTree = "<group>"; };
 		8E117561F6FA9349F3F62CCD /* Pods-SlideDMTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SlideDMTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SlideDMTests/Pods-SlideDMTests.debug.xcconfig"; sourceTree = "<group>"; };
 		8FDF67B3E38E2B4A604EAEC2 /* Pods-SlideDM.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SlideDM.release.xcconfig"; path = "Pods/Target Support Files/Pods-SlideDM/Pods-SlideDM.release.xcconfig"; sourceTree = "<group>"; };
 		9276D9F2A567B580322933BF /* Pods-SlideDM.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SlideDM.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SlideDM/Pods-SlideDM.debug.xcconfig"; sourceTree = "<group>"; };
@@ -113,6 +119,8 @@
 		483390CC2225C36400ED1460 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				48E628B4222645850031F4B0 /* BasicExampleViewController.swift */,
+				48E628B022263FFE0031F4B0 /* ChatRoom2ViewController.swift */,
 				487724DE2207AC0900725DF8 /* LoginViewController.swift */,
 				486209ED220FF1EE00AC09D4 /* SetupProfileViewController.swift */,
 				483D952622138D3D004216C4 /* ProfileViewController.swift */,
@@ -125,6 +133,7 @@
 		483390CD2225C3D300ED1460 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				48E628B2222641C40031F4B0 /* MKMessage.swift */,
 				482617D2220D40AC006398EE /* Contact.swift */,
 				483D952A2213CD6D004216C4 /* User.swift */,
 				48356388221A4489008A98E7 /* ChatsTableViewCell.swift */,
@@ -397,6 +406,8 @@
 				"${BUILT_PRODUCTS_DIR}/FacebookShare/FacebookShare.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
+				"${BUILT_PRODUCTS_DIR}/MessageInputBar/MessageInputBar.framework",
+				"${BUILT_PRODUCTS_DIR}/MessageKit/MessageKit.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC/GRPCClient.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core/grpc.framework",
@@ -418,6 +429,8 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FacebookShare.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MessageInputBar.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MessageKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GRPCClient.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework",
@@ -476,8 +489,11 @@
 			files = (
 				483D952722138D3D004216C4 /* ProfileViewController.swift in Sources */,
 				48356389221A4489008A98E7 /* ChatsTableViewCell.swift in Sources */,
+				48E628B122263FFE0031F4B0 /* ChatRoom2ViewController.swift in Sources */,
 				486209EE220FF1EE00AC09D4 /* SetupProfileViewController.swift in Sources */,
+				48E628B5222645860031F4B0 /* BasicExampleViewController.swift in Sources */,
 				48356390221AA01A008A98E7 /* FirestoreService.swift in Sources */,
+				48E628B3222641C40031F4B0 /* MKMessage.swift in Sources */,
 				482617D3220D40AC006398EE /* Contact.swift in Sources */,
 				483D952522138AA7004216C4 /* ChatsViewController.swift in Sources */,
 				487724DF2207AC0900725DF8 /* LoginViewController.swift in Sources */,

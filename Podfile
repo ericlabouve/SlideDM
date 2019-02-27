@@ -14,6 +14,7 @@ target 'SlideDM' do
   pod 'Firebase/Firestore'
   pod 'Firebase/Auth'
   pod 'Geofirestore'
+  pod 'MessageKit'
 
   target 'SlideDMTests' do
     inherit! :search_paths
