@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Firebase
 
 class User {
     // User's first name
@@ -24,27 +25,36 @@ class User {
     var distanceMetric: String = "Nearby"
     // List of contacts that represent people the user knows
     var contacts: [Contact]?
+    
+    let ref: DocumentReference?
+    
+    // A list of conversations that the user is a part of
+    var conversations = [DocumentReference]()
 
     // var uniqueID: String
     // var location: ~GeoFireLocation~
     // var profileImage: UIImage
-    // var chatThreads: [ChatThread]
     
     init(first: String, last: String, phoneID: String) {
         self.first = first
         self.last = last
         self.phoneID = phoneID
+        ref = nil
         greetingTag = getRandomGreetingTag()
     }
     
+
     // Convert dictionary obtained from document back into a user
-    init(dictionary: [String: Any]) {
-        self.first = dictionary["first"] as? String ?? ""
-        self.last = dictionary["last"] as? String ?? ""
-        self.phoneID = dictionary["phoneID"] as? String ?? ""
-        greetingTag = getRandomGreetingTag()
-        // Also decompose this one...
-//        self.contacts
+//    init(dictionary: [String: Any]) {
+    init(snapshot: DocumentSnapshot) {
+        let values = snapshot.data()!
+        
+        self.first = values["first"] as! String
+        self.last = values["last"] as! String
+        self.phoneID = values["phoneID"] as! String
+        self.contacts = (values["contacts"] as! [Contact])
+        self.ref = snapshot.reference
+        self.greetingTag = getRandomGreetingTag()
     }
     
     func getRandomGreetingTag() -> String {
@@ -63,6 +73,7 @@ class User {
                 contactList.append(contact.toDict())
             }
         }
+//        var conversationList: [String]
         return [
             "first" : first,
             "last" : last,

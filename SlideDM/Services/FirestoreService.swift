@@ -15,11 +15,31 @@ import CoreLocation
 class FirestoreService {
     static let shared = FirestoreService()
     
+    // users
+    //  - first: String
+    //  - last: String
+    //  - phoneID: String
+    //  - contacts: [{
+    //                  first: String
+    //                  last: String
+    //                  phoneIDs: [String]
+    //              }]
+    //  - conversations: [DocumentReference]
     var userColRef: CollectionReference!
-    
-    // Geofirestore - This will need to be refactored to include a user's location inside a user's document
+
+    // Geofirestore
+    // TODO: This will need to be refactored to include a user's location inside a user's document
     var geoFirestoreRef: CollectionReference
     var geoFirestore: GeoFirestore
+    
+    // conversations
+    //  - fromUser: String
+    //  - toUser: String
+    //  - messages: collection
+    //     - text: String
+    //     - user: String
+    //     - time: Date
+    var conversationsRef: CollectionReference
     
     private init() {
         // Load Firestore and Geofirestore
@@ -27,6 +47,8 @@ class FirestoreService {
         geoFirestore = GeoFirestore(collectionRef: geoFirestoreRef)
         
         userColRef = Firestore.firestore().collection("users")
+        
+        conversationsRef = Firestore.firestore().collection("conversations")
     }
 
 }

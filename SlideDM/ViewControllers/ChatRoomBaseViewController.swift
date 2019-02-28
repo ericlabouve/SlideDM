@@ -142,6 +142,7 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     // MARK: - MessagesDataSource
     
     func currentSender() -> Sender {
+        // Will need to restart the app from the LogingViewController to get credentials. But also a good idea to remove users tree in Firestore
         return Sender(id: (fromUser?.phoneID)!, displayName: (fromUser?.first)!)
     }
     

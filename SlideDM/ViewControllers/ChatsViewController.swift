@@ -38,22 +38,29 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     
     // Fet the user from Firestore
     func loadUser() {
-        let userDocID = UserDefaults.standard.string(forKey: "userDocID")
-        if let userDocID = userDocID {
-            let userRef = FirestoreService.shared.userColRef.document(userDocID)
-            userRef.getDocument { (document, error) in
-                if let document = document, document.exists {
-                    if let dictionary = document.data() {
-                        self.user = User(dictionary: dictionary)
-                        print("Successfully loaded user \(String(describing: self.user?.first)) \(String(describing: self.user?.last)) \(String(describing: self.user?.phoneID))")
-                    }
-                } else {
-                    print("Cannot find user with ID \(userDocID)")
-                }
-            }
-        } else {
-            print("Cannot find user with ID \(String(describing: userDocID))")
+        let userDocID_temp = UserDefaults.standard.string(forKey: "userDocID")
+        guard let userDocID = userDocID_temp else {
+            print("Cannot find user with ID \(String(describing: userDocID_temp))")
+            return
         }
+        
+        let userRef = FirestoreService.shared.userColRef.document(userDocID)
+        userRef.getDocument { (document, error) in
+            
+            guard let userDoc = document, (document?.exists)! else {
+                print("Cannot find user with ID \(userDocID)")
+                return
+            }
+            
+            self.user = User(snapshot: userDoc)
+
+//            if let dictionary = userDoc.data() {
+//                self.user = User(dictionary: dictionary)
+//                print("Successfully loaded user \(String(describing: self.user?.first)) \(String(describing: self.user?.last)) \(String(describing: self.user?.phoneID))")
+//            }
+            
+        }
+        
     }
     
     
@@ -78,12 +85,13 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
                 let docRef = Firestore.firestore().collection("users").document(key!)
                 docRef.getDocument { (document, error) in
                     if let document = document, document.exists {
-                        if let dictionary = document.data() {
-                            let nearbyUser = User(dictionary: dictionary)
-                            if self.user?.phoneID != nearbyUser.phoneID {
-                                self.nearbyUsers.append(nearbyUser)
-                            }
+                        
+                        let nearbyUser = User(snapshot: document)
+                        if self.user?.phoneID != nearbyUser.phoneID {
+                            self.nearbyUsers.append(nearbyUser)
                         }
+                        
+                        
                     } else {
                         print("Document does not exist")
                     }
