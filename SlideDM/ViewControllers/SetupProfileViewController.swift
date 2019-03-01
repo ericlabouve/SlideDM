@@ -6,12 +6,12 @@
 //
 
 // TODO:
-// Authenticate each user and turn off read/write access
-// Find a better way to convert storage data to dictionaries (maybe something with JSON or Codable?).
+// Authenticate each user with 2-factor authentication
 
 import UIKit
 import Firebase
 import FirebaseAuth
+import CodableFirebase
 
 extension UITextField {
     func underlined(){
@@ -36,27 +36,12 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var whyPhoneNumberButton: UIButton!
     @IBOutlet weak var doneButton: UIButton!
     
-    // Meta data
-    var user: User?
+    // Passed in from LoginViewController
     var userContacts: [Contact] = []
-    
-    var userFirstName: String = ""
-    var userLastName: String = ""
-    var userEncryptedPhoneNumber: String = ""
-    
-    // Firestore
-    let userPath = "users/"
-    var userColRef: CollectionReference!
-    
-    // Storage
-    var userDefaults = UserDefaults.standard
-    
-    // View Controller Life Cycle
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Load Firestore
-        userColRef = Firestore.firestore().collection(userPath)
         
         // Load Delegates
         firstNameTextField.delegate = self
@@ -75,7 +60,68 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         setBackground()
         hideUI()
     }
+    
+    
+    // MARK: - IBActions
+    
+    @IBAction func doneButton(_ sender: UIButton) {
+        // Make sure all the labels are filled in correctly
+        guard let userFirstName = firstNameTextField.text,
+              let userLastName = lastNameTextField.text,
+            let userEncryptedPhoneNumber = LoginViewController.cleanPhoneNumber(phoneNumber: phoneNumberTextField.text!)?.sha256() else {
+                let message = "Please fill out all the fields. Make sure that your phone number has the correct amount of digits."
+                let alert = UIAlertController(title: "User Alert", message: message, preferredStyle: .alert)
+                let defaultAction = UIAlertAction(title: "OK", style: .default)
+                alert.addAction(defaultAction)
+                present(alert, animated: true, completion:nil)
+                return
+        }
+        resignFirstResponder()
+        // We now have enough information to create a User object
+        saveUserToDatabase(user: User(first: userFirstName, last: userLastName, phoneID: userEncryptedPhoneNumber, contacts: userContacts))
+        // Move this to viewWillDisappear when setting up next view controller
+        outAnimation()
+        // Move to next screen
+        performSegue(withIdentifier: "setupProfileToChatsSegue", sender: nil)
+    }
+    
+    func saveUserToDatabase(user: User) {
+        let data = try! FirestoreEncoder().encode(user)
+        let ref = FirestoreService.shared.userColRef.addDocument(data: data)
+        UserDefaults.standard.set(ref.documentID, forKey: "userDocID")
+        UserDefaults.standard.synchronize()
+        print("Saved user")
+    }
+    
+    
+    
+    @IBAction func whyPhoneNumberButton(_ sender: UIButton) {
+        let message = "SlideDM uses phone numbers to uniquely identify our users and we need your explicit permission to obtain your phone number. We encrypt all phone numbers so that no one can take advantage of your personal data. You might receive an SMS message for verification and standard rates apply."
+        let alert = UIAlertController(title: "Why My Phone Number?", message: message, preferredStyle: .alert)
+        let defaultAction = UIAlertAction(title: "OK", style: .default)
+        alert.addAction(defaultAction)
+        present(alert, animated: true, completion:nil)
+    }
 
+    
+    // MARK: - UITextField Methods
+    
+    /**
+     * Called when 'return' key pressed. return NO to ignore.
+     */
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    /**
+     * Called when the user click on the view (outside the UITextField).
+     */
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
+    }
+    
+    
     
     // MARK: - User Interface Animations
     
@@ -132,133 +178,6 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         phoneNumberTextField.alpha = 0
         whyPhoneNumberButton.alpha = 0
         doneButton.alpha = 0
-    }
-    
-    
-    // MARK: - IBActions
-    
-    // Its a better idea to auth with facebook and just ask for this information later, like how i'm currently doing...
-    
-//    @IBAction func verifyPhoneNumberButton(_ sender: UIButton) {
-//        if let phoneNumber = LoginViewController.cleanPhoneNumber(phoneNumber: phoneNumberTextField.text!) {
-//            // Phone number authentication
-//            PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { (verificationID, error) in
-//                if let error = error {
-//                    let alert = UIAlertController(title: "Verification Error", message: error.localizedDescription, preferredStyle: .alert)
-//                    let defaultAction = UIAlertAction(title: "OK", style: .default)
-//                    alert.addAction(defaultAction)
-//                    self.present(alert, animated: true, completion:nil)
-//                    return
-//                }
-//                // Sign in using the verificationID and the code sent to the user
-//                // ...
-//                UserDefaults.standard.set(verificationID, forKey: "authVerificationID")
-//                let verificationID = UserDefaults.standard.string(forKey: "authVerificationID")
-//                print("verificationID = \(String(describing: verificationID))")
-//                let verificationCode = "123456"
-//                let credential = PhoneAuthProvider.provider().credential(
-//                    withVerificationID: verificationID!,
-//                    verificationCode: verificationCode)
-//                Auth.auth().signInAndRetrieveData(with: credential) { (authResult, error) in
-//                    if let error = error {
-//                        // ...
-//                        return
-//                    }
-//                    // User is signed in
-//                    // ...
-//                }
-//            }
-//        }
-//    }
-    
-    
-    @IBAction func doneButton(_ sender: UIButton) {
-        var done = true
-        // Check first name
-        if let _userFirstName = firstNameTextField.text {
-            userFirstName = _userFirstName
-        } else {
-            done = false
-        }
-        // Check last name
-        if let _userLastName = lastNameTextField.text {
-            userLastName = _userLastName
-        } else {
-            done = false
-        }
-        // Check phone number
-        if let phoneNumber = LoginViewController.cleanPhoneNumber(phoneNumber: phoneNumberTextField.text!) {
-            userEncryptedPhoneNumber = phoneNumber.sha256()
-        } else {
-            done = false
-        }
-        if done {
-            // Move this to viewWillDisappear when setting up next view controller
-            outAnimation()
-            // We now have enough information to create a User object
-            user = User(first: userFirstName, last: userLastName, phoneID: userEncryptedPhoneNumber)
-            user?.contacts = userContacts
-            saveUserToDatabase()
-            // Move to next screen
-            performSegue(withIdentifier: "setupProfileToChatsSegue", sender: nil)
-        } else {
-            // Complain to the user
-            let message = "Please fill out all the fields. Make sure that your phone number has the correct amount of digits."
-            let alert = UIAlertController(title: "User Alert", message: message, preferredStyle: .alert)
-            let defaultAction = UIAlertAction(title: "OK", style: .default)
-            alert.addAction(defaultAction)
-            present(alert, animated: true, completion:nil)
-        }
-    }
-    
-    @IBAction func whyPhoneNumberButton(_ sender: UIButton) {
-        let message = "SlideDM uses phone numbers to uniquely identify our users and we need your explicit permission to obtain your phone number. We encrypt all phone numbers so that no one can take advantage of your personal data. You might receive an SMS message for verification and standard rates apply"
-        let alert = UIAlertController(title: "Why My Phone Number?", message: message, preferredStyle: .alert)
-        let defaultAction = UIAlertAction(title: "OK", style: .default)
-        alert.addAction(defaultAction)
-        present(alert, animated: true, completion:nil)
-    }
-
-    
-    
-    
-     // MARK: - Navigation
-     
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-     // Get the new view controller using segue.destination.
-     // Pass the selected object to the new view controller.
-     }
- 
-    
-    // MARK: - Firestore
-    
-    func saveUserToDatabase() {
-        if let user = user {
-            let ref = userColRef.addDocument(data: user.toDict())
-            print("Saved user to database.")
-            UserDefaults.standard.set(ref.documentID, forKey: "userDocID")
-            UserDefaults.standard.synchronize()
-            print("Saved user ID to UserDefaults")
-        }
-    }
-    
-    
-    // MARK: - UITextField Methods
-    
-    /**
-     * Called when 'return' key pressed. return NO to ignore.
-     */
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
-    }
-    
-    /**
-     * Called when the user click on the view (outside the UITextField).
-     */
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.view.endEditing(true)
     }
 
 }

@@ -7,15 +7,15 @@
 //
 
 // TODO:
-// [] Did I set up my Geofire correctly aka Is there a better way to perform queries? Right now I pull all the Geo documents that are near me and then pull all the users that match these ids. This involves two document retrieval calls per user. Is there a way to set up a reference from the Geofire coordinate to the user? This would allow me to pull the users directly and cut my cost in half. OR can i save the location in the user?
-// --> Pf and TA said that's how you do it. Suggested thinking about a custom solution where you can group people by zip code and then perform queries on user-groups.
-
+// [] Is there a better way to perform queries? Right now pulling nearby users makes two database calls per user. I should be able to pull users directly by saving the location in the user.
 // Potential fix for 2-level inversion to get user locations:
 // https://github.com/firebase/geofire-objc/issues/101
+// [] Wifi connectivity popup when user's data can't be loaded
 
 import UIKit
 import CoreLocation
 import Firebase
+import CodableFirebase
 
 class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UserLocationListener {
     
@@ -26,7 +26,7 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     // Maintain this list for the TableView
     var nearbyUsers = [User]()
     var selectedUser: User?
-    var user: User?
+    var user: User!
     
     
     // View Controller Life Cycle Methods
@@ -38,20 +38,18 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     
     // Fetch the user from Firestore
     func loadUser() {
-        let userDocID_temp = UserDefaults.standard.string(forKey: "userDocID")
-        guard let userDocID = userDocID_temp else {
-            print("Cannot find user with ID \(String(describing: userDocID_temp))")
+        guard let userDocID = UserDefaults.standard.string(forKey: "userDocID") else {
+            print("Cannot find user ID in UserDefaults.standard")
             return
         }
-
-        let userRef = FirestoreService.shared.userColRef.document(userDocID)
-        userRef.getDocument { (document, error) in
-            guard let userDoc = document, (document?.exists)! else {
-                print("Cannot find user with ID \(userDocID)")
-                return
+        // Get user from the database
+        FirestoreService.shared.userColRef.document(userDocID).getDocument { (document, error) in
+            if let document = document {
+                self.user = try! FirestoreDecoder().decode(User.self, from: document.data()!)
+            } else {
+                // Probably shouldn't crash app. Should display a notification to the user to connect to wifi
+                fatalError("Could not fetch user")
             }
-            self.user = User(snapshot: userDoc)
-            
         }
         
     }
@@ -61,43 +59,76 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     
     // IDEA: Consider using a snapshot listener to listen for updates in an entire collection?
     
+    // Called ~once~ upon startup because we called addLocationListener in viewDidLoad
     // Using the user's location, query the database for all nearby users who are part of the user's social
     // network and add them to the tableView
     func userLocationChanged(userLocation: CLLocation?) {
-        // Update table
-        print("Here is the user location: \(String(describing: userLocation))")
         
-        if let center = userLocation {
-            // 5 miles = 8.04672 kilometers
-            let circleQuery = FirestoreService.shared.geoFirestore.query(withCenter: center, radius: 300)
-            // Refactor this into FirestoreService later
-            circleQuery.observe(.documentEntered, with: { (key: String?, location: CLLocation?) in
-                // key contains our user id and location contains that user's location
-                
-                // Load each user corresponding to each document key
-                let docRef = FirestoreService.shared.userColRef.document(key!)
-//                let docRef = Firestore.firestore().collection("users").document(key!)
-                docRef.getDocument { (document, error) in
-                    if let document = document, document.exists {
-                        
-                        let nearbyUser = User(snapshot: document)
-                        if self.user?.phoneID != nearbyUser.phoneID {
-                            self.nearbyUsers.append(nearbyUser)
-                        }
-                        
-                        
-                    } else {
-                        print("Document does not exist")
-                    }
-                    // Reload the tableView in the main thread
-                    DispatchQueue.main.async {
-                        self.tableView.reloadData()
-                    }
-                }
-            })
-        } else {
-            print("User's location was null in userLocationChanged()")
+        guard let center = userLocation else {
+            print("User's location not found")
+            return
         }
+        // 5 miles = 8.04672 kilometers
+        let circleQuery = FirestoreService.shared.geoFirestore.query(withCenter: center, radius: 300)
+        // Refactor this into FirestoreService later
+        //            circleQuery.observe(.documentEntered, with: { (key: String?, location: CLLocation?) in
+        //                // key contains our user id and location contains that user's location
+        //
+        //                // Load each user corresponding to each document key
+        //                let docRef = FirestoreService.shared.userColRef.document(key!)
+        ////                let docRef = Firestore.firestore().collection("users").document(key!)
+        //                docRef.getDocument { (document, error) in
+        //                    if let document = document, document.exists {
+        // Uncomment
+        //                        let nearbyUser = User(snapshot: document)
+        //                        if self.user?.phoneID != nearbyUser.phoneID {
+        //                            self.nearbyUsers.append(nearbyUser)
+        //                        }
+        //
+        //
+        //                    } else {
+        //                        print("Document does not exist")
+        //                    }
+        //                    // Reload the tableView in the main thread
+        //                    DispatchQueue.main.async {
+        //                        self.tableView.reloadData()
+        //                    }
+        //                }
+        //            })
+        
+        
+        // Update table
+//        if let center = userLocation {
+//            // 5 miles = 8.04672 kilometers
+//            let circleQuery = FirestoreService.shared.geoFirestore.query(withCenter: center, radius: 300)
+//            // Refactor this into FirestoreService later
+//            circleQuery.observe(.documentEntered, with: { (key: String?, location: CLLocation?) in
+//                // key contains our user id and location contains that user's location
+//
+//                // Load each user corresponding to each document key
+//                let docRef = FirestoreService.shared.userColRef.document(key!)
+////                let docRef = Firestore.firestore().collection("users").document(key!)
+//                docRef.getDocument { (document, error) in
+//                    if let document = document, document.exists {
+// Uncomment
+//                        let nearbyUser = User(snapshot: document)
+//                        if self.user?.phoneID != nearbyUser.phoneID {
+//                            self.nearbyUsers.append(nearbyUser)
+//                        }
+//
+//
+//                    } else {
+//                        print("Document does not exist")
+//                    }
+//                    // Reload the tableView in the main thread
+//                    DispatchQueue.main.async {
+//                        self.tableView.reloadData()
+//                    }
+//                }
+//            })
+//        } else {
+//            print("User's location was null in userLocationChanged()")
+//        }
     }
 
   

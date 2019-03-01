@@ -9,7 +9,7 @@
 import Foundation
 
 // A Contact is an individual that the user "knows" through their Contacts app.
-class Contact {
+class Contact: Codable {
     // First name
     var first: String
     // Last name
@@ -23,11 +23,11 @@ class Contact {
         self.phoneIDs = phoneIDs
     }
     
-    func toDict() -> [String: Any] {
-        return [
-            "first" : first,
-            "last" : last,
-            "phoneIDs" : phoneIDs
-        ]
-    }
+//    func toDict() -> [String: Any] {
+//        return [
+//            "first" : first,
+//            "last" : last,
+//            "phoneIDs" : phoneIDs
+//        ]
+//    }
 }

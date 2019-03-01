@@ -13,6 +13,7 @@ target 'SlideDM' do
   pod 'Firebase/Core'
   pod 'Firebase/Firestore'
   pod 'Firebase/Auth'
+  pod 'CodableFirebase'
   pod 'Geofirestore'
   pod 'MessageKit'
 

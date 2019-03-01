@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="W71-B0-Msn">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -139,7 +139,6 @@
                                 <state key="normal" title="Done"/>
                                 <connections>
                                     <action selector="doneButton:" destination="ocU-Ec-hUn" eventType="touchUpInside" id="Y38-Gc-dA3"/>
-                                    <segue destination="W71-B0-Msn" kind="presentation" identifier="setupProfileToChatsSegue" id="z6F-u0-R6B"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Hello!" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SE3-Dm-Kph">
@@ -192,6 +191,7 @@
                         <outlet property="lastNameTextField" destination="Pec-Cy-LP5" id="UZn-k3-6te"/>
                         <outlet property="phoneNumberTextField" destination="CBW-56-wog" id="r1I-dM-MUd"/>
                         <outlet property="whyPhoneNumberButton" destination="Oho-Oh-WUK" id="C9Q-A8-p5l"/>
+                        <segue destination="W71-B0-Msn" kind="presentation" identifier="setupProfileToChatsSegue" id="MpV-Tk-g7G"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Upi-jv-2fg" userLabel="First Responder" sceneMemberID="firstResponder"/>
