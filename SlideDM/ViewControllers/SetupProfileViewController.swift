@@ -89,6 +89,7 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         let data = try! FirestoreEncoder().encode(user)
         let ref = FirestoreService.shared.userColRef.addDocument(data: data)
         UserDefaults.standard.set(ref.documentID, forKey: "userDocID")
+        UserDefaults.standard.set(user.phoneID, forKey: "userPhoneID")
         UserDefaults.standard.synchronize()
         print("Saved user")
     }

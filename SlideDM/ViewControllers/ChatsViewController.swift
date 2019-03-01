@@ -10,6 +10,7 @@
 // [] Is there a better way to perform queries? Right now pulling nearby users makes two database calls per user. I should be able to pull users directly by saving the location in the user.
 // Potential fix for 2-level inversion to get user locations:
 // https://github.com/firebase/geofire-objc/issues/101
+// [] Background process to update user's location
 // [] Wifi connectivity popup when user's data can't be loaded
 
 import UIKit
@@ -57,44 +58,36 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     
     // MARK: - UserLocationListener methods
     
-    // IDEA: Consider using a snapshot listener to listen for updates in an entire collection?
-    
     // Called ~once~ upon startup because we called addLocationListener in viewDidLoad
     // Using the user's location, query the database for all nearby users who are part of the user's social
     // network and add them to the tableView
     func userLocationChanged(userLocation: CLLocation?) {
-        
         guard let center = userLocation else {
             print("User's location not found")
             return
         }
         // 5 miles = 8.04672 kilometers
         let circleQuery = FirestoreService.shared.geoFirestore.query(withCenter: center, radius: 300)
-        // Refactor this into FirestoreService later
-        //            circleQuery.observe(.documentEntered, with: { (key: String?, location: CLLocation?) in
-        //                // key contains our user id and location contains that user's location
-        //
-        //                // Load each user corresponding to each document key
-        //                let docRef = FirestoreService.shared.userColRef.document(key!)
-        ////                let docRef = Firestore.firestore().collection("users").document(key!)
-        //                docRef.getDocument { (document, error) in
-        //                    if let document = document, document.exists {
-        // Uncomment
-        //                        let nearbyUser = User(snapshot: document)
-        //                        if self.user?.phoneID != nearbyUser.phoneID {
-        //                            self.nearbyUsers.append(nearbyUser)
-        //                        }
-        //
-        //
-        //                    } else {
-        //                        print("Document does not exist")
-        //                    }
-        //                    // Reload the tableView in the main thread
-        //                    DispatchQueue.main.async {
-        //                        self.tableView.reloadData()
-        //                    }
-        //                }
-        //            })
+        // Fires one at a time as users are discovered
+        circleQuery.observe(.documentEntered, with: { (key: String?, location: CLLocation?) in
+            // key = user id, location = user's location
+            // Load each user corresponding to each document key
+            FirestoreService.shared.userColRef.document(key!).getDocument { (document, error) in
+                if let document = document {
+                    let nearbyUser = try! FirestoreDecoder().decode(User.self, from: document.data()!)
+                    // Don't include ourself
+                    if UserDefaults.standard.string(forKey: "userPhoneID") != nearbyUser.phoneID {
+                        self.nearbyUsers.append(nearbyUser)
+                    }
+                } else {
+                    print("Geoquery: Document for user key \(String(describing: key)) does not exist")
+                }
+                // Reload the tableView in the main thread
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            }
+        })
         
         
         // Update table
