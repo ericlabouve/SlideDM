@@ -64,7 +64,13 @@ class User {
         self.first = values["first"] as! String
         self.last = values["last"] as! String
         self.phoneID = values["phoneID"] as! String
-        self.contacts = (values["contacts"] as! [Contact])
+        self.contacts = (values["contacts"] as! [Contact])              // Crashes because this is not correct... Is there a better way? With Codable? Json?
+        
+//        var contacts_temp = (values["contacts"] as! [Contact])
+//        for c in contacts_temp {
+//            self.contacts?.append(Contact(first: c.first, last: c.last, phoneIDs: <#T##[String]#>))
+//        }
+        
         self.ref = snapshot.reference
         self.conversations = (values["conversations"] as! [ConversationDocRef])
 //        self.conversations = values["conversations"] as! [DocumentReference]

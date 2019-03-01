@@ -28,13 +28,7 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Configure the Message Collection View
-        messagesCollectionView.messagesDataSource = self
-        messagesCollectionView.messageCellDelegate = self
-        scrollsToBottomOnKeyboardBeginsEditing = true // default false
-        maintainPositionOnKeyboardFrameChanged = true // default false
-        messagesCollectionView.addSubview(refreshControl)
-        
+        configureMessageCollectionView()
         // Configure the Message Input Bar
         messageInputBar.delegate = self
         messageInputBar.inputTextView.tintColor = .primaryColor
@@ -43,6 +37,14 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
         title = toUser?.first
         
         getConversation()
+    }
+    
+    func configureMessageCollectionView() {
+        messagesCollectionView.messagesDataSource = self
+        messagesCollectionView.messageCellDelegate = self
+        scrollsToBottomOnKeyboardBeginsEditing = true // default false
+        maintainPositionOnKeyboardFrameChanged = true // default false
+        messagesCollectionView.addSubview(refreshControl)
     }
 
     // Create a new conversation in Firebase if it does not already exist
