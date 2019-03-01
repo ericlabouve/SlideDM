@@ -6,6 +6,8 @@
 //  Copyright © 2019 Eric LaBouve. All rights reserved.
 //
 
+// TODO: profileImage: UIImage
+
 import Foundation
 import Firebase
 
@@ -25,15 +27,27 @@ class User {
     var distanceMetric: String = "Nearby"
     // List of contacts that represent people the user knows
     var contacts: [Contact]?
-    
+    // Reference to the user in Firestore
     let ref: DocumentReference?
-    
     // A list of conversations that the user is a part of
-    var conversations = [DocumentReference]()
+    var conversations = [ConversationDocRef]()
+//    var conversations = [DocumentReference]()
 
-    // var uniqueID: String
-    // var location: ~GeoFireLocation~
-    // var profileImage: UIImage
+    // Helper class to hold a reference to a conversation document
+    struct ConversationDocRef {
+        var ref: DocumentReference
+        // Unique ID of the toUser in this conversation
+        // Optimization to include the toUser so we can check which users this user already has conversations with so
+        // that when we send a message to a NEW user, we don't have to look up all of this user's previous conversation buddies.
+        var toUser: String
+
+        func toDict() -> [String: Any] {
+            return [
+                "ref" : ref.documentID,
+                "toUser" : toUser,
+            ]
+        }
+    }
     
     init(first: String, last: String, phoneID: String) {
         self.first = first
@@ -42,10 +56,8 @@ class User {
         ref = nil
         greetingTag = getRandomGreetingTag()
     }
-    
 
     // Convert dictionary obtained from document back into a user
-//    init(dictionary: [String: Any]) {
     init(snapshot: DocumentSnapshot) {
         let values = snapshot.data()!
         
@@ -54,7 +66,21 @@ class User {
         self.phoneID = values["phoneID"] as! String
         self.contacts = (values["contacts"] as! [Contact])
         self.ref = snapshot.reference
+        self.conversations = (values["conversations"] as! [ConversationDocRef])
+//        self.conversations = values["conversations"] as! [DocumentReference]
         self.greetingTag = getRandomGreetingTag()
+    }
+    
+    
+    
+    // Get the ConversationDocRef given a userId
+    func getConversation(withId id: String) -> ConversationDocRef? {
+        for conversation in conversations {
+            if id == conversation.toUser {
+                return conversation
+            }
+        }
+        return nil
     }
     
     func getRandomGreetingTag() -> String {
@@ -73,12 +99,18 @@ class User {
                 contactList.append(contact.toDict())
             }
         }
-//        var conversationList: [String]
+        var conversationList: [[String: Any]] = []
+//        var conversationList: [String] = []
+        for conversation in conversations {
+            conversationList.append(conversation.toDict())
+//            conversationList.append(conversation.documentID)
+        }
         return [
             "first" : first,
             "last" : last,
             "phoneID" : phoneID,
-            "contacts" : contactList
+            "contacts" : contactList,
+            "conversations" : conversationList
         ]
     }
 }

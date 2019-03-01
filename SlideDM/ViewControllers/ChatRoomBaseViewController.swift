@@ -1,44 +1,22 @@
-/*
- MIT License
- 
- Copyright (c) 2017-2018 MessageKit
- 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
- 
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
- 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
- */
+
 
 import UIKit
 import MessageKit
 import MessageInputBar
+import Firebase
 
-/// A base class for the example controllers
+// This class handles the functional responsibilities of the chat room such as database operations
 class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     
+    var fromUser: User!
+    var toUser: User!
+    var messageList: [TextMessage] = []
     
-    var fromUser: User?
-    var toUser: User?
-    
+    var conversation: Conversation!
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
-    
-    var messageList: [MKMessage] = []
     
     let refreshControl = UIRefreshControl()
     
@@ -50,76 +28,61 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        configureMessageCollectionView()
-        configureMessageInputBar()
-        loadFirstMessages()
-        title = toUser?.first
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-//        MockSocket.shared.connect(with: [SampleData.shared.steven, SampleData.shared.wu])
-//            .onNewMessage { [weak self] message in
-//                self?.insertMessage(message)
-//        }
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-//        MockSocket.shared.disconnect()
-    }
-    
-    func loadFirstMessages() {
-//        DispatchQueue.global(qos: .userInitiated).async {
-//            let count = UserDefaults.standard.mockMessagesCount()
-//            SampleData.shared.getMessages(count: count) { messages in
-//                DispatchQueue.main.async {
-//                    self.messageList = messages
-//                    self.messagesCollectionView.reloadData()
-//                    self.messagesCollectionView.scrollToBottom()
-//                }
-//            }
-//        }
-    }
-    
-//    @objc
-//    func loadMoreMessages() {
-//        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 1) {
-//            SampleData.shared.getMessages(count: 20) { messages in
-//                DispatchQueue.main.async {
-//                    self.messageList.insert(contentsOf: messages, at: 0)
-//                    self.messagesCollectionView.reloadDataAndKeepOffset()
-//                    self.refreshControl.endRefreshing()
-//                }
-//            }
-//        }
-//    }
-    
-    func configureMessageCollectionView() {
-        
+        // Configure the Message Collection View
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messageCellDelegate = self
-        
         scrollsToBottomOnKeyboardBeginsEditing = true // default false
         maintainPositionOnKeyboardFrameChanged = true // default false
-        
         messagesCollectionView.addSubview(refreshControl)
         
-//        refreshControl.addTarget(self, action: #selector(loadMoreMessages), for: .valueChanged)
-    }
-    
-    func configureMessageInputBar() {
+        // Configure the Message Input Bar
         messageInputBar.delegate = self
         messageInputBar.inputTextView.tintColor = .primaryColor
         messageInputBar.sendButton.tintColor = .primaryColor
+        
+        title = toUser?.first
+        
+        getConversation()
+    }
+
+    // Create a new conversation in Firebase if it does not already exist
+    func getConversation() {
+        // If this is not the first time fromUser is contacting toUser
+        if let conversationDocRef = fromUser?.getConversation(withId: (toUser?.phoneID)!) {
+            conversationDocRef.ref.getDocument{ (document, error) in
+                guard let conversationDoc = document, conversationDoc.exists else {
+                    print("Error: fromUser \(self.fromUser?.phoneID) has no conversation with \(self.toUser?.phoneID) even through from user has a reference to toUser.")
+                    return
+                }
+                self.conversation = Conversation(snapshot: conversationDoc)
+            }
+        } else {
+            // This is the first message of the conversation.
+            
+            // 1. Make a new conversation locally and save in Firestore
+            self.conversation = Conversation(fromUserRef: (fromUser?.ref)!, toUserRef: (toUser?.ref)!)
+            let ref = FirestoreService.shared.conversationsRef.addDocument(data: conversation.toDict())
+            
+            // 2. Update toUser and fromUser locally and save in Firestore
+            fromUser.conversations.append(User.ConversationDocRef(ref: ref, toUser: toUser.phoneID))
+            toUser.conversations.append(User.ConversationDocRef(ref: ref, toUser: fromUser.phoneID))
+            fromUser.ref?.setData(fromUser.toDict())
+            toUser.ref?.setData(toUser.toDict())
+        }
     }
     
-    // MARK: - Helpers
     
-    func insertMessage(_ message: MKMessage) {
+    func insertMessage(_ message: TextMessage) {
+        
+        // When a message is sent, we initialize a conversation in Firestore if one does not already exist
         messageList.append(message)
+        updateCollectionView()
+    }
+    
+    
+    
+    // Not sure what this does exactly. I extracted the closure call to clean up insertMessage()
+    func updateCollectionView() {
         // Reload last section to update header/footer labels and insert a new one
         messagesCollectionView.performBatchUpdates({
             messagesCollectionView.insertSections([messageList.count - 1])
@@ -139,6 +102,9 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
         return messagesCollectionView.indexPathsForVisibleItems.contains(lastIndexPath)
     }
     
+    
+    
+    
     // MARK: - MessagesDataSource
     
     func currentSender() -> Sender {
@@ -154,6 +120,7 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
         return messageList[indexPath.section]
     }
     
+    // Sets the date of the last message in the center of the screen
     func cellTopLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
         if indexPath.section % 3 == 0 {
             return NSAttributedString(string: MessageKitDateFormatter.shared.string(from: message.sentDate), attributes: [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 10), NSAttributedString.Key.foregroundColor: UIColor.darkGray])
@@ -161,92 +128,35 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
         return nil
     }
     
-    func messageTopLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
-        let name = message.sender.displayName
-        return NSAttributedString(string: name, attributes: [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .caption1)])
-    }
-    
-    func messageBottomLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
-        
-        let dateString = formatter.string(from: message.sentDate)
-        return NSAttributedString(string: dateString, attributes: [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .caption2)])
-    }
+    // SEE ORIGINAL DOCUMENTATION TO CHANGE TOP AND BOTTOM LABELS
     
 }
 
 // MARK: - MessageCellDelegate
 
+// Can extend MessageCellDelegate to handle tap events. One avenue for future work would be to look at someone's profile when their icon is tapped.
 extension ChatRoomBaseViewController: MessageCellDelegate {
-    
-    func didTapAvatar(in cell: MessageCollectionViewCell) {
-        print("Avatar tapped")
-    }
-    
-    func didTapMessage(in cell: MessageCollectionViewCell) {
-        print("Message tapped")
-    }
-    
-    func didTapCellTopLabel(in cell: MessageCollectionViewCell) {
-        print("Top cell label tapped")
-    }
-    
-    func didTapMessageTopLabel(in cell: MessageCollectionViewCell) {
-        print("Top message label tapped")
-    }
-    
-    func didTapMessageBottomLabel(in cell: MessageCollectionViewCell) {
-        print("Bottom label tapped")
-    }
-    
-    func didTapAccessoryView(in cell: MessageCollectionViewCell) {
-        print("Accessory view tapped")
-    }
-    
+//    func didTapAvatar(in cell: MessageCollectionViewCell) {
+//        print("Avatar tapped")
+//    }
 }
 
-// MARK: - MessageLabelDelegate
-
-extension ChatRoomBaseViewController: MessageLabelDelegate {
-    
-    func didSelectAddress(_ addressComponents: [String: String]) {
-        print("Address Selected: \(addressComponents)")
-    }
-    
-    func didSelectDate(_ date: Date) {
-        print("Date Selected: \(date)")
-    }
-    
-    func didSelectPhoneNumber(_ phoneNumber: String) {
-        print("Phone Number Selected: \(phoneNumber)")
-    }
-    
-    func didSelectURL(_ url: URL) {
-        print("URL Selected: \(url)")
-    }
-    
-    func didSelectTransitInformation(_ transitInformation: [String: String]) {
-        print("TransitInformation Selected: \(transitInformation)")
-    }
-    
-}
 
 // MARK: - MessageInputBarDelegate
 
 extension ChatRoomBaseViewController: MessageInputBarDelegate {
     
+    // Handles everything that happens when a message is sent
     func messageInputBar(_ inputBar: MessageInputBar, didPressSendButtonWith text: String) {
         
         for component in inputBar.inputTextView.components {
-            
+            // We can extend this to more than just text messages. Check out the original source code for more details
             if let str = component as? String {
-                let message = MKMessage(text: str, sender: currentSender(), messageId: UUID().uuidString, date: Date())
-                insertMessage(message)
-            } else if let img = component as? UIImage {
-                let message = MKMessage(image: img, sender: currentSender(), messageId: UUID().uuidString, date: Date())
+                let message = TextMessage(text: str, sender: currentSender(), messageId: UUID().uuidString, date: Date())
                 insertMessage(message)
             }
-            
         }
+        // Clear the input bar
         inputBar.inputTextView.text = String()
         messagesCollectionView.scrollToBottom(animated: true)
     }
