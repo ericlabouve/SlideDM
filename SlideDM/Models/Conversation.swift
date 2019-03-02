@@ -25,7 +25,7 @@ class Conversation: Codable {
     
     // To support pagination, this will probabily need to be changed to a collection of message documents
 //    var messagesColRef: CollectionReference?
-    var messages = [TextMessage]()
+//    var messages = [TextMessage]()
     
     init(fromUser: User, toUser: User) {
         self.fromUserRef = fromUser.ref!

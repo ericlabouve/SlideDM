@@ -49,29 +49,33 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     }
 
 
-    // Create a new conversation in Firebase if it does not already exist
+    // Get the current conversation between the two users or
+    // create a new conversation in Firebase if it does not already exist
     func getConversation() {
-        // We've previously contacted this user
+        // There already exists a conversation
         if let conversation_ = fromUser.getConversationWith(userID: toUser.phoneID) {
             self.conversation = conversation_
+        // There does not already exist a conversation
         } else {
-            // This is the first message of the conversation.
-
-            // 1. Make a new conversation locally and save in Firestore
-            conversation = Conversation(fromUser: fromUser, toUser: toUser)
-            let conversationData = try! FirestoreEncoder().encode(conversation)
-            let ref = FirestoreService.shared.conversationsColRef.addDocument(data: conversationData)
-            conversation.ref = ref
-            
-            // 2. Update toUser and fromUser with the current conversation and update them locally and save in Firestore
-            fromUser.conversations.append(conversation)
-            toUser.conversations.append(conversation)
-            
-            let fromUserData = try! FirestoreEncoder().encode(fromUser)
-            fromUser.ref?.setData(fromUserData)
-            let toUserData = try! FirestoreEncoder().encode(toUser)
-            toUser.ref?.setData(toUserData)
+            createConversation()
         }
+    }
+    
+    func createConversation() {
+        // 1. Make a new conversation locally and save in Firestore
+        conversation = Conversation(fromUser: fromUser, toUser: toUser)
+        let conversationData = try! FirestoreEncoder().encode(conversation)
+        let ref = FirestoreService.shared.conversationsColRef.addDocument(data: conversationData)
+        conversation.ref = ref
+        
+        // 2. Update toUser and fromUser with the current conversation and update them locally and save in Firestore
+        fromUser.conversations.append(conversation)
+        toUser.conversations.append(conversation)
+        
+        let fromUserData = try! FirestoreEncoder().encode(fromUser)
+        fromUser.ref?.setData(fromUserData)
+        let toUserData = try! FirestoreEncoder().encode(toUser)
+        toUser.ref?.setData(toUserData)
     }
     
     
@@ -150,12 +154,14 @@ extension ChatRoomBaseViewController: MessageInputBarDelegate {
     
     // Handles everything that happens when a message is sent
     func messageInputBar(_ inputBar: MessageInputBar, didPressSendButtonWith text: String) {
-        
         for component in inputBar.inputTextView.components {
             // We can extend this to more than just text messages. Check out the original source code for more details
             if let str = component as? String {
                 let message = TextMessage(text: str, sender: currentSender(), messageId: UUID().uuidString, date: Date())
                 insertMessage(message)
+                // Save message to database
+//                let messageData = try! FirestoreEncoder().encode(message)
+                conversation.ref?.collection("messages").addDocument(data: message.toDict())
             }
         }
         // Clear the input bar

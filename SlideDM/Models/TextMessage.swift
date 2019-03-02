@@ -9,6 +9,7 @@ import Foundation
 import CoreLocation
 import MessageKit
 import Firebase
+import CodableFirebase
 
 // MKMessage can be extended to support many different kinds of messages.
 // Please look at the original documentation for MessageKit more details :)
@@ -17,8 +18,12 @@ class TextMessage: MessageType, Codable {
     // Unique ID for the message
     var messageId: String
     
-    // Unique ID for the sending user
-    var sender: Sender
+    // fromUser's unique phoneID
+    var id: String
+    var displayName: String
+    var sender: Sender {
+        return Sender(id: id, displayName: displayName)
+    }
     
     // Date at which the message was sent
     var timestampDate: Timestamp
@@ -36,8 +41,47 @@ class TextMessage: MessageType, Codable {
     
     init(text: String, sender: Sender, messageId: String, date: Date) {
         self.text = text
-        self.sender = sender
+        self.id = sender.id
+        self.displayName = sender.displayName
         self.messageId = messageId
         timestampDate = Timestamp(date: date)
     }
+
+    // CodableFirebase was not working so I had to encode/decode by hand...
+    
+    // TODO next time: Decode the textmessage from firebase. Here is a sample decode function:
+    
+//    init(key: String, snapshot: DataSnapshot) {
+//        name = key
+//
+//        let snaptemp = snapshot.value as! [String : AnyObject]
+//        let snapvalues = snaptemp[key] as! [String : AnyObject]
+//
+//        name = snapvalues["name"] as? String ?? "N/A"
+//        city = snapvalues["city"] as? String ?? "N/A"
+//        state = snapvalues["state"] as? String ?? "N/A"
+//        zip = snapvalues["zip"] as? String ?? "N/A"
+//        contact_email = snapvalues["contact_email"] as? String ?? "N/A"
+//        latitude = snapvalues["latitude"] as? Double ?? 0.0
+//        longitude = snapvalues["longitude"] as? Double ?? 0.0
+//
+//        super.init()
+//    }
+    //
+    // And here is the old way to get all the docs from firebase
+    // https://github.com/ericlabouve/csc436lab7/blob/master/csc436lab7/ViewControllers/ViewController.swift
+    //
+    // Would be a good idea to look into observing a collection with snapshots
+    
+    
+    func toDict() -> [String : Any] {
+        return [
+            "messageId" : messageId,
+            "id" : id,
+            "displayName" : displayName,
+            "timestampDate" : timestampDate,
+            "text" : text
+        ]
+    }
 }
+
