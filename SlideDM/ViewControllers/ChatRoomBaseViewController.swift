@@ -4,6 +4,7 @@ import UIKit
 import MessageKit
 import MessageInputBar
 import Firebase
+import CodableFirebase
 
 // This class handles the functional responsibilities of the chat room such as database operations
 class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
@@ -36,7 +37,7 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
         
         title = toUser?.first
         
-//        getConversation()
+        getConversation()
     }
     
     func configureMessageCollectionView() {
@@ -47,35 +48,34 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
         messagesCollectionView.addSubview(refreshControl)
     }
 
-//    // Create a new conversation in Firebase if it does not already exist
-//    func getConversation() {
-//        // If this is not the first time fromUser is contacting toUser
-//        if let conversationDocRef = fromUser?.getConversation(withId: (toUser?.phoneID)!) {
-//            conversationDocRef.ref.getDocument{ (document, error) in
-//                guard let conversationDoc = document, conversationDoc.exists else {
-//                    print("Error: fromUser \(self.fromUser?.phoneID) has no conversation with \(self.toUser?.phoneID) even through from user has a reference to toUser.")
-//                    return
-//                }
-//                self.conversation = Conversation(snapshot: conversationDoc)
-//            }
-//        } else {
-//            // This is the first message of the conversation.
-//
-//            // 1. Make a new conversation locally and save in Firestore
-//            self.conversation = Conversation(fromUserRef: (fromUser?.ref)!, toUserRef: (toUser?.ref)!)
-//            let ref = FirestoreService.shared.conversationsRef.addDocument(data: conversation.toDict())
-//
-//            // 2. Update toUser and fromUser locally and save in Firestore
-//            fromUser.conversations.append(User.ConversationDocRef(ref: ref, toUser: toUser.phoneID))
-//            toUser.conversations.append(User.ConversationDocRef(ref: ref, toUser: fromUser.phoneID))
-//            fromUser.ref?.setData(fromUser.toDict())
-//            toUser.ref?.setData(toUser.toDict())
-//        }
-//    }
+
+    // Create a new conversation in Firebase if it does not already exist
+    func getConversation() {
+        // We've previously contacted this user
+        if let conversation_ = fromUser.getConversationWith(userID: toUser.phoneID) {
+            self.conversation = conversation_
+        } else {
+            // This is the first message of the conversation.
+
+            // 1. Make a new conversation locally and save in Firestore
+            conversation = Conversation(fromUser: fromUser, toUser: toUser)
+            let conversationData = try! FirestoreEncoder().encode(conversation)
+            let ref = FirestoreService.shared.conversationsColRef.addDocument(data: conversationData)
+            conversation.ref = ref
+            
+            // 2. Update toUser and fromUser with the current conversation and update them locally and save in Firestore
+            fromUser.conversations.append(conversation)
+            toUser.conversations.append(conversation)
+            
+            let fromUserData = try! FirestoreEncoder().encode(fromUser)
+            fromUser.ref?.setData(fromUserData)
+            let toUserData = try! FirestoreEncoder().encode(toUser)
+            toUser.ref?.setData(toUserData)
+        }
+    }
     
     
     func insertMessage(_ message: TextMessage) {
-        
         // When a message is sent, we initialize a conversation in Firestore if one does not already exist
         messageList.append(message)
         updateCollectionView()

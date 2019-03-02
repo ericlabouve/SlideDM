@@ -10,6 +10,7 @@ import Foundation
 import Geofirestore
 import Firebase
 import CoreLocation
+import CodableFirebase
 
 // Singleton that is used to store information and instances shared across the app.
 class FirestoreService {
@@ -39,7 +40,7 @@ class FirestoreService {
     //     - text: String
     //     - user: String
     //     - time: Date
-    var conversationsRef: CollectionReference
+    var conversationsColRef: CollectionReference
     
     private init() {
         // Load Firestore and Geofirestore
@@ -48,7 +49,11 @@ class FirestoreService {
         
         userColRef = Firestore.firestore().collection("users")
         
-        conversationsRef = Firestore.firestore().collection("conversations")
+        conversationsColRef = Firestore.firestore().collection("conversations")
     }
-
 }
+
+extension DocumentReference: DocumentReferenceType {}
+extension GeoPoint: GeoPointType {}
+extension FieldValue: FieldValueType {}
+extension Timestamp: TimestampType {}
