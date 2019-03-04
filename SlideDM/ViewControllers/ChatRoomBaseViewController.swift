@@ -14,11 +14,14 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     var messageList: [TextMessage] = []
     
     var conversation: Conversation!
+    var getMoreMessagesQuery: Query?
+    var query: Query?
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
     
+    // Scroll wheel at the top when the user pulls down
     let refreshControl = UIRefreshControl()
     
     let formatter: DateFormatter = {
@@ -38,6 +41,7 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
         title = toUser?.first
         
         getConversation()
+        loadFirstMessages()
     }
     
     func configureMessageCollectionView() {
@@ -46,6 +50,8 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
         scrollsToBottomOnKeyboardBeginsEditing = true // default false
         maintainPositionOnKeyboardFrameChanged = true // default false
         messagesCollectionView.addSubview(refreshControl)
+        // Pull down to receive more messages
+        refreshControl.addTarget(self, action: #selector(loadMoreMessages), for: .valueChanged)
     }
 
 
@@ -79,14 +85,81 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     }
     
     
+    
+    func loadFirstMessages(count: Int = 1) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.getMessages(count: count) { messages in
+                DispatchQueue.main.async {
+                    self.messageList = messages
+                    self.messagesCollectionView.reloadData()
+                    self.messagesCollectionView.scrollToBottom()
+                }
+            }
+        }
+    }
+    
+    // BREAKS IF CALLED TWICE??
+    
+    // Connected to the spinning refresh control
+    @objc func loadMoreMessages(count: Int = 1) {
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 1) {
+            self.getMessages(count: count) { messages in
+                DispatchQueue.main.async {
+                    self.messageList.insert(contentsOf: messages, at: 0)
+                    self.messagesCollectionView.reloadDataAndKeepOffset()
+                    self.refreshControl.endRefreshing()
+                }
+            }
+        }
+    }
+
+    // Uses pagination to load messages
+    func getMessages(count: Int, completion: @escaping ([TextMessage]) -> Void) {
+        guard let messagesColRef = conversation.ref?.collection("messages") else {
+            return
+        }
+        if self.getMoreMessagesQuery == nil {
+            self.getMoreMessagesQuery = messagesColRef
+                                        .order(by: "timestampDate", descending: true)
+                                        .limit(to: count)
+        }
+        self.getMoreMessagesQuery?.getDocuments { (snapshot, error) in
+            guard let snapshot = snapshot else {
+                print("Error retreving messages: \(error.debugDescription)")
+                return
+            }
+            // Store the lastSnapshot in order to create the next query if the user wants to see more messages
+            guard let lastSnapshot = snapshot.documents.last else {
+                // The collection is empty.
+                return
+            }
+            var messages = [TextMessage]()
+            for qDocSnapshot in snapshot.documents {
+                messages.append(TextMessage(snapshot: qDocSnapshot))
+            }
+            
+            // Construct a new query starting after this document just in case the user scrolls up to see more messages
+            self.getMoreMessagesQuery = messagesColRef
+                                        .order(by: "timestampDate", descending: true)
+                                        .start(afterDocument: lastSnapshot)
+                                        .limit(to: count)
+            // reset refresh control
+            self.refreshControl.endRefreshing()
+            // Display the messages in the view
+            completion(messages)
+        }
+    }
+    
+    
+    
+    
+    
     func insertMessage(_ message: TextMessage) {
         // When a message is sent, we initialize a conversation in Firestore if one does not already exist
         messageList.append(message)
         updateCollectionView()
     }
-    
-    
-    
+
     // Not sure what this does exactly. I extracted the closure call to clean up insertMessage()
     func updateCollectionView() {
         // Reload last section to update header/footer labels and insert a new one

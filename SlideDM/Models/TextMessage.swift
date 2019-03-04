@@ -48,31 +48,14 @@ class TextMessage: MessageType, Codable {
     }
 
     // CodableFirebase was not working so I had to encode/decode by hand...
-    
-    // TODO next time: Decode the textmessage from firebase. Here is a sample decode function:
-    
-//    init(key: String, snapshot: DataSnapshot) {
-//        name = key
-//
-//        let snaptemp = snapshot.value as! [String : AnyObject]
-//        let snapvalues = snaptemp[key] as! [String : AnyObject]
-//
-//        name = snapvalues["name"] as? String ?? "N/A"
-//        city = snapvalues["city"] as? String ?? "N/A"
-//        state = snapvalues["state"] as? String ?? "N/A"
-//        zip = snapvalues["zip"] as? String ?? "N/A"
-//        contact_email = snapvalues["contact_email"] as? String ?? "N/A"
-//        latitude = snapvalues["latitude"] as? Double ?? 0.0
-//        longitude = snapvalues["longitude"] as? Double ?? 0.0
-//
-//        super.init()
-//    }
-    //
-    // And here is the old way to get all the docs from firebase
-    // https://github.com/ericlabouve/csc436lab7/blob/master/csc436lab7/ViewControllers/ViewController.swift
-    //
-    // Would be a good idea to look into observing a collection with snapshots
-    
+    init(snapshot: QueryDocumentSnapshot) {
+        var values = snapshot.data()
+        self.messageId = values["messageId"] as! String
+        self.id = values["id"] as! String
+        self.displayName = values["displayName"] as! String
+        self.timestampDate = Timestamp(date: values["timestampDate"] as! Date)
+        self.text = values["text"] as! String
+    }
     
     func toDict() -> [String : Any] {
         return [

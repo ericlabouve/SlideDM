@@ -7,6 +7,7 @@
 //
 
 // TODO:
+// [] Snapshot listeners on all conversations
 // [] Is there a better way to perform queries? Right now pulling nearby users makes two database calls per user. I should be able to pull users directly by saving the location in the user.
 // Potential fix for 2-level inversion to get user locations:
 // https://github.com/firebase/geofire-objc/issues/101
