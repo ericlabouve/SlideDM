@@ -15,7 +15,7 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     
     var conversation: Conversation!
     var getMoreMessagesQuery: Query?
-    var query: Query?
+    var count: Int = 1
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -86,14 +86,12 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     
     
     
-    func loadFirstMessages(count: Int = 1) {
-        DispatchQueue.global(qos: .userInitiated).async {
-            self.getMessages(count: count) { messages in
-                DispatchQueue.main.async {
-                    self.messageList = messages
-                    self.messagesCollectionView.reloadData()
-                    self.messagesCollectionView.scrollToBottom()
-                }
+    func loadFirstMessages() {
+        self.getMessages { messages in
+            DispatchQueue.main.async {
+                self.messageList = messages
+                self.messagesCollectionView.reloadData()
+                self.messagesCollectionView.scrollToBottom()
             }
         }
     }
@@ -101,20 +99,18 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     // BREAKS IF CALLED TWICE??
     
     // Connected to the spinning refresh control
-    @objc func loadMoreMessages(count: Int = 1) {
-        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 1) {
-            self.getMessages(count: count) { messages in
-                DispatchQueue.main.async {
-                    self.messageList.insert(contentsOf: messages, at: 0)
-                    self.messagesCollectionView.reloadDataAndKeepOffset()
-                    self.refreshControl.endRefreshing()
-                }
+    @objc func loadMoreMessages() {
+        self.getMessages { messages in
+            DispatchQueue.main.async {
+                self.messageList.insert(contentsOf: messages, at: 0)
+                self.messagesCollectionView.reloadDataAndKeepOffset()
+                self.refreshControl.endRefreshing()
             }
         }
     }
 
     // Uses pagination to load messages
-    func getMessages(count: Int, completion: @escaping ([TextMessage]) -> Void) {
+    func getMessages(completion: @escaping ([TextMessage]) -> Void) {
         guard let messagesColRef = conversation.ref?.collection("messages") else {
             return
         }
@@ -141,10 +137,9 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
             // Construct a new query starting after this document just in case the user scrolls up to see more messages
             self.getMoreMessagesQuery = messagesColRef
                                         .order(by: "timestampDate", descending: true)
+                                        .limit(to: self.count)
                                         .start(afterDocument: lastSnapshot)
-                                        .limit(to: count)
-            // reset refresh control
-            self.refreshControl.endRefreshing()
+            print("lastSnapshot: \(lastSnapshot)")
             // Display the messages in the view
             completion(messages)
         }
