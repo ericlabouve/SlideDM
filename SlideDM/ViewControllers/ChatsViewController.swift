@@ -11,6 +11,7 @@
 // Potential fix for 2-level inversion to get user locations:
 // https://github.com/firebase/geofire-objc/issues/101
 // [] Background process to update user's location
+// [] BUG: geoFirestore.query returns documents that don't exist...
 // [] Wifi connectivity popup when user's data can't be loaded
 
 import UIKit
@@ -44,9 +45,11 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
             return
         }
         // Get user from the database
-        FirestoreService.shared.userColRef.document(userDocID).getDocument { (document, error) in
+        let userDocRef = FirestoreService.shared.userColRef.document(userDocID)
+        userDocRef.getDocument { (document, error) in
             if let document = document {
                 self.user = try! FirestoreDecoder().decode(User.self, from: document.data()!)
+                self.user.ref = userDocRef
             } else {
                 // Probably shouldn't crash app. Should display a notification to the user to connect to wifi
                 fatalError("Could not fetch user")
@@ -72,9 +75,11 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
         circleQuery.observe(.documentEntered, with: { (key: String?, location: CLLocation?) in
             // key = user id, location = user's location
             // Load each user corresponding to each document key
-            FirestoreService.shared.userColRef.document(key!).getDocument { (document, error) in
-                if let document = document {
-                    let nearbyUser = try! FirestoreDecoder().decode(User.self, from: document.data()!)
+            let userDocRef = FirestoreService.shared.userColRef.document(key!)
+            userDocRef.getDocument { (document, error) in
+                if let document = document, let documentData = document.data() {
+                    let nearbyUser = try! FirestoreDecoder().decode(User.self, from: documentData)
+                    nearbyUser.ref = userDocRef
                     // Don't include ourself
                     if UserDefaults.standard.string(forKey: "userPhoneID") != nearbyUser.phoneID {
                         self.nearbyUsers.append(nearbyUser)
@@ -88,40 +93,6 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
                 }
             }
         })
-        
-        
-        // Update table
-//        if let center = userLocation {
-//            // 5 miles = 8.04672 kilometers
-//            let circleQuery = FirestoreService.shared.geoFirestore.query(withCenter: center, radius: 300)
-//            // Refactor this into FirestoreService later
-//            circleQuery.observe(.documentEntered, with: { (key: String?, location: CLLocation?) in
-//                // key contains our user id and location contains that user's location
-//
-//                // Load each user corresponding to each document key
-//                let docRef = FirestoreService.shared.userColRef.document(key!)
-////                let docRef = Firestore.firestore().collection("users").document(key!)
-//                docRef.getDocument { (document, error) in
-//                    if let document = document, document.exists {
-// Uncomment
-//                        let nearbyUser = User(snapshot: document)
-//                        if self.user?.phoneID != nearbyUser.phoneID {
-//                            self.nearbyUsers.append(nearbyUser)
-//                        }
-//
-//
-//                    } else {
-//                        print("Document does not exist")
-//                    }
-//                    // Reload the tableView in the main thread
-//                    DispatchQueue.main.async {
-//                        self.tableView.reloadData()
-//                    }
-//                }
-//            })
-//        } else {
-//            print("User's location was null in userLocationChanged()")
-//        }
     }
 
   
@@ -160,7 +131,7 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
         let cell = tableView.dequeueReusableCell(withIdentifier: "ChatsTableViewCell", for: indexPath) as? ChatsTableViewCell
         let thisUser = nearbyUsers[indexPath.row]
         cell?.nameLabel.text = thisUser.first + " " + thisUser.last
-        cell?.distanceLabel.text = thisUser.distanceMetric
+        cell?.distanceLabel.text = thisUser.distanceMetric                          // User should not hold their own distanceMetric string. Should be generated.
         cell?.greetingTagTextView.text = thisUser.greetingTag
         cell?.iconImageView.image = UIImage(named: thisUser.profileImageName)
         return cell!
@@ -174,7 +145,6 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     // Selecting a table cell will transition the user into the chat room
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         selectedUser = nearbyUsers[indexPath.row]
-//        performSegue(withIdentifier: "ChatsToChatroom", sender: self)
         performSegue(withIdentifier: "ChatsToChatroom", sender: self)
     }
 }

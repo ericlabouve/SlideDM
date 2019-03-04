@@ -28,25 +28,21 @@ class User: Codable {
     // List of contacts that represent people the user knows
     var contacts: [Contact]
     // Reference to the user in Firestore
-//    let ref: DocumentReference?
+    var ref: DocumentReference?
+
 //    // A list of conversations that the user is a part of
+    var conversations = [Conversation]()
 //    var conversations = [ConversationDocRef]()
 ////    var conversations = [DocumentReference]()
 //
 //    // Helper class to hold a reference to a conversation document
-//    struct ConversationDocRef {
+//    struct ConversationDocRef: Codable {
 //        var ref: DocumentReference
 //        // Unique ID of the toUser in this conversation
 //        // Optimization to include the toUser so we can check which users this user already has conversations with so
 //        // that when we send a message to a NEW user, we don't have to look up all of this user's previous conversation buddies.
-//        var toUser: String
+//        var toUserID: String
 //
-//        func toDict() -> [String: Any] {
-//            return [
-//                "ref" : ref.documentID,
-//                "toUser" : toUser,
-//            ]
-//        }
 //    }
     
     init(first: String, last: String, phoneID: String, contacts: [Contact]) {
@@ -57,38 +53,6 @@ class User: Codable {
 //        ref = nil
         self.greetingTag = getRandomGreetingTag()
     }
-
-//    // Convert dictionary obtained from document back into a user
-//    init(snapshot: DocumentSnapshot) {
-//        let values = snapshot.data()!
-//
-//        self.first = values["first"] as! String
-//        self.last = values["last"] as! String
-//        self.phoneID = values["phoneID"] as! String
-//        self.contacts = (values["contacts"] as! [Contact])              // Crashes because this is not correct... Is there a better way? With Codable? Json?
-//
-////        var contacts_temp = (values["contacts"] as! [Contact])
-////        for c in contacts_temp {
-////            self.contacts?.append(Contact(first: c.first, last: c.last, phoneIDs: <#T##[String]#>))
-////        }
-//
-//        self.ref = snapshot.reference
-//        self.conversations = (values["conversations"] as! [ConversationDocRef])
-////        self.conversations = values["conversations"] as! [DocumentReference]
-//        self.greetingTag = getRandomGreetingTag()
-//    }
-    
-    
-    
-//    // Get the ConversationDocRef given a userId
-//    func getConversation(withId id: String) -> ConversationDocRef? {
-//        for conversation in conversations {
-//            if id == conversation.toUser {
-//                return conversation
-//            }
-//        }
-//        return nil
-//    }
     
     func getRandomGreetingTag() -> String {
         var message = ""
@@ -99,25 +63,16 @@ class User: Codable {
         return message
     }
     
-//    func toDict() -> [String: Any] {
-//        var contactList: [[String: Any]] = []
-//        if let contacts = contacts {
-//            for contact in contacts {
-//                contactList.append(contact.toDict())
-//            }
-//        }
-//        var conversationList: [[String: Any]] = []
-////        var conversationList: [String] = []
-//        for conversation in conversations {
-//            conversationList.append(conversation.toDict())
-////            conversationList.append(conversation.documentID)
-//        }
-//        return [
-//            "first" : first,
-//            "last" : last,
-//            "phoneID" : phoneID,
-//            "contacts" : contactList,
-//            "conversations" : conversationList
-//        ]
-//    }
+    
+    // Return the conversation associated between this user and the user identified by userID
+    func getConversationWith(userID id: String) -> Conversation? {
+        for conversation in conversations {
+            if id == conversation.toUserID {
+                return conversation
+            }
+        }
+        return nil
+    }
+    
+    
 }

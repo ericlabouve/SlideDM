@@ -22,12 +22,4 @@ class Contact: Codable {
         self.last = last
         self.phoneIDs = phoneIDs
     }
-    
-//    func toDict() -> [String: Any] {
-//        return [
-//            "first" : first,
-//            "last" : last,
-//            "phoneIDs" : phoneIDs
-//        ]
-//    }
 }

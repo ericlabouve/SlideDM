@@ -121,10 +121,10 @@
 			children = (
 				48E628B4222645850031F4B0 /* ChatRoomViewController.swift */,
 				48E628B022263FFE0031F4B0 /* ChatRoomBaseViewController.swift */,
-				487724DE2207AC0900725DF8 /* LoginViewController.swift */,
-				486209ED220FF1EE00AC09D4 /* SetupProfileViewController.swift */,
-				483D952622138D3D004216C4 /* ProfileViewController.swift */,
 				483D952422138AA7004216C4 /* ChatsViewController.swift */,
+				483D952622138D3D004216C4 /* ProfileViewController.swift */,
+				486209ED220FF1EE00AC09D4 /* SetupProfileViewController.swift */,
+				487724DE2207AC0900725DF8 /* LoginViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
