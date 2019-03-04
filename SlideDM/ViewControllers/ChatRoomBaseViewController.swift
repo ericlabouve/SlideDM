@@ -127,6 +127,7 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
             // Store the lastSnapshot in order to create the next query if the user wants to see more messages
             guard let lastSnapshot = snapshot.documents.last else {
                 // The collection is empty.
+                DispatchQueue.main.async { self.refreshControl.endRefreshing() }
                 return
             }
             var messages = [TextMessage]()
