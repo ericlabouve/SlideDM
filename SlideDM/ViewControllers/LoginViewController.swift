@@ -178,6 +178,7 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
                 let keys = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey]
                 let request = CNContactFetchRequest(keysToFetch: keys as [CNKeyDescriptor])
                 do {
+                    print("Printing Your Contacts. Format is <First Name> <Last Name> <Encrypted Phone Numbers>")
                     try store.enumerateContacts(with: request, usingBlock: { (contact, stopPointerIfYouWantToStopEnumerating) in
                         var phoneIDs = [String]()
                         for number in contact.phoneNumbers {
@@ -190,6 +191,7 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
                         }
                         // Add contacts that contain at least one valid phone number id
                         if phoneIDs.count > 0 {
+                            print("\(contact.givenName) \(contact.familyName): \(phoneIDs)")
                             self.contacts.append(Contact(first: contact.givenName, last: contact.familyName, phoneIDs: phoneIDs))
                         }
                     })
