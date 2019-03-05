@@ -7,7 +7,9 @@
 //
 
 // TODO:
-// [] Snapshot listeners on all conversations
+// [X] Snapshot listeners on all conversations
+// [] Listen for conversations that have not started yet
+//      -- Maybe use a snapshot listener on a user's conversation list?
 // [] Is there a better way to perform queries? Right now pulling nearby users makes two database calls per user. I should be able to pull users directly by saving the location in the user.
 // Potential fix for 2-level inversion to get user locations:
 // https://github.com/firebase/geofire-objc/issues/101
@@ -20,7 +22,7 @@ import CoreLocation
 import Firebase
 import CodableFirebase
 
-class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UserLocationListener {
+class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UserLocationListener, ConversationListener {
     
     // User Interface
     @IBOutlet weak var tableView: UITableView!
@@ -36,27 +38,25 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     override func viewDidLoad() {
         super.viewDidLoad()
         LocationService.shared.addLocationListener(listener: self)
-        loadUser()
+        FirestoreService.shared.getUser { user in
+            self.user = user
+            self.finishSetup()
+        }
+    }
+    // Async setup once the user is fetched
+    func finishSetup() {
+        // Track all existing conversations for changes
+        for conversation in user.conversations {
+            conversation.addConversationListener(listener: self)
+        }
     }
     
-    // Fetch the user from Firestore
-    func loadUser() {
-        guard let userDocID = UserDefaults.standard.string(forKey: "userDocID") else {
-            print("Cannot find user ID in UserDefaults.standard")
-            return
-        }
-        // Get user from the database
-        let userDocRef = FirestoreService.shared.userColRef.document(userDocID)
-        userDocRef.getDocument { (document, error) in
-            if let document = document {
-                self.user = try! FirestoreDecoder().decode(User.self, from: document.data()!)
-                self.user.ref = userDocRef
-            } else {
-                // Probably shouldn't crash app. Should display a notification to the user to connect to wifi
-                fatalError("Could not fetch user")
-            }
-        }
-        
+    // MARK: - ConversationListener methods
+    
+    // STARTING POINT FOR NEXT TIME. NOW ALERTED WHEN A NEW MESSAGE IS ADDED TO A CONVERSATION.
+    
+    func conversationChanged(textMessage: TextMessage) {
+        print(textMessage.text)
     }
     
     

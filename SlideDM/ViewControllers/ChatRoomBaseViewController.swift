@@ -1,4 +1,6 @@
-
+//
+// TODO
+// [] BUG: Using the refreshController once all messages are loaded
 
 import UIKit
 import MessageKit
@@ -14,16 +16,17 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     var messageList: [TextMessage] = []
     
     var conversation: Conversation!
+    // This query will retrieve messages from the database
     var getMoreMessagesQuery: Query?
+    // Number of messages to initially and subsequently load with the refresh controller
     var count: Int = 1
+    // Scroll wheel at the top when the user pulls down
+    let refreshControl = UIRefreshControl()
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
-    
-    // Scroll wheel at the top when the user pulls down
-    let refreshControl = UIRefreshControl()
-    
+
     let formatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
@@ -96,8 +99,6 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
         }
     }
     
-    // BREAKS IF CALLED TWICE??
-    
     // Connected to the spinning refresh control
     @objc func loadMoreMessages() {
         self.getMessages { messages in
@@ -140,7 +141,6 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
                                         .order(by: "timestampDate", descending: true)
                                         .limit(to: self.count)
                                         .start(afterDocument: lastSnapshot)
-            print("lastSnapshot: \(lastSnapshot)")
             // Display the messages in the view
             completion(messages)
         }

@@ -48,8 +48,11 @@ class TextMessage: MessageType, Codable {
     }
 
     // CodableFirebase was not working so I had to encode/decode by hand...
-    init(snapshot: QueryDocumentSnapshot) {
-        var values = snapshot.data()
+    convenience init(snapshot: QueryDocumentSnapshot) {
+        self.init(values: snapshot.data())
+    }
+    
+    init(values: [String : Any]) {
         self.messageId = values["messageId"] as! String
         self.id = values["id"] as! String
         self.displayName = values["displayName"] as! String

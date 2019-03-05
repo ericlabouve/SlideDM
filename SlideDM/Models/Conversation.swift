@@ -5,13 +5,11 @@
 //  Created by Eric LaBouve on 2/28/19.
 //  Copyright © 2019 Eric LaBouve. All rights reserved.
 //
-// TODO:
-// [] Change messages to a collection String ID
 
 import Foundation
 import Firebase
 
-class Conversation: Codable {
+class Conversation: NSObject, Codable {
     
     // fromUserRef and toUserRef are required to create a conversation
     var fromUserRef: DocumentReference
@@ -21,11 +19,9 @@ class Conversation: Codable {
     var fromUserID: String
     var toUserID: String
     
+    // Reference to the conversation document in Firestore
     var ref: DocumentReference?
-    
-    // To support pagination, this will probabily need to be changed to a collection of message documents
-//    var messagesColRef: CollectionReference?
-//    var messages = [TextMessage]()
+
     
     init(fromUser: User, toUser: User) {
         self.fromUserRef = fromUser.ref!
@@ -34,25 +30,36 @@ class Conversation: Codable {
         self.toUserID = toUser.phoneID
     }
     
-//    init(snapshot: DocumentSnapshot) {
-//        let values = snapshot.data()!
-//
-//        self.fromUserRef = values["fromUserRef"] as! DocumentReference
-//        self.toUserRef = values["toUserRef"] as! DocumentReference
-////        self.messagesColRef = values["messagesColRef"] as? CollectionReference
-//        self.messages = values["messages"] as! [TextMessage]
-//    }
     
-//    func toDict() -> [String : Any] {
-//        var messageList: [[String : Any]] = []
-//        for message in messages {
-//            messageList.append(message.toDict())
-//        }
-//        return [
-//            "fromUserRef" : fromUserRef.documentID,
-//            "toUserRef" : toUserRef.documentID,
-////            "messagesColRef" : (messagesColRef?.collectionID)!
-//            "messages" : messageList
-//        ]
-//    }
+    
+    // Those who implement UserLocationListener should call this and pass self
+    // in order to receive updates when a new message is sent.
+    func addConversationListener(listener: ConversationListener) {
+        // Listen only to new messages that are sent
+        ref?.collection("messages")
+            .whereField("timestampDate", isGreaterThan: Timestamp(date: Date(timeIntervalSince1970: TimeInterval(NSDate().timeIntervalSince1970 - 1))))
+            .addSnapshotListener { querySnapshot, error in
+            guard let snapshot = querySnapshot else {
+                print("Error fetching snapshots: \(error!)")
+                return
+            }
+            snapshot.documentChanges.forEach { diff in
+                if (diff.type == .added) {
+                    let message = TextMessage(values: diff.document.data())
+                    listener.conversationChanged(textMessage: message)
+                }
+                /* if (diff.type == .modified) {
+                    print("Modified city: \(diff.document.data())")
+                }
+                if (diff.type == .removed) {
+                    print("Removed city: \(diff.document.data())")
+                } */
+            }
+        }
+    }
+}
+
+// Conform to this protocol if you want to receive updates when the user's location changes
+protocol ConversationListener {
+    func conversationChanged(textMessage: TextMessage)
 }

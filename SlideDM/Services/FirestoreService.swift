@@ -5,6 +5,8 @@
 //  Created by Eric LaBouve on 2/18/19.
 //  Copyright © 2019 Eric LaBouve. All rights reserved.
 //
+// TODO:
+// [] getUser shouldn't have fatal errors. Should have a popup warning for internet connection errors.
 
 import Foundation
 import Geofirestore
@@ -50,6 +52,24 @@ class FirestoreService {
         userColRef = Firestore.firestore().collection("users")
         
         conversationsColRef = Firestore.firestore().collection("conversations")
+    }
+    
+    func getUser(completion: @escaping (User) -> Void) {
+        guard let userDocID = UserDefaults.standard.string(forKey: "userDocID") else {
+            fatalError("Cannot find user ID in UserDefaults.standard")
+        }
+        // Get user from the database
+        let userDocRef = FirestoreService.shared.userColRef.document(userDocID)
+        userDocRef.getDocument { (document, error) in
+            if let document = document {
+                var user = try! FirestoreDecoder().decode(User.self, from: document.data()!)
+                user.ref = userDocRef
+                completion(user)
+            } else {
+                // Probably shouldn't crash app. Should display a notification to the user to connect to wifi
+                fatalError("Could not fetch user")
+            }
+        }
     }
 }
 

@@ -75,9 +75,6 @@ class LocationService: NSObject, CLLocationManagerDelegate {
     }
     
     
-    
-// Old implementation that separates Geofire and user collections
-    
     func updateCurrentLocationInFirestore() {
         if let userDocID = UserDefaults.standard.object(forKey: "userDocID") as? String, let location = LocationService.shared.userLocation {
             FirestoreService.shared.geoFirestore.setLocation(location: location, forDocumentWithID: userDocID) { (error) in
@@ -91,26 +88,6 @@ class LocationService: NSObject, CLLocationManagerDelegate {
             print("An error occured in updateCurrentLocation - No userDocID or location.")
         }
     }
-    
-
-    // Incomplete attempt at store a location inside a user document
-    
-//    func updateCurrentLocationInFirestore() {
-//        if let userDocID = UserDefaults.standard.object(forKey: "userDocID") as? String, let location = LocationService.shared.userLocation {
-//            let userDocRef = Firestore.firestore().collection("users").document(userDocID)
-//
-//
-//            FirestoreService.shared.geoFirestore.setLocation(location: location, forDocumentWithID: userDocID) { (error) in
-//                if (error != nil) {
-//                    print("An error occured: \(String(describing: error))")
-//                } else {
-//                    print("Saved location in Firestore")
-//                }
-//            }
-//        } else {
-//            print("An error occured in updateCurrentLocation - No userDocID or location.")
-//        }
-//    }
 }
 
 // Conform to this protocol if you want to receive updates when the user's location changes
