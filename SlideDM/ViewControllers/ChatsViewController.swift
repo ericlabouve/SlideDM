@@ -114,6 +114,8 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
             destinationVC.user = user
         }
     }
+    
+    @IBAction func unwindfromProfileViewController(segue:UIStoryboardSegue) {}
 
     
     //MARK: - Table View Methods

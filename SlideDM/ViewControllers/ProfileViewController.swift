@@ -7,26 +7,42 @@
 //
 
 import UIKit
+import CodableFirebase
 
 class ProfileViewController: UIViewController {
     
-    var user: User?
+    @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var greetingTagTextView: UITextView!
+    var greetingTagOldText: String = ""
+
+    var user: User!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        self.nameLabel.text = "\(user.first) \(user.last)"
+        self.greetingTagTextView.text = user.greetingTag
+        self.greetingTagOldText = self.greetingTagTextView.text
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard (_:)))
+        self.view.addGestureRecognizer(tapGesture)
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    override func viewWillDisappear(_ animated: Bool) {
+        greetingTagTextView.resignFirstResponder()
+        user.greetingTag = self.greetingTagTextView.text
+        
+        // Check for changes so that we can update the database
+        if greetingTagOldText != user.greetingTag {
+            let userData = try! FirestoreEncoder().encode(user)
+            user.ref?.setData(userData)
+        }
+        
+        print("viewWillDisappear")
     }
-    */
-
+    
+    // Dismiss keyboard if user taps outside greetingtagtextview
+    @objc func dismissKeyboard (_ sender: UITapGestureRecognizer) {
+        greetingTagTextView.resignFirstResponder()
+    }
 }

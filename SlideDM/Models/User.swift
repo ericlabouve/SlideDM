@@ -12,6 +12,8 @@ import Foundation
 import Firebase
 
 class User: Codable {
+    
+    
     // User's first name
     var first: String
     // User's last name
@@ -73,6 +75,4 @@ class User: Codable {
         }
         return nil
     }
-    
-    
 }
