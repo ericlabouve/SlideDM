@@ -12,7 +12,7 @@ import Foundation
 import Firebase
 import CodableFirebase
 
-class User: Codable {
+class User: Codable, Equatable {
     // User's first name
     var first: String
     // User's last name
@@ -75,6 +75,10 @@ class User: Codable {
         case distanceMetric
         case contacts
         case ref
+    }
+    
+    static func == (lhs: User, rhs: User) -> Bool {
+        return lhs.phoneID == rhs.phoneID
     }
     
     

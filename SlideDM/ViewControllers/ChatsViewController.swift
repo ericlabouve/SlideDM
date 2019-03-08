@@ -89,41 +89,50 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
         self.refreshControl.endRefreshing()
     }
     
+    
+    
+    
     // Called ~once~ upon startup because we called addLocationListener in viewDidLoad
     // Using the user's location, query the database for all nearby users who are part of the user's social
     // network and add them to the tableView
     func userLocationChanged(userLocation: CLLocation?) {
-        guard let center = userLocation else {
-            print("User's location not found")
-            return
-        }
+        guard let center = userLocation else { print("User's location not found"); return }
         // 5 miles = 8.04672 kilometers
         let circleQuery = FirestoreService.shared.geoFirestore.query(withCenter: center, radius: 300)
+        
         // Fires one at a time as users are discovered
-        _ = circleQuery.observe(.documentEntered, with: { (key: String?, location: CLLocation?) in
+        // If a user updates locations, this will fire again -- This is why we remove the handle later. This would use too much data
+        let handle = circleQuery.observe(.documentEntered, with: { (key: String?, location: CLLocation?) in
             // key = user id, location = user's location
             // Load each user corresponding to each document key
             let userDocRef = FirestoreService.shared.userColRef.document(key!)
+            
             userDocRef.getDocument { (document, error) in
                 if let document = document, let documentData = document.data() {
                     let nearbyUser = try! FirestoreDecoder().decode(User.self, from: documentData)
                     nearbyUser.ref = userDocRef
-                    // Don't include ourself
-                    if UserDefaults.standard.string(forKey: "userPhoneID") != nearbyUser.phoneID {
+                    // Don't include ourself or repeated users
+                    if UserDefaults.standard.string(forKey: "userPhoneID") != nearbyUser.phoneID &&
+                        !self.nearbyUsers.contains(nearbyUser) {
                         self.nearbyUsers.append(nearbyUser)
+                        print("\(nearbyUser.first)")
                     }
                 } else {
                     print("Geoquery: Document for user key \(String(describing: key)) does not exist")
                 }
+                
                 // Reload the tableView in the main thread
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
                 }
             }
         })
+        // Stop observing location changes after 1.0 seconds to limit database reads
+        DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
+            circleQuery.removeObserver(withHandle: handle)
+        }
     }
 
-  
     
     
     
