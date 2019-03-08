@@ -393,6 +393,11 @@
                                 <segue destination="Xj8-aG-9Lf" kind="presentation" identifier="ChatsToProfile" id="15A-8J-kp0"/>
                             </connections>
                         </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" title="Log out" id="wCE-IA-pLi">
+                            <connections>
+                                <segue destination="BYZ-38-t0r" kind="presentation" identifier="ChatsToLogin" id="wyw-Sf-QHw"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <connections>

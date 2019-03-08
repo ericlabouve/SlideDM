@@ -113,10 +113,17 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
             let destinationVC = segue.destination as! ProfileViewController
             destinationVC.user = user
         }
+        else if segueID == "ChatsToLogin" {
+            UserDefaults.standard.removeObject(forKey: "userDocID")
+            UserDefaults.standard.removeObject(forKey: "userPhoneID")
+        }
     }
     
     @IBAction func unwindfromProfileViewController(segue:UIStoryboardSegue) {}
-
+    
+    
+    
+    
     
     //MARK: - Table View Methods
     

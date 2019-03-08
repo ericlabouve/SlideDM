@@ -89,6 +89,8 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
         view.sendSubviewToBack(backgroundImageView)
     }
     
+    
+    
     // MARK: - Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -97,6 +99,8 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
             (segue.destination as? SetupProfileViewController)?.userContacts = contacts
         }
     }
+    
+    
     
     // MARK: - Facebook
     
