@@ -20,6 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
         FirebaseApp.configure()
+
         
         // Move to the Chats View Controller if the user has already signed in
         if let _ = UserDefaults.standard.string(forKey: "userDocID"), let _ = UserDefaults.standard.string(forKey: "userPhoneID") {

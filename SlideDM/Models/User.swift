@@ -10,10 +10,9 @@
 
 import Foundation
 import Firebase
+import CodableFirebase
 
 class User: Codable {
-    
-    
     // User's first name
     var first: String
     // User's last name
@@ -32,27 +31,16 @@ class User: Codable {
     // Reference to the user in Firestore
     var ref: DocumentReference?
 
-//    // A list of conversations that the user is a part of
+    // A list of conversations that the user is a part of.
+    // Stored in a collection called conversations
     var conversations = [Conversation]()
-//    var conversations = [ConversationDocRef]()
-////    var conversations = [DocumentReference]()
-//
-//    // Helper class to hold a reference to a conversation document
-//    struct ConversationDocRef: Codable {
-//        var ref: DocumentReference
-//        // Unique ID of the toUser in this conversation
-//        // Optimization to include the toUser so we can check which users this user already has conversations with so
-//        // that when we send a message to a NEW user, we don't have to look up all of this user's previous conversation buddies.
-//        var toUserID: String
-//
-//    }
+
     
     init(first: String, last: String, phoneID: String, contacts: [Contact]) {
         self.first = first
         self.last = last
         self.phoneID = phoneID
         self.contacts = contacts
-//        ref = nil
         self.greetingTag = getRandomGreetingTag()
     }
     
@@ -65,7 +53,7 @@ class User: Codable {
         return message
     }
     
-    
+
     // Return the conversation associated between this user and the user identified by userID
     func getConversationWith(userID id: String) -> Conversation? {
         for conversation in conversations {
@@ -75,4 +63,40 @@ class User: Codable {
         }
         return nil
     }
+    
+    // Include everything except the conversations list because conversations is stored in a separate collection
+    // to make conversations observable
+    enum CodingKeys: String, CodingKey {
+        case first
+        case last
+        case phoneID
+        case greetingTag
+        case profileImageName
+        case distanceMetric
+        case contacts
+        case ref
+    }
+    
+    
+    // Listens for any new conversations that the user becomes a part of.
+    func addUserConversationsListener(listener: UserConversationsListener) {
+        // Listen to all the user's conversations and any changes
+        ref?.collection("conversations").addSnapshotListener { querySnapshot, error in
+            guard let snapshot = querySnapshot else { print("Error fetching conversation snapshot: \(error!)"); return }
+            // First time this is ran it will return all documents in the collection, which will be used to initialize all
+            // Conversation.ConversationListeners
+            snapshot.documentChanges.forEach { diff in
+                if (diff.type == .added) {
+                    let conversation = try! FirestoreDecoder().decode(Conversation.self, from: diff.document.data())
+                    listener.UserConversationsChanged(user: self, conversation: conversation)
+                }
+            }
+        }
+    }
+}
+
+// Conform to this protocol to receive updates when a conversation is added to a user's conversations collection
+// Idealy have one account listening to one user
+protocol UserConversationsListener {
+    func UserConversationsChanged(user: User, conversation: Conversation)
 }

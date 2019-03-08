@@ -8,12 +8,13 @@
 
 // TODO:
 // [X] Snapshot listeners on all conversations
-// [] Listen for conversations that have not started yet
+// [X] Listen for conversations that have not started yet
 //      -- Maybe use a snapshot listener on a user's conversation list?
 // [] Is there a better way to perform queries? Right now pulling nearby users makes two database calls per user. I should be able to pull users directly by saving the location in the user.
 // Potential fix for 2-level inversion to get user locations:
 // https://github.com/firebase/geofire-objc/issues/101
 // [] Background process to update user's location
+//      [] Pull up to reload everything
 // [] BUG: geoFirestore.query returns documents that don't exist...
 // [] Wifi connectivity popup when user's data can't be loaded
 
@@ -22,10 +23,12 @@ import CoreLocation
 import Firebase
 import CodableFirebase
 
-class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UserLocationListener, ConversationListener {
-    
+class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UserLocationListener, UserConversationsListener, ConversationListener {
+
     // User Interface
     @IBOutlet weak var tableView: UITableView!
+    // Scroll wheel to refresh user's location and the tableView
+    let refreshControl = UIRefreshControl()
     
     // Meta Data
     // Maintain this list for the TableView
@@ -33,34 +36,58 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     var selectedUser: User?
     var user: User!
     
+    // Keep track of a list of conversations we are listening to
+    // list of conversations ids ??
     
     // View Controller Life Cycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
         LocationService.shared.addLocationListener(listener: self)
+        refreshControl.addTarget(self, action: #selector(refreshLocation), for: .valueChanged)
+        tableView.addSubview(refreshControl)
         FirestoreService.shared.getUser { user in
             self.user = user
-            self.finishSetup()
-        }
-    }
-    // Async setup once the user is fetched
-    func finishSetup() {
-        // Track all existing conversations for changes
-        for conversation in user.conversations {
-            conversation.addConversationListener(listener: self)
+            self.user.addUserConversationsListener(listener: self)
         }
     }
     
-    // MARK: - ConversationListener methods
     
-    // STARTING POINT FOR NEXT TIME. NOW ALERTED WHEN A NEW MESSAGE IS ADDED TO A CONVERSATION.
     
-    func conversationChanged(textMessage: TextMessage) {
+    
+    
+    // MARK: - UserConversationsListener and ConversationListener methods
+    
+    func conversationChanged(conversation: Conversation, textMessage: TextMessage) {
+        // Locate which conversation sent the message
+        // ...
+        
         print(textMessage.text)
+        
+    }
+    
+//    func getUserWithConversation(conversation: Conversation) {
+//        for (user, idx) in nearbyUsers.enumerated() {
+//
+//        }
+//    }
+    
+    func UserConversationsChanged(user: User, conversation: Conversation) {
+        conversation.addConversationListener(listener: self)
+        print("conversation added")
     }
     
     
-    // MARK: - UserLocationListener methods
+    
+    
+    
+    
+    // MARK: - UserLocationListener and Location methods
+    
+    @objc func refreshLocation() {
+        self.nearbyUsers.removeAll()
+        LocationService.shared.updateLocation()
+        self.refreshControl.endRefreshing()
+    }
     
     // Called ~once~ upon startup because we called addLocationListener in viewDidLoad
     // Using the user's location, query the database for all nearby users who are part of the user's social
@@ -73,7 +100,7 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
         // 5 miles = 8.04672 kilometers
         let circleQuery = FirestoreService.shared.geoFirestore.query(withCenter: center, radius: 300)
         // Fires one at a time as users are discovered
-        circleQuery.observe(.documentEntered, with: { (key: String?, location: CLLocation?) in
+        _ = circleQuery.observe(.documentEntered, with: { (key: String?, location: CLLocation?) in
             // key = user id, location = user's location
             // Load each user corresponding to each document key
             let userDocRef = FirestoreService.shared.userColRef.document(key!)
@@ -98,6 +125,8 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
 
   
     
+    
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
@@ -120,6 +149,8 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     }
     
     @IBAction func unwindfromProfileViewController(segue:UIStoryboardSegue) {}
+    
+    
     
     
     

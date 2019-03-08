@@ -44,15 +44,12 @@ class LocationService: NSObject, CLLocationManagerDelegate {
             self.locationManager.requestWhenInUseAuthorization()
             self.locationManager.delegate = self
             self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
-            self.locationManager.startUpdatingLocation()
+            self.updateLocation()
         }
         print("LocationService Singleton Initialized")
     }
     
-    // Those who implement UserLocationListener should call this and pass self
-    func addLocationListener(listener: UserLocationListener) {
-        locationListeners.append(listener)
-    }
+    
     
     
     // MARK: - Core Location
@@ -60,6 +57,13 @@ class LocationService: NSObject, CLLocationManagerDelegate {
     // LocationManager:didUpdateLocations gets updated super quickly. So fast that by the time we call
     // stopUpdatingLocation it gets called again. We only want the user's location to get updated once.
     var calledOnce = false
+    
+    func updateLocation() {
+        calledOnce = false
+        self.locationManager.startUpdatingLocation()
+    }
+    
+    
     // Save the user's current location locally and also in Firestore
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if !calledOnce {
@@ -87,6 +91,11 @@ class LocationService: NSObject, CLLocationManagerDelegate {
         } else {
             print("An error occured in updateCurrentLocation - No userDocID or location.")
         }
+    }
+    
+    // Those who implement UserLocationListener should call this and pass self
+    func addLocationListener(listener: UserLocationListener) {
+        locationListeners.append(listener)
     }
 }
 

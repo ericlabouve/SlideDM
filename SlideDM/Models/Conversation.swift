@@ -32,6 +32,15 @@ class Conversation: NSObject, Codable {
     
     
     
+    static func == (lhs: Conversation, rhs: Conversation) -> Bool {
+        guard let ref1 = lhs.ref, let ref2 = rhs.ref else {
+            return false
+        }
+        return ref1 == ref2
+    }
+    
+    
+    
     // Those who implement UserLocationListener should call this and pass self
     // in order to receive updates when a new message is sent.
     func addConversationListener(listener: ConversationListener) {
@@ -39,27 +48,24 @@ class Conversation: NSObject, Codable {
         ref?.collection("messages")
             .whereField("timestampDate", isGreaterThan: Timestamp(date: Date(timeIntervalSince1970: TimeInterval(NSDate().timeIntervalSince1970 - 1))))
             .addSnapshotListener { querySnapshot, error in
-            guard let snapshot = querySnapshot else {
-                print("Error fetching snapshots: \(error!)")
-                return
-            }
-            snapshot.documentChanges.forEach { diff in
-                if (diff.type == .added) {
-                    let message = TextMessage(values: diff.document.data())
-                    listener.conversationChanged(textMessage: message)
+                guard let snapshot = querySnapshot else { print("Error fetching snapshots: \(error!)"); return }
+                snapshot.documentChanges.forEach { diff in
+                    if (diff.type == .added) {
+                        let message = TextMessage(values: diff.document.data())
+                        listener.conversationChanged(conversation: self, textMessage: message)
+                    }
+                    /* if (diff.type == .modified) {
+                        print("Modified city: \(diff.document.data())")
+                    }
+                    if (diff.type == .removed) {
+                        print("Removed city: \(diff.document.data())")
+                    } */
                 }
-                /* if (diff.type == .modified) {
-                    print("Modified city: \(diff.document.data())")
-                }
-                if (diff.type == .removed) {
-                    print("Removed city: \(diff.document.data())")
-                } */
-            }
         }
     }
 }
 
-// Conform to this protocol if you want to receive updates when the user's location changes
+// Conform to this protocol to receive updates when messages are sent to a conversation
 protocol ConversationListener {
-    func conversationChanged(textMessage: TextMessage)
+    func conversationChanged(conversation: Conversation, textMessage: TextMessage)
 }

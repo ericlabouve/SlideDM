@@ -20,7 +20,7 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     var getMoreMessagesQuery: Query?
     // Number of messages to initially and subsequently load with the refresh controller
     var count: Int = 1
-    // Scroll wheel at the top when the user pulls down
+    // Scroll wheel at the top to get older, paginated messages
     let refreshControl = UIRefreshControl()
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -73,23 +73,25 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     func createConversation() {
         // 1. Make a new conversation locally and save in Firestore
         conversation = Conversation(fromUser: fromUser, toUser: toUser)
-        let conversationData = try! FirestoreEncoder().encode(conversation)
+        var conversationData = try! FirestoreEncoder().encode(conversation)
         let ref = FirestoreService.shared.conversationsColRef.addDocument(data: conversationData)
         conversation.ref = ref
+        conversationData = try! FirestoreEncoder().encode(conversation)
         
         // 2. Update toUser and fromUser with the current conversation and update them locally and save in Firestore
-        fromUser.conversations.append(conversation)
-        toUser.conversations.append(conversation)
         
-        let fromUserData = try! FirestoreEncoder().encode(fromUser)
-        fromUser.ref?.setData(fromUserData)
-        let toUserData = try! FirestoreEncoder().encode(toUser)
-        toUser.ref?.setData(toUserData)
+        // NOT SURE IF I NEED THESE TWO LINES
+//        fromUser.conversations.append(conversation)
+//        toUser.conversations.append(conversation)
+        
+        fromUser.ref?.collection("conversations").addDocument(data: conversationData)
+        toUser.ref?.collection("conversations").addDocument(data: conversationData)
     }
     
     
     
     func loadFirstMessages() {
+        print("loadFirstMessages")
         self.getMessages { messages in
             DispatchQueue.main.async {
                 self.messageList = messages

@@ -64,6 +64,7 @@ class FirestoreService {
             if let document = document {
                 var user = try! FirestoreDecoder().decode(User.self, from: document.data()!)
                 user.ref = userDocRef
+                FirestoreService.shared.loadUserConversations(user)
                 completion(user)
             } else {
                 // Probably shouldn't crash app. Should display a notification to the user to connect to wifi
@@ -71,8 +72,25 @@ class FirestoreService {
             }
         }
     }
+    
+    // Fetches and fills out all of this user's conversations
+    func loadUserConversations(_ user: User) {
+        guard let ref = user.ref else { return }
+        // Get every document in the user's conversations collection
+        ref.collection("conversations").getDocuments { (querySnapshot, err) in
+            if let err = err {
+                print("Error getting Conversation document from user \(String(describing: user.ref)): \(err)")
+            } else {
+                for document in querySnapshot!.documents {
+                    let conversation = try! FirestoreDecoder().decode(Conversation.self, from: document.data())
+                    user.conversations.append(conversation)
+                }
+            }
+        }
+    }
 }
 
+// CodableFirebase extensions to make these types Codable
 extension DocumentReference: DocumentReferenceType {}
 extension GeoPoint: GeoPointType {}
 extension FieldValue: FieldValueType {}
