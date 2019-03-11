@@ -83,5 +83,68 @@
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SlideDM/Services/LocationService.swift"
+            timestampString = "572338477.252998"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "14"
+            endingLineNumber = "14"
+            landmarkName = "unknown"
+            landmarkType = "0">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "globalinit_33_E446F4185A623DF34807305A4EAE5309_func0"
+                  moduleName = "SlideDM"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/elabouve/Documents/csc436/Project/SlideDM/SlideDM/Services/LocationService.swift"
+                  timestampString = "572171467.295367"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "14"
+                  endingLineNumber = "14"
+                  offsetFromSymbolStart = "11">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SlideDM.LocationService.shared.unsafeMutableAddressor : SlideDM.LocationService"
+                  moduleName = "SlideDM"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/elabouve/Documents/csc436/Project/SlideDM/SlideDM/Services/LocationService.swift"
+                  timestampString = "572171467.297393"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "14"
+                  endingLineNumber = "14"
+                  offsetFromSymbolStart = "4">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "static SlideDM.LocationService.shared.getter : SlideDM.LocationService"
+                  moduleName = "SlideDM"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/elabouve/Documents/csc436/Project/SlideDM/SlideDM/Services/LocationService.swift"
+                  timestampString = "572171467.308542"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "14"
+                  endingLineNumber = "14"
+                  offsetFromSymbolStart = "40">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

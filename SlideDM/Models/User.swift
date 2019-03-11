@@ -57,7 +57,7 @@ class User: Codable, Equatable {
     // Return the conversation associated between this user and the user identified by userID
     func getConversationWith(userID id: String) -> Conversation? {
         for conversation in conversations {
-            if id == conversation.toUserID {
+            if id == conversation.toUserID || id == conversation.fromUserID {
                 return conversation
             }
         }

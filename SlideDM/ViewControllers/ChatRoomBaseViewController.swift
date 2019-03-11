@@ -1,6 +1,6 @@
 //
 // TODO
-// [] BUG: Using the refreshController once all messages are loaded
+// [x] BUG: Using the refreshController once all messages are loaded
 
 import UIKit
 import MessageKit
