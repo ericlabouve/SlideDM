@@ -21,6 +21,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
         FirebaseApp.configure()
 
+//        UserDefaults.standard.removeObject(forKey: "userDocID")
+//        UserDefaults.standard.removeObject(forKey: "userPhoneID")
         
         // Move to the Chats View Controller if the user has already signed in
         if let _ = UserDefaults.standard.string(forKey: "userDocID"), let _ = UserDefaults.standard.string(forKey: "userPhoneID") {

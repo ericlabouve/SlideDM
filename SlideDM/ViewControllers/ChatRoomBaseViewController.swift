@@ -19,7 +19,7 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     // This query will retrieve messages from the database
     var getMoreMessagesQuery: Query?
     // Number of messages to initially and subsequently load with the refresh controller
-    var count: Int = 1
+    var count: Int = 10
     // Scroll wheel at the top to get older, paginated messages
     let refreshControl = UIRefreshControl()
     
@@ -79,11 +79,6 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
         conversationData = try! FirestoreEncoder().encode(conversation)
         
         // 2. Update toUser and fromUser with the current conversation and update them locally and save in Firestore
-        
-        // NOT SURE IF I NEED THESE TWO LINES
-//        fromUser.conversations.append(conversation)
-//        toUser.conversations.append(conversation)
-        
         fromUser.ref?.collection("conversations").addDocument(data: conversationData)
         toUser.ref?.collection("conversations").addDocument(data: conversationData)
     }
@@ -91,7 +86,6 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     
     
     func loadFirstMessages() {
-        print("loadFirstMessages")
         self.getMessages { messages in
             DispatchQueue.main.async {
                 self.messageList = messages
@@ -114,19 +108,14 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
 
     // Uses pagination to load messages
     func getMessages(completion: @escaping ([TextMessage]) -> Void) {
-        guard let messagesColRef = conversation.ref?.collection("messages") else {
-            return
-        }
+        guard let messagesColRef = conversation.ref?.collection("messages") else { return }
         if self.getMoreMessagesQuery == nil {
             self.getMoreMessagesQuery = messagesColRef
                                         .order(by: "timestampDate", descending: true)
                                         .limit(to: count)
         }
         self.getMoreMessagesQuery?.getDocuments { (snapshot, error) in
-            guard let snapshot = snapshot else {
-                print("Error retreving messages: \(error.debugDescription)")
-                return
-            }
+            guard let snapshot = snapshot else { print("Error retreving messages: \(error.debugDescription)"); return }
             // Store the lastSnapshot in order to create the next query if the user wants to see more messages
             guard let lastSnapshot = snapshot.documents.last else {
                 // The collection is empty.

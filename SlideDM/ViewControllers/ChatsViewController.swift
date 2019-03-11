@@ -14,7 +14,7 @@
 // Potential fix for 2-level inversion to get user locations:
 // https://github.com/firebase/geofire-objc/issues/101
 // [] Background process to update user's location
-//      [] Pull up to reload everything
+//      [x] Pull up to reload everything
 // [] BUG: geoFirestore.query returns documents that don't exist...
 // [] Wifi connectivity popup when user's data can't be loaded
 
@@ -58,22 +58,31 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     // MARK: - UserConversationsListener and ConversationListener methods
     
     func conversationChanged(conversation: Conversation, textMessage: TextMessage) {
-        // Locate which conversation sent the message
-        // ...
-        
-        print(textMessage.text)
-        
+        // Only react to messages sent to the user and not from the user
+        let fromId = textMessage.id
+        if fromId != user.phoneID {
+            // Get the table cell that corresponds to this conversation
+            for (idx, nearbyUser) in nearbyUsers.enumerated() {
+                if fromId == nearbyUser.phoneID {
+                    // Put the contact with the new message at the top of the list
+                    let element = nearbyUsers.remove(at: idx)
+                    nearbyUsers.insert(element, at: 0)
+                    // Color the conversation
+                    let cell = tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? ChatsTableViewCell
+                    cell?.read = false
+                    // Set the greeting tag as a message preview
+                    nearbyUser.greetingTag = textMessage.text
+                    tableView.reloadData()
+                    break
+                }
+            }
+        }
     }
-    
-//    func getUserWithConversation(conversation: Conversation) {
-//        for (user, idx) in nearbyUsers.enumerated() {
-//
-//        }
-//    }
-    
+
+    // Our user has been added (or has been added to) a new conversation.
+    // Listen to this conversation for future messages
     func UserConversationsChanged(user: User, conversation: Conversation) {
         conversation.addConversationListener(listener: self)
-        print("conversation added")
     }
     
     
@@ -184,6 +193,7 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
         cell?.distanceLabel.text = thisUser.distanceMetric                          // User should not hold their own distanceMetric string. Should be generated.
         cell?.greetingTagTextView.text = thisUser.greetingTag
         cell?.iconImageView.image = UIImage(named: thisUser.profileImageName)
+        cell?.backgroundColor = cell!.read ? .clear : .orange
         return cell!
     }
     
@@ -195,6 +205,8 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     // Selecting a table cell will transition the user into the chat room
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         selectedUser = nearbyUsers[indexPath.row]
+        let cell = tableView.cellForRow(at: indexPath) as? ChatsTableViewCell
+        cell?.read = true
         performSegue(withIdentifier: "ChatsToChatroom", sender: self)
     }
 }

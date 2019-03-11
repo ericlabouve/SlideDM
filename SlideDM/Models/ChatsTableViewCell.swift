@@ -16,6 +16,9 @@ class ChatsTableViewCell: UITableViewCell {
     @IBOutlet weak var iconImageView: UIImageView!
     @IBOutlet weak var greetingTagTextView: UITextView!
     
+    // True when user is up to date with all messages
+    var read: Bool = true
+    
     
     override func awakeFromNib() {
         super.awakeFromNib()
