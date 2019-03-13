@@ -409,10 +409,10 @@
             </objects>
             <point key="canvasLocation" x="1825" y="893"/>
         </scene>
-        <!--Chat Room View Controller-->
+        <!--Chat Room Fancy View Controller-->
         <scene sceneID="ouQ-RR-UHg">
             <objects>
-                <viewController id="Ur5-h0-rnM" customClass="ChatRoomViewController" customModule="SlideDM" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="Ur5-h0-rnM" customClass="ChatRoomFancyViewController" customModule="SlideDM" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="VNT-FA-GSi">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

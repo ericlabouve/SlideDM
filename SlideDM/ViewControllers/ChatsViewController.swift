@@ -154,7 +154,8 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
         // Get the new view controller using segue.destination.
         let segueID = segue.identifier!
         if segueID == "ChatsToChatroom" {
-            let destinationVC = segue.destination as! ChatRoomViewController
+//            let destinationVC = segue.destination as! ChatRoomSimpleViewController
+            let destinationVC = segue.destination as! ChatRoomFancyViewController
             destinationVC.toUser = selectedUser
             destinationVC.fromUser = user
         }

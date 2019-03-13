@@ -2,8 +2,6 @@
 // TODO
 // [x] BUG: Using the refreshController once all messages are loaded
 
-// CONVERT TO ADVANCED EXAMPLE IN ORDER TO GET TIGHTER MESSAGES AND EVERYTHING ELSE THAT'S COOL
-
 import UIKit
 import MessageKit
 import MessageInputBar
@@ -11,7 +9,7 @@ import Firebase
 import CodableFirebase
 
 // This class handles the functional responsibilities of the chat room such as database operations
-class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource, ConversationListener {
+class ChatRoomBase: MessagesViewController, MessagesDataSource, ConversationListener {
     
     var fromUser: User!
     var toUser: User!
@@ -41,10 +39,7 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource, Co
     override func viewDidLoad() {
         super.viewDidLoad()
         configureMessageCollectionView()
-        // Configure the Message Input Bar
-        messageInputBar.delegate = self
-        messageInputBar.inputTextView.tintColor = .leftMessageColor
-        messageInputBar.sendButton.tintColor = .leftMessageColor
+        configureMessageInputBar()
         
         title = toUser?.first
 
@@ -63,6 +58,13 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource, Co
         messagesCollectionView.addSubview(refreshControl)
         // Pull down to receive more messages
         refreshControl.addTarget(self, action: #selector(loadMoreMessages), for: .valueChanged)
+    }
+    
+    func configureMessageInputBar() {
+        // Configure the Message Input Bar
+        messageInputBar.delegate = self
+        messageInputBar.inputTextView.tintColor = .leftMessageColor
+        messageInputBar.sendButton.tintColor = .leftMessageColor
     }
 
     
@@ -245,7 +247,7 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource, Co
 // MARK: - MessageCellDelegate
 
 // Can extend MessageCellDelegate to handle tap events. One avenue for future work would be to look at someone's profile when their icon is tapped.
-extension ChatRoomBaseViewController: MessageCellDelegate {
+extension ChatRoomBase: MessageCellDelegate {
 //    func didTapAvatar(in cell: MessageCollectionViewCell) {
 //        print("Avatar tapped")
 //    }
@@ -258,7 +260,7 @@ extension ChatRoomBaseViewController: MessageCellDelegate {
 
 // MARK: - MessageInputBarDelegate
 
-extension ChatRoomBaseViewController: MessageInputBarDelegate {
+extension ChatRoomBase: MessageInputBarDelegate {
     
     // Handles everything that happens when a message is sent
     func messageInputBar(_ inputBar: MessageInputBar, didPressSendButtonWith text: String) {
@@ -281,6 +283,9 @@ extension ChatRoomBaseViewController: MessageInputBarDelegate {
 extension UIColor {
     static let leftMessageColor = UIColor(red: 69/255, green: 193/255, blue: 89/255, alpha: 1)
     static let leftMessageBorderColor = UIColor(red: 84/255, green: 208/255, blue: 104/255, alpha: 1)
+    
     static let rightMessageColor = UIColor(red: 230/255, green: 230/255, blue: 230/255, alpha: 1)
     static let rightMessageBorderColor = UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1)
+    
+    static let avatarBorderColor = UIColor(red: 86/255, green: 149/255, blue: 246/255, alpha: 1)
 }

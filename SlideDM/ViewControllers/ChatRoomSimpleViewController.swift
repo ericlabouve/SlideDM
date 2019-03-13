@@ -5,8 +5,9 @@ import MapKit
 import MessageKit
 import MessageInputBar
 
-// The primary responsibility of this class is to set GUI properties for the chat room
-final class ChatRoomViewController: ChatRoomBaseViewController {
+// This class sets GUI properties for the chat room.
+// This file's UI is a little awkward because avitars take up too much room and there is too much spacing between messages. It is better to use ChatRoomFancyViewController
+final class ChatRoomSimpleViewController: ChatRoomBase {
   
     override func configureMessageCollectionView() {
         super.configureMessageCollectionView()
@@ -18,7 +19,7 @@ final class ChatRoomViewController: ChatRoomBaseViewController {
 
 // MARK: - MessagesDisplayDelegate
 
-extension ChatRoomViewController: MessagesDisplayDelegate {
+extension ChatRoomSimpleViewController: MessagesDisplayDelegate {
     
     
     
@@ -65,18 +66,13 @@ extension ChatRoomViewController: MessagesDisplayDelegate {
     // Replace this with a Snapkit image in the future
     func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
 //        let avatar = SampleData.shared.getAvatarFor(sender: message.sender)
-        
         let tmessage = message as! TextMessage
-        print("Reloaded with tmessage.showAvatar \(tmessage.text)")
-        
         if tmessage.showAvatar {
             let initials = String(self.fromUser?.first.prefix(1) ?? "") + String(self.fromUser?.last.prefix(1) ?? "")
             let avatar = Avatar(image: nil, initials: initials)
             avatarView.set(avatar: avatar)
         } else {
-            print("Removed avatar")
-            avatarView.frame = CGRect.zero
-            
+            avatarView.isHidden = true
         }
     }
 }
@@ -84,9 +80,9 @@ extension ChatRoomViewController: MessagesDisplayDelegate {
 // MARK: - MessagesLayoutDelegate
 
 // These properties can be set to dynamically size the message
-extension ChatRoomViewController: MessagesLayoutDelegate {
+extension ChatRoomSimpleViewController: MessagesLayoutDelegate {
     
-    // Spacing the the center timestamp
+    // Spacing for the center timestamp
     func cellTopLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
          return 18
     }
@@ -104,6 +100,7 @@ extension ChatRoomViewController: MessagesLayoutDelegate {
         } else {
             return 0
         }
+//        return 16
     }
     
 }
