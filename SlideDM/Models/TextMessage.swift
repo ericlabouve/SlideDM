@@ -39,6 +39,10 @@ class TextMessage: MessageType, Codable {
         return .text(text)
     }
     
+    // Whether or not the user's avatar should show next to their message
+    // Should show once per group of messages
+    var showAvatar: Bool = false
+    
     init(text: String, sender: Sender, messageId: String, date: Date) {
         self.text = text
         self.id = sender.id

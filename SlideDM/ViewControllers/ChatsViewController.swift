@@ -13,7 +13,7 @@
 // [] Is there a better way to perform queries? Right now pulling nearby users makes two database calls per user. I should be able to pull users directly by saving the location in the user.
 // Potential fix for 2-level inversion to get user locations:
 // https://github.com/firebase/geofire-objc/issues/101
-// [] BUG: Separate conversations are created between two users
+// [X] BUG: Separate conversations are created between two users
 // [] Background process to update user's location
 //      [x] Pull up to reload everything
 // [] BUG: geoFirestore.query returns documents that don't exist...

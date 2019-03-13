@@ -2,6 +2,8 @@
 // TODO
 // [x] BUG: Using the refreshController once all messages are loaded
 
+// CONVERT TO ADVANCED EXAMPLE IN ORDER TO GET TIGHTER MESSAGES AND EVERYTHING ELSE THAT'S COOL
+
 import UIKit
 import MessageKit
 import MessageInputBar
@@ -9,7 +11,7 @@ import Firebase
 import CodableFirebase
 
 // This class handles the functional responsibilities of the chat room such as database operations
-class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
+class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource, ConversationListener {
     
     var fromUser: User!
     var toUser: User!
@@ -33,18 +35,24 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
         return formatter
     }()
     
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureMessageCollectionView()
         // Configure the Message Input Bar
         messageInputBar.delegate = self
-        messageInputBar.inputTextView.tintColor = .primaryColor
-        messageInputBar.sendButton.tintColor = .primaryColor
+        messageInputBar.inputTextView.tintColor = .leftMessageColor
+        messageInputBar.sendButton.tintColor = .leftMessageColor
         
         title = toUser?.first
-        
+
         getConversation()
         loadFirstMessages()
+        
+        // Start listening for new messages
+        conversation.addConversationListener(listener: self)
     }
     
     func configureMessageCollectionView() {
@@ -57,6 +65,9 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
         refreshControl.addTarget(self, action: #selector(loadMoreMessages), for: .valueChanged)
     }
 
+    
+    
+    // MARK: - Get Conversation
 
     // Get the current conversation between the two users or
     // create a new conversation in Firebase if it does not already exist
@@ -85,10 +96,13 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     
     
     
+    // MARK: - Load Messages
+    
     func loadFirstMessages() {
         self.getMessages { messages in
             DispatchQueue.main.async {
                 self.messageList = messages
+                self.cleanSpeechBubbles()
                 self.messagesCollectionView.reloadData()
                 self.messagesCollectionView.scrollToBottom()
             }
@@ -100,6 +114,7 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
         self.getMessages { messages in
             DispatchQueue.main.async {
                 self.messageList.insert(contentsOf: messages, at: 0)
+                self.cleanSpeechBubbles()
                 self.messagesCollectionView.reloadDataAndKeepOffset()
                 self.refreshControl.endRefreshing()
             }
@@ -124,7 +139,7 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
             }
             var messages = [TextMessage]()
             for qDocSnapshot in snapshot.documents {
-                messages.append(TextMessage(snapshot: qDocSnapshot))
+                messages.insert(TextMessage(snapshot: qDocSnapshot), at: 0)
             }
             
             // Construct a new query starting after this document just in case the user scrolls up to see more messages
@@ -138,12 +153,23 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     }
     
     
+    // MARK: - ConversationListener
+    
+    // Add a new message to the conversation
+    func conversationChanged(conversation: Conversation, textMessage: TextMessage) {
+        let fromId = textMessage.id
+        if fromId == toUser.phoneID {
+            insertMessage(textMessage)
+        }
+    }
     
     
+    // MARK: - Insert Message at Bottom with Animation
     
     func insertMessage(_ message: TextMessage) {
         // When a message is sent, we initialize a conversation in Firestore if one does not already exist
         messageList.append(message)
+        cleanSpeechBubbles()
         updateCollectionView()
     }
 
@@ -168,6 +194,20 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
         return messagesCollectionView.indexPathsForVisibleItems.contains(lastIndexPath)
     }
     
+    
+    // Group speech bubbles together so that the avatar only appears on the last message
+    func cleanSpeechBubbles() {
+        var prevMessage: TextMessage!
+        for (idx, message) in messageList.enumerated() {
+            if idx > 0 && prevMessage.id != message.id {
+                messageList[idx - 1].showAvatar = true
+            }
+            messageList[idx].showAvatar = false
+            prevMessage = message
+        }
+        // Last message always has avatar turned on
+        messageList[messageList.count - 1].showAvatar = true
+    }
     
     
     
@@ -198,6 +238,10 @@ class ChatRoomBaseViewController: MessagesViewController, MessagesDataSource {
     
 }
 
+
+
+
+
 // MARK: - MessageCellDelegate
 
 // Can extend MessageCellDelegate to handle tap events. One avenue for future work would be to look at someone's profile when their icon is tapped.
@@ -206,6 +250,10 @@ extension ChatRoomBaseViewController: MessageCellDelegate {
 //        print("Avatar tapped")
 //    }
 }
+
+
+
+
 
 
 // MARK: - MessageInputBarDelegate
@@ -220,7 +268,6 @@ extension ChatRoomBaseViewController: MessageInputBarDelegate {
                 let message = TextMessage(text: str, sender: currentSender(), messageId: UUID().uuidString, date: Date())
                 insertMessage(message)
                 // Save message to database
-//                let messageData = try! FirestoreEncoder().encode(message)
                 conversation.ref?.collection("messages").addDocument(data: message.toDict())
             }
         }
@@ -232,5 +279,8 @@ extension ChatRoomBaseViewController: MessageInputBarDelegate {
 }
 
 extension UIColor {
-    static let primaryColor = UIColor(red: 69/255, green: 193/255, blue: 89/255, alpha: 1)
+    static let leftMessageColor = UIColor(red: 69/255, green: 193/255, blue: 89/255, alpha: 1)
+    static let leftMessageBorderColor = UIColor(red: 84/255, green: 208/255, blue: 104/255, alpha: 1)
+    static let rightMessageColor = UIColor(red: 230/255, green: 230/255, blue: 230/255, alpha: 1)
+    static let rightMessageBorderColor = UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1)
 }
