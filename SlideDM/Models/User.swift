@@ -17,6 +17,8 @@ class User: Codable, Equatable {
     var first: String
     // User's last name
     var last: String
+    // User's email address
+    var email: String
     // User's encrypted phone number
     var phoneID: String
     // User's greeting tag message
@@ -36,9 +38,10 @@ class User: Codable, Equatable {
     var conversations = [Conversation]()
 
     
-    init(first: String, last: String, phoneID: String, contacts: [Contact]) {
+    init(first: String, last: String, email: String, phoneID: String, contacts: [Contact]) {
         self.first = first
         self.last = last
+        self.email = email
         self.phoneID = phoneID
         self.contacts = contacts
         self.greetingTag = getRandomGreetingTag()
@@ -69,6 +72,7 @@ class User: Codable, Equatable {
     enum CodingKeys: String, CodingKey {
         case first
         case last
+        case email
         case phoneID
         case greetingTag
         case profileImageName

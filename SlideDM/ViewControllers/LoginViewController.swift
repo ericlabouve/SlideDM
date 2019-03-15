@@ -7,12 +7,15 @@
 //
 
 // TODO:
-// Do not proceed to next page if async call to Facebook api fails...
+// [] Do not proceed to next page if async call to Facebook api fails...
+// [] Logout button in upper right hand corner does not log out of facebook
+// [] Extend functionality to grab user friends. I think the graph reference is "/me/friends" also see https://developers.facebook.com/docs/facebook-login/permissions/#reference-user_friends
 
 import UIKit
 import FBSDKLoginKit
 import Contacts
 import CryptoSwift
+
 
 class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
 
@@ -24,18 +27,23 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     @IBOutlet weak var loginButton: FBSDKLoginButton!
     @IBOutlet weak var facebookDisclaimerLabel: UILabel!
     
-    // Meta data
+    // User meta data
     var contacts = [Contact]()
+    var userFirstName: String?
+    var userLastName: String?
+    var userEmail: String?
+    var userProfileImage: UIImage?
+
     
     // MARK: - View Controller Life Cycle
     
     override func viewDidLoad() {
-        super.viewDidLoad()        
+        super.viewDidLoad()
         // Load UI
         contactsLoginButton.layer.cornerRadius = 3
         contactsLoginButton.clipsToBounds = true
         loginButton.delegate = self
-//        loginButton.readPermissions = ["public_profile", "user_friends"]
+        loginButton.readPermissions = ["email", "public_profile"]
         setBackground()
         hideUI()
     }
@@ -95,25 +103,25 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "SetupProfileSegue" {
-            print("Segueing to SetupProfileViewControler")
-            (segue.destination as? SetupProfileViewController)?.userContacts = contacts
+            let dest = segue.destination as? SetupProfileViewController
+            dest?.userContacts = contacts
+            dest?.userFirstName = userFirstName
+            dest?.userLastName = userLastName
+            dest?.userEmail = userEmail
+            dest?.userProfileImage = userProfileImage
         }
     }
+    
+    
+    
     
     
     
     // MARK: - Facebook
     
     func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error!) {
-        if error != nil {
-            print(error)
-            return
-        }
-        print("Successfully logged in with facebook :)")
-        requestFacebookFriends()
-        // requestFacebookNameAndNumber()
-        continueWithContactsClick()
-        
+        if error != nil { print(error); return }
+        requestFacebook()
     }
     
     func loginButtonDidLogOut(_ loginButton: FBSDKLoginButton!) {
@@ -121,41 +129,46 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     }
     
     // You also cannot do this unless you have explicit permission from Facebook
-    func requestFacebookNameAndNumber() {
+    func requestFacebook() {
         if((FBSDKAccessToken.current()) != nil){
-            let params = ["fields": "name, first_name, last_name, phone"]
+            let params = ["fields": "first_name, last_name, email, picture.width(300).height(300)"]
             FBSDKGraphRequest(graphPath: "me", parameters: params).start(completionHandler: { (connection, result, error) -> Void in
                 if (error == nil){
                     if let userData = result as? [String:Any] {
-                        print(userData)
+                        // print(userData)
+                        self.userFirstName = userData["first_name"] as? String
+                        self.userLastName = userData["last_name"] as? String
+                        self.userEmail = userData["email"] as? String
+                        if let pictureObj = userData["picture"] as? NSDictionary {
+                            if let pictureData = pictureObj["data"] as? [String:Any] {
+                                let url = pictureData["url"] as! String
+                                let session = URLSession(configuration: URLSessionConfiguration.default)
+                                let request = URLRequest(url: URL(string: url)!)
+                                let task: URLSessionDataTask = session.dataTask(with: request)
+                                { (receivedData, response, error) -> Void in
+                                    if let data = receivedData {
+                                        self.userProfileImage = UIImage(data: data)
+                                        DispatchQueue.main.async {
+                                            self.continueWithContactsClick()
+                                        }
+                                    }
+                                }
+                                task.resume()
+                            }
+                        }
                     }
                 } else {
-                    print("Error Getting Facebook name and phone number \(String(describing: error))");
+                    print("Facebook Error: \(String(describing: error))");
                 }
             })
         }
     }
     
-    // In order for this method to work, users must accept to the permission, user_friends, and your
-    // app must be approved by Facebook
-    // See https://developers.facebook.com/docs/facebook-login/permissions/#reference-user_friends
-    func requestFacebookFriends() {
-        let params = ["fields": "id, first_name, last_name"]
-        let graphRequest = FBSDKGraphRequest(graphPath: "/me/friends", parameters: params)
-        let connection = FBSDKGraphRequestConnection()
-        connection.add(graphRequest, completionHandler: { (connection, result, error) in
-            if error == nil {
-                if let userData = result as? [String:Any] {
-                    for (key, value) in userData {
-                        print("\(key)" + " : " + "\(value)")
-                    }
-                }
-            } else {
-                print("Error Getting Facebook Friends \(String(describing: error))");
-            }
-        })
-        connection.start()
-    }
+    
+    
+    
+    
+    
     
     // MARK: - Contacts
     

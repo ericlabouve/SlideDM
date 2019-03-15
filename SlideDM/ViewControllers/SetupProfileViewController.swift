@@ -38,6 +38,10 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
     
     // Passed in from LoginViewController
     var userContacts: [Contact] = []
+    var userFirstName: String?
+    var userLastName: String?
+    var userEmail: String?
+    var userProfileImage: UIImage?
 
     
     override func viewDidLoad() {
@@ -57,6 +61,11 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         firstNameTextField.underlined()
         lastNameTextField.underlined()
         phoneNumberTextField.underlined()
+        
+        // Fill in labels if user logged in with Social Media
+        firstNameTextField.text = userFirstName ?? ""
+        lastNameTextField.text = userLastName ?? ""
+        
         setBackground()
         hideUI()
     }
@@ -78,7 +87,7 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         }
         resignFirstResponder()
         // We now have enough information to create a User object
-        saveUserToDatabase(user: User(first: userFirstName, last: userLastName, phoneID: userEncryptedPhoneNumber, contacts: userContacts))
+        saveUserToDatabase(user: User(first: userFirstName, last: userLastName, email: userEmail ?? "", phoneID: userEncryptedPhoneNumber, contacts: userContacts))
         // Move this to viewWillDisappear when setting up next view controller
         outAnimation()
         // Move to next screen

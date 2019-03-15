@@ -18,6 +18,7 @@
 //      [x] Pull up to reload everything
 // [] BUG: geoFirestore.query returns documents that don't exist...
 // [] Wifi connectivity popup when user's data can't be loaded
+// [] Organize messages based on most recent activity (can save the dates locally)
 
 import UIKit
 import CoreLocation
@@ -79,6 +80,7 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
             }
         }
     }
+    
 
     // Our user has been added (or has been added to) a new conversation.
     // Listen to this conversation for future messages
@@ -196,7 +198,7 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
         cell?.distanceLabel.text = thisUser.distanceMetric                          // User should not hold their own distanceMetric string. Should be generated.
         cell?.greetingTagTextView.text = thisUser.greetingTag
         cell?.iconImageView.image = UIImage(named: thisUser.profileImageName)
-        cell?.backgroundColor = cell!.read ? .clear : .orange
+        cell?.iconImageView.backgroundColor = cell!.read ? .clear : .orange
         return cell!
     }
     
