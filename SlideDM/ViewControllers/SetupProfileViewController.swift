@@ -55,11 +55,16 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         lastNameTextField.delegate = self
         phoneNumberTextField.delegate = self
         
+        // Be able to set the profile image
+        profileImage.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSelectProfileImageView)))
+        profileImage.isUserInteractionEnabled = true
+        
         // Load UI
         // TextField Background
         firstNameTextField.backgroundColor = UIColor.clear
         lastNameTextField.backgroundColor = UIColor.clear
         phoneNumberTextField.backgroundColor = UIColor.clear
+        
         // TextField Bottom Border
         firstNameTextField.underlined()
         lastNameTextField.underlined()
@@ -72,6 +77,7 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
             profileImage.image = userProfileImage
         }
         
+        // UI
         setBackground()
         hideUI()
     }
@@ -155,6 +161,7 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
             }, completion: { _ in
                 // Fade Text Fields in
                 UIView.animate(withDuration: 1.0, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.0, options: .curveEaseOut, animations: {
+                    self.profileImage.alpha = 1
                     self.firstNameTextField.alpha = 1
                     self.lastNameTextField.alpha = 1
                     self.phoneNumberTextField.alpha = 1
@@ -167,6 +174,7 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
     
     func outAnimation() {
         UIView.animate(withDuration: 1.0, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.0, options: .curveEaseOut, animations: {
+            self.profileImage.alpha = 0
             self.firstNameTextField.alpha = 0
             self.lastNameTextField.alpha = 0
             self.phoneNumberTextField.alpha = 0
@@ -198,16 +206,29 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
 }
 
 extension SetupProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        dismiss(animated: true, completion: nil)
+    
+    @objc
+    func handleSelectProfileImageView() {
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.allowsEditing = true
+        present(picker, animated: true, completion: nil)
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        guard let mediaType: String = info[UIImagePickerController.InfoKey.mediaType] as? String else {
-            dismiss(animated: true, completion: nil); return
+        var selectedImageFromPicker: UIImage?
+        if let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
+            selectedImageFromPicker = editedImage
+        } else if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+            selectedImageFromPicker = originalImage
         }
-//        if mediaType == (kUTTypeImage as String) {
-        
+        if let selectedImage = selectedImageFromPicker {
+            profileImage.image = selectedImage
         }
+        dismiss(animated: true, completion: nil)
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        dismiss(animated: true, completion: nil)
     }
 }
