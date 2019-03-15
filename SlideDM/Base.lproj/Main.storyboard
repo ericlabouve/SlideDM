@@ -300,8 +300,8 @@
                     </view>
                     <connections>
                         <outlet property="greetingTagTextView" destination="IvJ-XB-GWW" id="oey-i5-dvE"/>
-                        <outlet property="imageView" destination="Wrt-ZP-iIu" id="GQs-ny-tW1"/>
                         <outlet property="nameLabel" destination="YcS-NL-kl2" id="Zwj-nG-muv"/>
+                        <outlet property="profileImage" destination="Wrt-ZP-iIu" id="GQs-ny-tW1"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="e8j-Sg-Z2t" userLabel="First Responder" sceneMemberID="firstResponder"/>

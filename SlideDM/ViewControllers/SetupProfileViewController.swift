@@ -7,8 +7,8 @@
 
 // TODO:
 // Authenticate each user with 2-factor authentication
-// [] Be able to select a profile image
-// [] Upload/Download from Firebase Storage https://www.youtube.com/watch?v=Bd4-6pnjjd8
+// [x] Be able to select a profile image
+// [] Upload from Firebase Storage https://www.youtube.com/watch?v=Bd4-6pnjjd8 and save to local storage
 
 import UIKit
 import Firebase
@@ -225,6 +225,7 @@ extension SetupProfileViewController: UIImagePickerControllerDelegate, UINavigat
         if let selectedImage = selectedImageFromPicker {
             profileImage.image = selectedImage
         }
+        print(profileImage.image?.size)
         dismiss(animated: true, completion: nil)
     }
     
