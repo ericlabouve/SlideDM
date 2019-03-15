@@ -7,6 +7,8 @@
 
 // TODO:
 // Authenticate each user with 2-factor authentication
+// [] Be able to select a profile image
+// [] Upload/Download from Firebase Storage https://www.youtube.com/watch?v=Bd4-6pnjjd8
 
 import UIKit
 import Firebase
@@ -35,6 +37,7 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var phoneNumberTextField: UITextField!
     @IBOutlet weak var whyPhoneNumberButton: UIButton!
     @IBOutlet weak var doneButton: UIButton!
+    @IBOutlet weak var profileImage: UIImageView!
     
     // Passed in from LoginViewController
     var userContacts: [Contact] = []
@@ -65,6 +68,9 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         // Fill in labels if user logged in with Social Media
         firstNameTextField.text = userFirstName ?? ""
         lastNameTextField.text = userLastName ?? ""
+        if let userProfileImage = userProfileImage {
+            profileImage.image = userProfileImage
+        }
         
         setBackground()
         hideUI()
@@ -189,5 +195,19 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         whyPhoneNumberButton.alpha = 0
         doneButton.alpha = 0
     }
+}
 
+extension SetupProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        dismiss(animated: true, completion: nil)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        guard let mediaType: String = info[UIImagePickerController.InfoKey.mediaType] as? String else {
+            dismiss(animated: true, completion: nil); return
+        }
+//        if mediaType == (kUTTypeImage as String) {
+        
+        }
+    }
 }

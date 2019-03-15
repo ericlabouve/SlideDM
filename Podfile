@@ -10,9 +10,15 @@ target 'SlideDM' do
   pod 'FacebookLogin'
   pod 'FacebookShare'
   pod 'CryptoSwift'
+
   pod 'Firebase/Core'
   pod 'Firebase/Firestore'
   pod 'Firebase/Auth'
+  pod 'Firebase/Storage'
+  pod 'FirebaseUI/Auth'
+  pod 'FirebaseUI/Google'
+  pod 'FirebaseUI/Facebook'
+  
   pod 'CodableFirebase'
   pod 'Geofirestore'
   pod 'MessageKit'

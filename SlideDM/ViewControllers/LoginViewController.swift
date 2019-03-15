@@ -7,6 +7,7 @@
 //
 
 // TODO:
+// [] Sign in with google: https://www.youtube.com/watch?v=7Mt2yf4h6lQ and https://stackoverflow.com/questions/42545249/firebase-ui-auth-provider-ios-swift-example
 // [] Do not proceed to next page if async call to Facebook api fails...
 // [] Logout button in upper right hand corner does not log out of facebook
 // [] Extend functionality to grab user friends. I think the graph reference is "/me/friends" also see https://developers.facebook.com/docs/facebook-login/permissions/#reference-user_friends

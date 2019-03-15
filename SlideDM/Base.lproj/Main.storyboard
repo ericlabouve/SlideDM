@@ -100,7 +100,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Enter Last Name" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Pec-Cy-LP5">
-                                <rect key="frame" x="37.5" y="124" width="300" height="24"/>
+                                <rect key="frame" x="37.5" y="296" width="300" height="24"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="words" keyboardType="alphabet" textContentType="family-name"/>
@@ -112,7 +112,7 @@
                                 </userDefinedRuntimeAttributes>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Enter Phone Number" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="CBW-56-wog">
-                                <rect key="frame" x="37.5" y="168" width="300" height="24"/>
+                                <rect key="frame" x="37.5" y="340" width="300" height="24"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" keyboardType="numberPad" textContentType="tel"/>
@@ -123,7 +123,7 @@
                                 </userDefinedRuntimeAttributes>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Oho-Oh-WUK">
-                                <rect key="frame" x="117.5" y="212" width="140" height="27"/>
+                                <rect key="frame" x="117.5" y="384" width="140" height="27"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                 <state key="normal" title="Why My Phone Number?"/>
                                 <connections>
@@ -131,7 +131,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3qD-1l-UyV">
-                                <rect key="frame" x="137.5" y="323" width="100" height="41"/>
+                                <rect key="frame" x="137.5" y="471" width="100" height="41"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="100" id="QBZ-6b-ZVg"/>
                                 </constraints>
@@ -151,7 +151,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Enter First Name" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="T65-Yx-IDU">
-                                <rect key="frame" x="37.5" y="80" width="300" height="24"/>
+                                <rect key="frame" x="37.5" y="252" width="300" height="24"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="300" id="HqE-ja-L01"/>
                                 </constraints>
@@ -164,22 +164,31 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </textField>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultIcon" translatesAutoresizingMaskIntoConstraints="NO" id="dVT-8e-8Dv">
+                                <rect key="frame" x="87.5" y="29" width="200" height="200"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="200" id="9UB-PI-ykq"/>
+                                    <constraint firstAttribute="height" constant="200" id="AGE-M8-jxi"/>
+                                </constraints>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="3qD-1l-UyV" firstAttribute="centerY" secondItem="KjW-jX-cPx" secondAttribute="centerY" id="485-T3-Yf6"/>
                             <constraint firstItem="CBW-56-wog" firstAttribute="top" secondItem="Pec-Cy-LP5" secondAttribute="bottom" constant="20" id="53U-e6-qlL"/>
                             <constraint firstItem="T65-Yx-IDU" firstAttribute="centerX" secondItem="KjW-jX-cPx" secondAttribute="centerX" id="7K8-7Y-9l8"/>
                             <constraint firstItem="3qD-1l-UyV" firstAttribute="centerX" secondItem="KjW-jX-cPx" secondAttribute="centerX" id="8eK-pM-kaw"/>
                             <constraint firstItem="CBW-56-wog" firstAttribute="width" secondItem="Pec-Cy-LP5" secondAttribute="width" id="9HH-Lp-c0b"/>
-                            <constraint firstItem="T65-Yx-IDU" firstAttribute="top" secondItem="KjW-jX-cPx" secondAttribute="top" constant="60" id="9ZD-dV-LP6"/>
                             <constraint firstItem="Oho-Oh-WUK" firstAttribute="centerX" secondItem="KjW-jX-cPx" secondAttribute="centerX" id="CjH-gL-yEk"/>
                             <constraint firstItem="Pec-Cy-LP5" firstAttribute="width" secondItem="T65-Yx-IDU" secondAttribute="width" id="FrH-Sn-TJe"/>
+                            <constraint firstItem="dVT-8e-8Dv" firstAttribute="top" secondItem="KjW-jX-cPx" secondAttribute="top" constant="9" id="RVE-Kf-fwn"/>
                             <constraint firstItem="Pec-Cy-LP5" firstAttribute="top" secondItem="T65-Yx-IDU" secondAttribute="bottom" constant="20" id="Vry-H3-GKq"/>
                             <constraint firstItem="SE3-Dm-Kph" firstAttribute="centerX" secondItem="KjW-jX-cPx" secondAttribute="centerX" id="ZTS-aF-lpm"/>
+                            <constraint firstItem="3qD-1l-UyV" firstAttribute="top" secondItem="Oho-Oh-WUK" secondAttribute="bottom" constant="60" id="ekt-4s-7s1"/>
                             <constraint firstItem="SE3-Dm-Kph" firstAttribute="centerY" secondItem="KjW-jX-cPx" secondAttribute="centerY" id="fW0-TN-vYw"/>
                             <constraint firstItem="Pec-Cy-LP5" firstAttribute="centerX" secondItem="KjW-jX-cPx" secondAttribute="centerX" id="fXb-Mm-2P9"/>
+                            <constraint firstItem="T65-Yx-IDU" firstAttribute="top" secondItem="dVT-8e-8Dv" secondAttribute="bottom" constant="23" id="hZ9-Hp-XAH"/>
                             <constraint firstItem="CBW-56-wog" firstAttribute="centerX" secondItem="KjW-jX-cPx" secondAttribute="centerX" id="oFo-6j-Uco"/>
+                            <constraint firstItem="dVT-8e-8Dv" firstAttribute="centerX" secondItem="KjW-jX-cPx" secondAttribute="centerX" id="sUS-Rc-6CG"/>
                             <constraint firstItem="Oho-Oh-WUK" firstAttribute="top" secondItem="CBW-56-wog" secondAttribute="bottom" constant="20" id="vmv-Mt-ewz"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="KjW-jX-cPx"/>
@@ -190,6 +199,7 @@
                         <outlet property="helloLabel" destination="SE3-Dm-Kph" id="t4P-vL-2L6"/>
                         <outlet property="lastNameTextField" destination="Pec-Cy-LP5" id="UZn-k3-6te"/>
                         <outlet property="phoneNumberTextField" destination="CBW-56-wog" id="r1I-dM-MUd"/>
+                        <outlet property="profileImage" destination="dVT-8e-8Dv" id="iYz-9W-SUz"/>
                         <outlet property="whyPhoneNumberButton" destination="Oho-Oh-WUK" id="C9Q-A8-p5l"/>
                         <segue destination="W71-B0-Msn" kind="presentation" identifier="setupProfileToChatsSegue" id="MpV-Tk-g7G"/>
                     </connections>
