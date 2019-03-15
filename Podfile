@@ -15,9 +15,9 @@ target 'SlideDM' do
   pod 'Firebase/Firestore'
   pod 'Firebase/Auth'
   pod 'Firebase/Storage'
-  pod 'FirebaseUI/Auth'
-  pod 'FirebaseUI/Google'
-  pod 'FirebaseUI/Facebook'
+  # pod 'FirebaseUI/Auth'
+  # pod 'FirebaseUI/Google'
+  # pod 'FirebaseUI/Facebook'
   
   pod 'CodableFirebase'
   pod 'Geofirestore'

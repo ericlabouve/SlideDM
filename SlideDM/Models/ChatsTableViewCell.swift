@@ -15,6 +15,7 @@ class ChatsTableViewCell: UITableViewCell {
     @IBOutlet weak var distanceLabel: UILabel!
     @IBOutlet weak var iconImageView: UIImageView!
     @IBOutlet weak var greetingTagTextView: UITextView!
+    @IBOutlet weak var notificationBar: UIView!
     
     // True when user is up to date with all messages
     var read: Bool = true

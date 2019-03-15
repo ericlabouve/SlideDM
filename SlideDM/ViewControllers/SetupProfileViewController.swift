@@ -8,7 +8,7 @@
 // TODO:
 // Authenticate each user with 2-factor authentication
 // [x] Be able to select a profile image
-// [] Upload from Firebase Storage https://www.youtube.com/watch?v=Bd4-6pnjjd8 and save to local storage
+// [] Upload to Firebase Storage https://www.youtube.com/watch?v=Bd4-6pnjjd8 and save to local storage
 
 import UIKit
 import Firebase
@@ -109,6 +109,9 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
     func saveUserToDatabase(user: User) {
         let data = try! FirestoreEncoder().encode(user)
         let ref = FirestoreService.shared.userColRef.addDocument(data: data)
+        
+        FirestoreService.shared.uploadImageToFirebaseStorage(image: profileImage.image!, withPath: "\(ref.documentID)/profileImage.png")
+        
         UserDefaults.standard.set(ref.documentID, forKey: "userDocID")
         UserDefaults.standard.set(user.phoneID, forKey: "userPhoneID")
         UserDefaults.standard.synchronize()

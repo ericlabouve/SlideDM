@@ -18,16 +18,7 @@ import CodableFirebase
 class FirestoreService {
     static let shared = FirestoreService()
     
-    // users
-    //  - first: String
-    //  - last: String
-    //  - phoneID: String
-    //  - contacts: [{
-    //                  first: String
-    //                  last: String
-    //                  phoneIDs: [String]
-    //              }]
-    //  - conversations: [DocumentReference]
+    // Reference to a collection of users
     var userColRef: CollectionReference!
 
     // Geofirestore
@@ -35,13 +26,7 @@ class FirestoreService {
     var geoFirestoreRef: CollectionReference
     var geoFirestore: GeoFirestore
     
-    // conversations
-    //  - fromUser: String
-    //  - toUser: String
-    //  - messages: collection
-    //     - text: String
-    //     - user: String
-    //     - time: Date
+    // Reference to a collection of shared conversations
     var conversationsColRef: CollectionReference
     
     private init() {
@@ -86,6 +71,21 @@ class FirestoreService {
                     user.conversations.append(conversation)
                 }
             }
+        }
+    }
+    
+    func uploadImageToFirebaseStorage(image: UIImage, withPath path: String) {
+        let storageRef = Storage.storage().reference(withPath: path)
+        let data = (image.pngData() as Data?)!
+        let uploadMetadata = StorageMetadata()
+        uploadMetadata.contentType = "image/png"
+        storageRef.putData(data, metadata: uploadMetadata) { (metadata, error) in
+            if (error != nil) {
+                print("Error while uploading image: \(error?.localizedDescription)")
+            } else {
+                print(metadata)
+            }
+            
         }
     }
 }

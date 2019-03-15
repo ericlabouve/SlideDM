@@ -5,6 +5,8 @@
 //  Created by Eric LaBouve on 2/12/19.
 //  Copyright © 2019 Eric LaBouve. All rights reserved.
 //
+// TODO:
+// [] Load profile picture from local storage
 
 import UIKit
 import CodableFirebase
@@ -15,6 +17,7 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var greetingTagTextView: UITextView!
     var greetingTagOldText: String = ""
+    var profileImageChanged: Bool = false
 
     var user: User!
 
@@ -31,6 +34,13 @@ class ProfileViewController: UIViewController {
         // Dismiss keyboard when user taps anywhere
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard (_:)))
         self.view.addGestureRecognizer(tapGesture)
+        
+        //Set the profile picture
+        user.downloadProfileImage { image in
+            DispatchQueue.main.async {
+                self.profileImage.image = image
+            }
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -42,8 +52,9 @@ class ProfileViewController: UIViewController {
             let userData = try! FirestoreEncoder().encode(user)
             user.ref?.setData(userData)
         }
-        
-        print("viewWillDisappear")
+        if profileImageChanged {
+            FirestoreService.shared.uploadImageToFirebaseStorage(image: profileImage.image!, withPath: "\(String(describing: user.ref?.documentID))/profileImage.png")
+        }
     }
     
     // Dismiss keyboard if user taps outside greetingtagtextview
@@ -71,6 +82,7 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
         }
         if let selectedImage = selectedImageFromPicker {
             profileImage.image = selectedImage
+            profileImageChanged = true
         }
         dismiss(animated: true, completion: nil)
     }

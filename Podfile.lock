@@ -48,6 +48,9 @@ PODS:
   - Firebase/Firestore (5.4.1):
     - Firebase/CoreOnly
     - FirebaseFirestore (= 0.12.6)
+  - Firebase/Storage (5.4.1):
+    - Firebase/CoreOnly
+    - FirebaseStorage (= 3.0.0)
   - FirebaseAnalytics (5.0.1):
     - FirebaseCore (~> 5.0)
     - FirebaseInstanceID (~> 3.0)
@@ -76,6 +79,9 @@ PODS:
     - Protobuf (~> 3.1)
   - FirebaseInstanceID (3.1.1):
     - FirebaseCore (~> 5.0)
+  - FirebaseStorage (3.0.0):
+    - FirebaseCore (~> 5.0)
+    - GTMSessionFetcher/Core (~> 1.1)
   - GeoFire (3.0.0):
     - Firebase/Database (~> 5.0)
   - Geofirestore (0.1.0):
@@ -128,6 +134,7 @@ DEPENDENCIES:
   - Firebase/Auth
   - Firebase/Core
   - Firebase/Firestore
+  - Firebase/Storage
   - Geofirestore
   - MessageKit
 
@@ -150,6 +157,7 @@ SPEC REPOS:
     - FirebaseDatabase
     - FirebaseFirestore
     - FirebaseInstanceID
+    - FirebaseStorage
     - GeoFire
     - Geofirestore
     - GoogleToolboxForMac
@@ -182,6 +190,7 @@ SPEC CHECKSUMS:
   FirebaseDatabase: 27be5ac5bc75e0b17537b2bbfada8258addcc8cd
   FirebaseFirestore: d4a3a7787624e612298a320da95935b8dc036c1d
   FirebaseInstanceID: f3f0657372592ecdfdfe2cac604a5a75758376a6
+  FirebaseStorage: 7ca4bb7b58a25fa647b04f524033fc7cb7eb272b
   GeoFire: e3ae6f4be3f2466c3467ef6c1c203db3af935c59
   Geofirestore: d41d8b0341399468c7f8f9e2f3d5c8328e1627ce
   GoogleToolboxForMac: ff31605b7d66400dcec09bed5861689aebadda4d
@@ -196,6 +205,6 @@ SPEC CHECKSUMS:
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
   Protobuf: 1eb9700044745f00181c136ef21b8ff3ad5a0fd5
 
-PODFILE CHECKSUM: d5b389cb191e48d5ef871cbb9ab4e3eee68c411a
+PODFILE CHECKSUM: 83ea2da6dc122c27159417171fb25a5182ef2a76
 
 COCOAPODS: 1.5.2

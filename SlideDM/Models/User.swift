@@ -67,6 +67,25 @@ class User: Codable, Equatable {
         return nil
     }
     
+    func downloadProfileImage(completion: @escaping (UIImage) -> Void) {
+        guard let userDocID = ref?.documentID else { print("downloadProfileImage ref is nil"); return }
+        Storage.storage().reference(withPath: "\(userDocID)/profileImage.png").downloadURL { (url, error) in
+            if error == nil {
+                // Make the API call to retrieve the image
+                let session = URLSession(configuration: URLSessionConfiguration.default)
+                let request = URLRequest(url: url!)
+                let task: URLSessionDataTask = session.dataTask(with: request)
+                { (receivedData, response, error) -> Void in
+                    if let data = receivedData {
+                        completion(UIImage(data: data)!)
+                    }
+                }
+                task.resume()
+            }
+        }
+        
+    }
+    
     // Include everything except the conversations list because conversations is stored in a separate collection
     // to make conversations observable
     enum CodingKeys: String, CodingKey {

@@ -132,7 +132,7 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     // You also cannot do this unless you have explicit permission from Facebook
     func requestFacebook() {
         if((FBSDKAccessToken.current()) != nil){
-            let params = ["fields": "first_name, last_name, email, picture.width(300).height(300)"]
+            let params = ["fields": "first_name, last_name, email, picture.width(200).height(200)"]
             FBSDKGraphRequest(graphPath: "me", parameters: params).start(completionHandler: { (connection, result, error) -> Void in
                 if (error == nil){
                     if let userData = result as? [String:Any] {

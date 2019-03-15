@@ -10,13 +10,14 @@
 // [X] Snapshot listeners on all conversations
 // [X] Listen for conversations that have not started yet
 //      -- Maybe use a snapshot listener on a user's conversation list?
+// [] BIG BUG: Messages from users aren't seen. Launch app A. Launch app B (B will see A). Send message from B to A. A will not receive message until location is refreshed.
 // [] Is there a better way to perform queries? Right now pulling nearby users makes two database calls per user. I should be able to pull users directly by saving the location in the user.
 // Potential fix for 2-level inversion to get user locations:
 // https://github.com/firebase/geofire-objc/issues/101
 // [X] BUG: Separate conversations are created between two users
 // [] Background process to update user's location
 //      [x] Pull up to reload everything
-// [] BUG: geoFirestore.query returns documents that don't exist...
+// [] BUG: geoFirestore.query returns documents that don't exist... This is likely due to Firestore caching old IDs
 // [] Wifi connectivity popup when user's data can't be loaded
 // [] Organize messages based on most recent activity (can save the dates locally)
 
@@ -197,8 +198,15 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
         cell?.nameLabel.text = thisUser.first + " " + thisUser.last
         cell?.distanceLabel.text = thisUser.distanceMetric                          // User should not hold their own distanceMetric string. Should be generated.
         cell?.greetingTagTextView.text = thisUser.greetingTag
-        cell?.iconImageView.image = UIImage(named: thisUser.profileImageName)
-        cell?.iconImageView.backgroundColor = cell!.read ? .clear : .orange
+        // cell?.iconImageView.image = UIImage(named: thisUser.profileImageName)
+        cell?.notificationBar.backgroundColor = cell!.read ? .clear : .orange
+        
+        thisUser.downloadProfileImage{ image in
+            DispatchQueue.main.async {
+                cell?.iconImageView.image = image
+            }
+        }
+        
         return cell!
     }
     

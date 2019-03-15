@@ -359,15 +359,26 @@
                                                         <constraint firstAttribute="height" constant="65" id="hey-8S-iIu"/>
                                                     </constraints>
                                                 </imageView>
+                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BTx-1q-jRN">
+                                                    <rect key="frame" x="0.0" y="0.0" width="2" height="89.5"/>
+                                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="2" id="sqn-xs-eR2"/>
+                                                    </constraints>
+                                                </view>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="ekG-jH-80L" firstAttribute="top" secondItem="uSy-ZH-Kgk" secondAttribute="top" constant="5" id="5VN-cv-9pp"/>
+                                                <constraint firstItem="BTx-1q-jRN" firstAttribute="top" secondItem="uSy-ZH-Kgk" secondAttribute="top" id="73S-0L-dIG"/>
+                                                <constraint firstItem="BTx-1q-jRN" firstAttribute="leading" secondItem="uSy-ZH-Kgk" secondAttribute="leading" id="9fF-nw-uWa"/>
+                                                <constraint firstItem="BTx-1q-jRN" firstAttribute="height" secondItem="uSy-ZH-Kgk" secondAttribute="height" id="B6L-MJ-Geh"/>
                                                 <constraint firstItem="2mw-QU-zde" firstAttribute="leading" secondItem="3C4-da-XvC" secondAttribute="trailing" constant="10" id="DpJ-ht-TjC"/>
                                                 <constraint firstItem="g0T-bj-Oim" firstAttribute="top" secondItem="uSy-ZH-Kgk" secondAttribute="top" constant="5" id="HnN-Ja-nCL"/>
                                                 <constraint firstAttribute="bottom" secondItem="2mw-QU-zde" secondAttribute="bottom" constant="5" id="Jp9-eM-3kN"/>
                                                 <constraint firstAttribute="trailing" secondItem="ekG-jH-80L" secondAttribute="trailing" constant="10" id="PLq-qP-Fvr"/>
                                                 <constraint firstItem="3C4-da-XvC" firstAttribute="leading" secondItem="uSy-ZH-Kgk" secondAttribute="leading" constant="5" id="hHI-l3-aDd"/>
                                                 <constraint firstItem="g0T-bj-Oim" firstAttribute="leading" secondItem="3C4-da-XvC" secondAttribute="trailing" constant="10" id="i8j-fT-RPR"/>
+                                                <constraint firstAttribute="bottom" secondItem="BTx-1q-jRN" secondAttribute="bottom" id="vPn-ny-N0x"/>
                                                 <constraint firstAttribute="trailing" secondItem="2mw-QU-zde" secondAttribute="trailing" constant="10" id="wM9-I9-ltm"/>
                                                 <constraint firstItem="3C4-da-XvC" firstAttribute="centerY" secondItem="uSy-ZH-Kgk" secondAttribute="centerY" id="xEq-Ou-e23"/>
                                                 <constraint firstItem="2mw-QU-zde" firstAttribute="top" secondItem="g0T-bj-Oim" secondAttribute="bottom" id="xbd-Y7-fog"/>
@@ -378,6 +389,7 @@
                                             <outlet property="greetingTagTextView" destination="2mw-QU-zde" id="L1a-Pm-b3W"/>
                                             <outlet property="iconImageView" destination="3C4-da-XvC" id="F3K-gS-GaX"/>
                                             <outlet property="nameLabel" destination="g0T-bj-Oim" id="O3q-Hr-Xnk"/>
+                                            <outlet property="notificationBar" destination="BTx-1q-jRN" id="PnU-zA-Ala"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -417,7 +429,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FsK-6H-jxU" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1825" y="893"/>
+            <point key="canvasLocation" x="1824.8" y="892.80359820089961"/>
         </scene>
         <!--Chat Room Fancy View Controller-->
         <scene sceneID="ouQ-RR-UHg">
