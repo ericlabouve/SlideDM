@@ -39,8 +39,8 @@ extension UIImage {
         let numColors = 5
         for _ in 0..<numColors {
             colors.append(UIColor.random().cgColor)
-            locations.append(NSNumber(value: counter))
             counter += 1.0/Double(numColors)
+            locations.append(NSNumber(value: counter))
         }
         let startPoint = CGPoint(x: Double.random(in: 0...1), y: Double.random(in: 0...1))
         let endPoint = CGPoint(x: Double.random(in: 0...1), y: Double.random(in: 0...1))

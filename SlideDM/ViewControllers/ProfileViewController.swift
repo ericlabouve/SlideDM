@@ -13,19 +13,38 @@ import CodableFirebase
 
 class ProfileViewController: UIViewController {
     
+    // Images
+    var backgroundImageView = UIImageView()
     @IBOutlet weak var profileImage: UIImageView!
+    // Labels
     @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var greetingTabLabel: UILabel!
+    // Input Areas
     @IBOutlet weak var greetingTagTextView: UITextView!
+    // Bookkeepings
     var greetingTagOldText: String = ""
     var profileImageChanged: Bool = false
-
+    // Buttons
+    @IBOutlet weak var backButton: UIButton!
+    
+    
     var user: User!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.nameLabel.text = "\(user.first) \(user.last)"
+        self.nameLabel.textColor = .white
+        
+        self.greetingTabLabel.textColor = .white
+        
         self.greetingTagTextView.text = user.greetingTag
+        self.greetingTagTextView.textColor = .white
+        self.greetingTagTextView.backgroundColor = .clear
         self.greetingTagOldText = self.greetingTagTextView.text
+        
+        backButton.setTitleColor(.white, for: .normal)
+        
+        setBackground()
         
         // Be able to set the profile image
         profileImage.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSelectProfileImageView)))
@@ -39,6 +58,7 @@ class ProfileViewController: UIViewController {
         user.downloadProfileImage { image in
             DispatchQueue.main.async {
                 self.profileImage.image = image
+                self.profileImage.rounded()
             }
         }
     }
@@ -61,6 +81,27 @@ class ProfileViewController: UIViewController {
     @objc func dismissKeyboard (_ sender: UITapGestureRecognizer) {
         greetingTagTextView.resignFirstResponder()
     }
+    
+    
+    
+    // MARK: - GUI and User Interface Animations
+    
+    func setBackground() {
+        view.addSubview(backgroundImageView)
+        backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
+        backgroundImageView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        backgroundImageView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        backgroundImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        backgroundImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        
+        let colors: [CGColor] = [UIColor.blue.cgColor, UIColor.darkGray.cgColor]
+        let background = UIImage.gradientImage(colors: colors)
+        backgroundImageView.image = background
+        
+        view.sendSubviewToBack(backgroundImageView)
+    }
+    
+    
 }
 
 extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {

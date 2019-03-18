@@ -29,6 +29,7 @@ import CodableFirebase
 class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UserLocationListener, UserConversationsListener, ConversationListener {
 
     // User Interface
+    var backgroundImageView = UIImageView()
     @IBOutlet weak var tableView: UITableView!
     // Scroll wheel to refresh user's location and the tableView
     let refreshControl = UIRefreshControl()
@@ -48,10 +49,31 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
         LocationService.shared.addLocationListener(listener: self)
         refreshControl.addTarget(self, action: #selector(refreshLocation), for: .valueChanged)
         tableView.addSubview(refreshControl)
+        tableView.backgroundColor = UIColor.clear
         FirestoreService.shared.getUser { user in
             self.user = user
             self.user.addUserConversationsListener(listener: self)
         }
+        setBackground()
+    }
+    
+    
+    // MARK: - GUI and User Interface Animations
+    
+    func setBackground() {
+        view.addSubview(backgroundImageView)
+        backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
+        backgroundImageView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        backgroundImageView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        backgroundImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        backgroundImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        
+        let colors: [CGColor] = [UIColor.white.cgColor, UIColor.lightGray.cgColor]
+        let locations: [NSNumber] = [NSNumber(value: 0.9), NSNumber(value: 1.0)]
+        let background = UIImage.gradientImage(colors: colors, locations: locations)
+        backgroundImageView.image = background
+        
+        view.sendSubviewToBack(backgroundImageView)
     }
     
     
@@ -102,10 +124,7 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
         LocationService.shared.updateLocation()
         self.refreshControl.endRefreshing()
     }
-    
-    
-    
-    
+
     // Called ~once~ upon startup because we called addLocationListener in viewDidLoad
     // Using the user's location, query the database for all nearby users who are part of the user's social
     // network and add them to the tableView
@@ -200,10 +219,14 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
         cell?.greetingTagTextView.text = thisUser.greetingTag
         // cell?.iconImageView.image = UIImage(named: thisUser.profileImageName)
         cell?.notificationBar.backgroundColor = cell!.read ? .clear : .orange
+
+        cell?.backgroundColor = .clear
         
         thisUser.downloadProfileImage{ image in
             DispatchQueue.main.async {
                 cell?.iconImageView.image = image
+                cell?.iconImageView.rounded()
+                cell?.iconImageView.layer.borderWidth = 0
             }
         }
         

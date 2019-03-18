@@ -154,7 +154,7 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
     
     
     
-    // MARK: - User Interface Animations
+    // MARK: - GUI and User Interface Animations
     
     // Nicely fade everything in
     override func viewDidAppear(_ animated: Bool) {
@@ -200,11 +200,10 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         backgroundImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         backgroundImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         
-        let colors: [CGColor] = [UIColor.blue.cgColor, UIColor.white.cgColor]
+        let colors: [CGColor] = [UIColor.blue.cgColor, UIColor.darkGray.cgColor]
         let bounds: CGRect = CGRect(x: 0, y: 0, width: ImageService.profileImageWidth, height: ImageService.profileImageHeight)
         let background = UIImage.gradientImage(colors: colors, bounds: bounds)
         backgroundImageView.image = background
-//        backgroundImageView.image = UIImage(named: "tinyRocket")
         
         view.sendSubviewToBack(backgroundImageView)
     }
