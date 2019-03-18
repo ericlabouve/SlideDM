@@ -58,6 +58,7 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         // Be able to set the profile image
         profileImage.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSelectProfileImageView)))
         profileImage.isUserInteractionEnabled = true
+        profileImage.rounded()
         
         // Load UI
         // TextField Background
@@ -127,6 +128,11 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         alert.addAction(defaultAction)
         present(alert, animated: true, completion:nil)
     }
+    
+    @IBAction func randomizeProfileImage(_ sender: UIButton) {
+        profileImage.image = UIImage.generateRandomGradientProfileImage()
+    }
+    
 
     
     // MARK: - UITextField Methods
@@ -193,7 +199,13 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         backgroundImageView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         backgroundImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         backgroundImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        backgroundImageView.image = UIImage(named: "tinyRocket")
+        
+        let colors: [CGColor] = [UIColor.blue.cgColor, UIColor.white.cgColor]
+        let bounds: CGRect = CGRect(x: 0, y: 0, width: ImageService.profileImageWidth, height: ImageService.profileImageHeight)
+        let background = UIImage.gradientImage(colors: colors, bounds: bounds)
+        backgroundImageView.image = background
+//        backgroundImageView.image = UIImage(named: "tinyRocket")
+        
         view.sendSubviewToBack(backgroundImageView)
     }
     
@@ -236,3 +248,5 @@ extension SetupProfileViewController: UIImagePickerControllerDelegate, UINavigat
         dismiss(animated: true, completion: nil)
     }
 }
+
+

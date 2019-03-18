@@ -28,6 +28,7 @@
 		487724E72207AC0A00725DF8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 487724E52207AC0A00725DF8 /* LaunchScreen.storyboard */; };
 		487724F22207AC0A00725DF8 /* SlideDMTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 487724F12207AC0A00725DF8 /* SlideDMTests.swift */; };
 		487724FD2207AC0A00725DF8 /* SlideDMUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 487724FC2207AC0A00725DF8 /* SlideDMUITests.swift */; };
+		48AB4A2A224025D30019225A /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48AB4A29224025D30019225A /* ImageService.swift */; };
 		48B79A3E2228C28D001E4685 /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B79A3D2228C28D001E4685 /* Conversation.swift */; };
 		48B79A422228E368001E4685 /* TextMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B79A412228E368001E4685 /* TextMessage.swift */; };
 		48E628B5222645860031F4B0 /* ChatRoomSimpleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E628B4222645850031F4B0 /* ChatRoomSimpleViewController.swift */; };
@@ -80,6 +81,7 @@
 		487724FC2207AC0A00725DF8 /* SlideDMUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideDMUITests.swift; sourceTree = "<group>"; };
 		487724FE2207AC0A00725DF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4877250A2207C21C00725DF8 /* SlideDM.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SlideDM.entitlements; sourceTree = "<group>"; };
+		48AB4A29224025D30019225A /* ImageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
 		48B79A3D2228C28D001E4685 /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
 		48B79A412228E368001E4685 /* TextMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextMessage.swift; sourceTree = "<group>"; };
 		48E628B4222645850031F4B0 /* ChatRoomSimpleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatRoomSimpleViewController.swift; sourceTree = "<group>"; };
@@ -154,6 +156,7 @@
 			children = (
 				4835638C221A752B008A98E7 /* LocationService.swift */,
 				4835638F221AA01A008A98E7 /* FirestoreService.swift */,
+				48AB4A29224025D30019225A /* ImageService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -517,6 +520,7 @@
 				48B79A3E2228C28D001E4685 /* Conversation.swift in Sources */,
 				48E628B5222645860031F4B0 /* ChatRoomSimpleViewController.swift in Sources */,
 				48356390221AA01A008A98E7 /* FirestoreService.swift in Sources */,
+				48AB4A2A224025D30019225A /* ImageService.swift in Sources */,
 				482617D3220D40AC006398EE /* Contact.swift in Sources */,
 				483D952522138AA7004216C4 /* ChatsViewController.swift in Sources */,
 				487724DF2207AC0900725DF8 /* LoginViewController.swift in Sources */,

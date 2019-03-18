@@ -109,7 +109,8 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
             dest?.userFirstName = userFirstName
             dest?.userLastName = userLastName
             dest?.userEmail = userEmail
-            dest?.userProfileImage = userProfileImage
+            // Generate a random profile image if the user did not log in with facebook
+            dest?.userProfileImage = userProfileImage == nil ? UIImage.generateRandomGradientProfileImage() : userProfileImage
         }
     }
     
@@ -132,7 +133,7 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     // You also cannot do this unless you have explicit permission from Facebook
     func requestFacebook() {
         if((FBSDKAccessToken.current()) != nil){
-            let params = ["fields": "first_name, last_name, email, picture.width(200).height(200)"]
+            let params = ["fields": "first_name, last_name, email, picture.width(\(ImageService.profileImageWidth)).height(\(ImageService.profileImageHeight))"]
             FBSDKGraphRequest(graphPath: "me", parameters: params).start(completionHandler: { (connection, result, error) -> Void in
                 if (error == nil){
                     if let userData = result as? [String:Any] {
