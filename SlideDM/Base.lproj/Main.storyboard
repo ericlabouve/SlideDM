@@ -168,7 +168,7 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </textField>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultIcon" translatesAutoresizingMaskIntoConstraints="NO" id="dVT-8e-8Dv">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="dVT-8e-8Dv">
                                 <rect key="frame" x="87.5" y="30" width="200" height="200"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="200" id="9UB-PI-ykq"/>
@@ -248,7 +248,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultIcon" translatesAutoresizingMaskIntoConstraints="NO" id="Wrt-ZP-iIu">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Wrt-ZP-iIu">
                                 <rect key="frame" x="87.5" y="74" width="200" height="200"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="200" id="VRR-Fa-a7h"/>
@@ -369,7 +369,7 @@
                                                     <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                                 </textView>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultIcon" translatesAutoresizingMaskIntoConstraints="NO" id="3C4-da-XvC">
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="3C4-da-XvC">
                                                     <rect key="frame" x="5" y="12.5" width="65" height="65"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="65" id="gxm-CB-zLD"/>
@@ -377,7 +377,7 @@
                                                     </constraints>
                                                 </imageView>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BTx-1q-jRN">
-                                                    <rect key="frame" x="0.0" y="0.0" width="2" height="89.5"/>
+                                                    <rect key="frame" x="0.0" y="12.5" width="2" height="65"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="2" id="sqn-xs-eR2"/>
@@ -386,16 +386,15 @@
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="ekG-jH-80L" firstAttribute="top" secondItem="uSy-ZH-Kgk" secondAttribute="top" constant="5" id="5VN-cv-9pp"/>
-                                                <constraint firstItem="BTx-1q-jRN" firstAttribute="top" secondItem="uSy-ZH-Kgk" secondAttribute="top" id="73S-0L-dIG"/>
+                                                <constraint firstItem="BTx-1q-jRN" firstAttribute="height" secondItem="3C4-da-XvC" secondAttribute="height" id="6bA-ub-MXi"/>
                                                 <constraint firstItem="BTx-1q-jRN" firstAttribute="leading" secondItem="uSy-ZH-Kgk" secondAttribute="leading" id="9fF-nw-uWa"/>
-                                                <constraint firstItem="BTx-1q-jRN" firstAttribute="height" secondItem="uSy-ZH-Kgk" secondAttribute="height" id="B6L-MJ-Geh"/>
                                                 <constraint firstItem="2mw-QU-zde" firstAttribute="leading" secondItem="3C4-da-XvC" secondAttribute="trailing" constant="10" id="DpJ-ht-TjC"/>
                                                 <constraint firstItem="g0T-bj-Oim" firstAttribute="top" secondItem="uSy-ZH-Kgk" secondAttribute="top" constant="5" id="HnN-Ja-nCL"/>
                                                 <constraint firstAttribute="bottom" secondItem="2mw-QU-zde" secondAttribute="bottom" constant="5" id="Jp9-eM-3kN"/>
                                                 <constraint firstAttribute="trailing" secondItem="ekG-jH-80L" secondAttribute="trailing" constant="10" id="PLq-qP-Fvr"/>
+                                                <constraint firstItem="BTx-1q-jRN" firstAttribute="top" secondItem="3C4-da-XvC" secondAttribute="top" id="Xqv-xf-ANz"/>
                                                 <constraint firstItem="3C4-da-XvC" firstAttribute="leading" secondItem="uSy-ZH-Kgk" secondAttribute="leading" constant="5" id="hHI-l3-aDd"/>
                                                 <constraint firstItem="g0T-bj-Oim" firstAttribute="leading" secondItem="3C4-da-XvC" secondAttribute="trailing" constant="10" id="i8j-fT-RPR"/>
-                                                <constraint firstAttribute="bottom" secondItem="BTx-1q-jRN" secondAttribute="bottom" id="vPn-ny-N0x"/>
                                                 <constraint firstAttribute="trailing" secondItem="2mw-QU-zde" secondAttribute="trailing" constant="10" id="wM9-I9-ltm"/>
                                                 <constraint firstItem="3C4-da-XvC" firstAttribute="centerY" secondItem="uSy-ZH-Kgk" secondAttribute="centerY" id="xEq-Ou-e23"/>
                                                 <constraint firstItem="2mw-QU-zde" firstAttribute="top" secondItem="g0T-bj-Oim" secondAttribute="bottom" id="xbd-Y7-fog"/>
@@ -467,6 +466,5 @@
     <resources>
         <image name="FakeFacebookLoginButton" width="720" height="129"/>
         <image name="colorWheel" width="30" height="30"/>
-        <image name="defaultIcon" width="980" height="980"/>
     </resources>
 </document>

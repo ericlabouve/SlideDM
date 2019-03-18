@@ -10,8 +10,8 @@ import Foundation
 import UIKit
 
 class ImageService {
-    static let profileImageWidth = 150
-    static let profileImageHeight = 150
+    static let profileImageWidth = 200
+    static let profileImageHeight = 200
 }
 
 
