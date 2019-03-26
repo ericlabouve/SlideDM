@@ -11,15 +11,18 @@
 // [] Do not proceed to next page if async call to Facebook api fails...
 // [] Logout button in upper right hand corner does not log out of facebook
 // [] Extend functionality to grab user friends. I think the graph reference is "/me/friends" also see https://developers.facebook.com/docs/facebook-login/permissions/#reference-user_friends
+//
+// Working with Users guide: https://firebase.google.com/docs/auth/ios/manage-users?authuser=0
+// [] update security rules so only authenticated users can edit database
 
 import UIKit
 import FBSDKLoginKit
 import Contacts
 import CryptoSwift
-
+import Firebase
 
 class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
-
+    
     // User Interface
     var backgroundImageView = UIImageView()
     @IBOutlet weak var titleLabel: UILabel!
@@ -123,14 +126,30 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     
     func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error!) {
         if error != nil { print(error); return }
-        requestFacebook()
+        // After user signs in with Facebook, get an access token
+        let credential = FacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
+        // Authenticate with Firebase using the Firebase credential
+        Auth.auth().signInAndRetrieveData(with: credential) { (authResult, error) in
+            if let error = error {
+                print("Facebook signin error: \(error)")
+                return
+            }
+            // User is signed in
+            self.requestFacebook()
+        }
     }
     
     func loginButtonDidLogOut(_ loginButton: FBSDKLoginButton!) {
+        let firebaseAuth = Auth.auth()
+        do {
+            try firebaseAuth.signOut()
+        } catch let signOutError as NSError {
+            print ("Error signing out: %@", signOutError)
+        }
         print("Did log out of facebook")
     }
     
-    // You also cannot do this unless you have explicit permission from Facebook
+    // Get first name, last name, email, and profile picture from Facebook
     func requestFacebook() {
         if((FBSDKAccessToken.current()) != nil){
             let params = ["fields": "first_name, last_name, email, picture.width(\(ImageService.profileImageWidth)).height(\(ImageService.profileImageHeight))"]
@@ -181,7 +200,7 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     // Method is overloaded so that it can be called from the Facebook button
     func continueWithContactsClick() {
         fetchContacts()
-        performSegue(withIdentifier: "SetupProfileSegue", sender: nil)
+//        performSegue(withIdentifier: "SetupProfileSegue", sender: nil)
     }
     
     private func fetchContacts() {

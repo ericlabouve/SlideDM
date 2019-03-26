@@ -11,8 +11,8 @@ import CodableFirebase
 // This class handles the functional responsibilities of the chat room such as database operations
 class ChatRoomBase: MessagesViewController, MessagesDataSource, ConversationListener {
     
-    var fromUser: User!
-    var toUser: User!
+    var fromUser: SDMUser!
+    var toUser: SDMUser!
     var messageList: [TextMessage] = []
     
     var conversation: Conversation!

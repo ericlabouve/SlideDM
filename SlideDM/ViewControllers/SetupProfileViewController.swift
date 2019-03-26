@@ -100,14 +100,14 @@ class SetupProfileViewController: UIViewController, UITextFieldDelegate {
         }
         resignFirstResponder()
         // We now have enough information to create a User object
-        saveUserToDatabase(user: User(first: userFirstName, last: userLastName, email: userEmail ?? "", phoneID: userEncryptedPhoneNumber, contacts: userContacts))
+        saveUserToDatabase(user: SDMUser(first: userFirstName, last: userLastName, email: userEmail ?? "", phoneID: userEncryptedPhoneNumber, contacts: userContacts))
         // Move this to viewWillDisappear when setting up next view controller
         outAnimation()
         // Move to next screen
         performSegue(withIdentifier: "setupProfileToChatsSegue", sender: nil)
     }
     
-    func saveUserToDatabase(user: User) {
+    func saveUserToDatabase(user: SDMUser) {
         let data = try! FirestoreEncoder().encode(user)
         let ref = FirestoreService.shared.userColRef.addDocument(data: data)
         

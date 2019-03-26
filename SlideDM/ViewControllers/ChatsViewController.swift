@@ -36,9 +36,9 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
     
     // Meta Data
     // Maintain this list for the TableView
-    var nearbyUsers = [User]()
-    var selectedUser: User?
-    var user: User!
+    var nearbyUsers = [SDMUser]()
+    var selectedUser: SDMUser?
+    var user: SDMUser!
     
     // Keep track of a list of conversations we are listening to
     // list of conversations ids ??
@@ -107,7 +107,7 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
 
     // Our user has been added (or has been added to) a new conversation.
     // Listen to this conversation for future messages
-    func UserConversationsChanged(user: User, conversation: Conversation) {
+    func UserConversationsChanged(user: SDMUser, conversation: Conversation) {
         conversation.addConversationListener(listener: self)
         user.conversations.append(conversation)
     }
@@ -142,7 +142,7 @@ class ChatsViewController: UIViewController, UITableViewDataSource, UITableViewD
             
             userDocRef.getDocument { (document, error) in
                 if let document = document, let documentData = document.data() {
-                    let nearbyUser = try! FirestoreDecoder().decode(User.self, from: documentData)
+                    let nearbyUser = try! FirestoreDecoder().decode(SDMUser.self, from: documentData)
                     nearbyUser.ref = userDocRef
                     // Don't include ourself or repeated users
                     if UserDefaults.standard.string(forKey: "userPhoneID") != nearbyUser.phoneID &&

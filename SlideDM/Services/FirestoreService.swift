@@ -39,7 +39,7 @@ class FirestoreService {
         conversationsColRef = Firestore.firestore().collection("conversations")
     }
     
-    func getUser(completion: @escaping (User) -> Void) {
+    func getUser(completion: @escaping (SDMUser) -> Void) {
         guard let userDocID = UserDefaults.standard.string(forKey: "userDocID") else {
             fatalError("Cannot find user ID in UserDefaults.standard")
         }
@@ -47,7 +47,7 @@ class FirestoreService {
         let userDocRef = FirestoreService.shared.userColRef.document(userDocID)
         userDocRef.getDocument { (document, error) in
             if let document = document {
-                var user = try! FirestoreDecoder().decode(User.self, from: document.data()!)
+                var user = try! FirestoreDecoder().decode(SDMUser.self, from: document.data()!)
                 user.ref = userDocRef
                 FirestoreService.shared.loadUserConversations(user)
                 completion(user)
@@ -59,7 +59,7 @@ class FirestoreService {
     }
     
     // Fetches and fills out all of this user's conversations
-    func loadUserConversations(_ user: User) {
+    func loadUserConversations(_ user: SDMUser) {
         guard let ref = user.ref else { return }
         // Get every document in the user's conversations collection
         ref.collection("conversations").getDocuments { (querySnapshot, err) in

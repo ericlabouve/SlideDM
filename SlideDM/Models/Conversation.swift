@@ -22,7 +22,7 @@ class Conversation: NSObject, Codable {
     // Reference to the conversation document in Firestore
     var ref: DocumentReference?
     
-    init(fromUser: User, toUser: User) {
+    init(fromUser: SDMUser, toUser: SDMUser) {
         self.fromUserRef = fromUser.ref!
         self.toUserRef = toUser.ref!
         self.fromUserID = fromUser.phoneID

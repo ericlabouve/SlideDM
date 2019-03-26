@@ -28,7 +28,7 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var backButton: UIButton!
     
     
-    var user: User!
+    var user: SDMUser!
 
     override func viewDidLoad() {
         super.viewDidLoad()

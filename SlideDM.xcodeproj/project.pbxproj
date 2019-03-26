@@ -19,7 +19,7 @@
 		483D952522138AA7004216C4 /* ChatsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 483D952422138AA7004216C4 /* ChatsViewController.swift */; };
 		483D952722138D3D004216C4 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 483D952622138D3D004216C4 /* ProfileViewController.swift */; };
 		483D95292213C309004216C4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 483D95282213C309004216C4 /* GoogleService-Info.plist */; };
-		483D952B2213CD6D004216C4 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 483D952A2213CD6D004216C4 /* User.swift */; };
+		483D952B2213CD6D004216C4 /* SDMUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 483D952A2213CD6D004216C4 /* SDMUser.swift */; };
 		486209EE220FF1EE00AC09D4 /* SetupProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 486209ED220FF1EE00AC09D4 /* SetupProfileViewController.swift */; };
 		487724DD2207AC0900725DF8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 487724DC2207AC0900725DF8 /* AppDelegate.swift */; };
 		487724DF2207AC0900725DF8 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 487724DE2207AC0900725DF8 /* LoginViewController.swift */; };
@@ -65,7 +65,7 @@
 		483D952422138AA7004216C4 /* ChatsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsViewController.swift; sourceTree = "<group>"; };
 		483D952622138D3D004216C4 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		483D95282213C309004216C4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		483D952A2213CD6D004216C4 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		483D952A2213CD6D004216C4 /* SDMUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDMUser.swift; sourceTree = "<group>"; };
 		486209ED220FF1EE00AC09D4 /* SetupProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupProfileViewController.swift; sourceTree = "<group>"; };
 		487724D92207AC0900725DF8 /* SlideDM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SlideDM.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		487724DC2207AC0900725DF8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -144,7 +144,7 @@
 				48B79A412228E368001E4685 /* TextMessage.swift */,
 				483BED3E2238B6B400511EB8 /* CustomMessageCell.swift */,
 				482617D2220D40AC006398EE /* Contact.swift */,
-				483D952A2213CD6D004216C4 /* User.swift */,
+				483D952A2213CD6D004216C4 /* SDMUser.swift */,
 				48356388221A4489008A98E7 /* ChatsTableViewCell.swift */,
 				48B79A3D2228C28D001E4685 /* Conversation.swift */,
 			);
@@ -414,7 +414,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-SlideDM/Pods-SlideDM-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-SlideDM/Pods-SlideDM-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Bolts/Bolts.framework",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC/openssl_grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/CodableFirebase/CodableFirebase.framework",
@@ -463,7 +463,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SlideDM/Pods-SlideDM-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SlideDM/Pods-SlideDM-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		991D8F41AC43322D3515AF22 /* [CP] Check Pods Manifest.lock */ = {
@@ -526,7 +526,7 @@
 				487724DF2207AC0900725DF8 /* LoginViewController.swift in Sources */,
 				487724DD2207AC0900725DF8 /* AppDelegate.swift in Sources */,
 				4835638D221A752B008A98E7 /* LocationService.swift in Sources */,
-				483D952B2213CD6D004216C4 /* User.swift in Sources */,
+				483D952B2213CD6D004216C4 /* SDMUser.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
