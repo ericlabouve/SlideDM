@@ -200,7 +200,7 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     // Method is overloaded so that it can be called from the Facebook button
     func continueWithContactsClick() {
         fetchContacts()
-//        performSegue(withIdentifier: "SetupProfileSegue", sender: nil)
+        performSegue(withIdentifier: "SetupProfileSegue", sender: nil)
     }
     
     private func fetchContacts() {
